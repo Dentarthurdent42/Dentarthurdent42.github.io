@@ -280,16 +280,13 @@
         color: var(--muted);
       }
 
-      .project-preview {
-        margin-top: 1rem;
-        padding: 1.1rem 1.2rem;
+      .project-frame {
+        width: 100%;
+        min-height: 420px;
         border: 1px solid rgba(255, 255, 255, 0.08);
         border-radius: 1rem;
         background: rgba(255, 255, 255, 0.02);
-      }
-
-      .project-preview strong {
-        color: var(--text);
+        margin-top: 1rem;
       }
 
       .project-links {
@@ -303,6 +300,12 @@
         color: var(--accent);
         text-decoration: none;
         font-weight: 600;
+      }
+
+      .embed-note {
+        margin-top: 0.9rem;
+        font-size: 0.95rem;
+        color: var(--muted);
       }
 
       .contact-grid {
@@ -486,12 +489,18 @@
                 a live HUD showing the current rotor components. It’s a project about
                 rendering, yes — but also about choosing the right language for rotation.
               </p>
-              <div class="project-preview">
-                <strong>Live preview:</strong> This project doesn’t currently have GitHub Pages enabled,
-                so it’s linked as a repository showcase instead of an embedded demo.
-              </div>
+              <iframe
+                class="project-frame"
+                src="https://dentarthurdent42.github.io/RotorVision/"
+                title="RotorVision live embed"
+                loading="lazy"
+              ></iframe>
+              <p class="embed-note">
+                If the embedded demo doesn’t load, open it directly from the repository or deployed project page.
+              </p>
               <div class="project-links">
                 <a href="https://github.com/Dentarthurdent42/RotorVision">View repository</a>
+                <a href="https://dentarthurdent42.github.io/RotorVision/">Open live demo</a>
               </div>
             </article>
 
@@ -513,12 +522,18 @@
                 clusters, equivalences, and relationships become easier to notice when
                 they live in a world instead of a table.
               </p>
-              <div class="project-preview">
-                <strong>Live preview:</strong> This project doesn’t currently have GitHub Pages enabled,
-                so it’s linked as a repository showcase instead of an embedded demo.
-              </div>
+              <iframe
+                class="project-frame"
+                src="https://dentarthurdent42.github.io/physical-metric-space/"
+                title="physical metric space live embed"
+                loading="lazy"
+              ></iframe>
+              <p class="embed-note">
+                If the embedded demo doesn’t load, open it directly from the repository or deployed project page.
+              </p>
               <div class="project-links">
                 <a href="https://github.com/Dentarthurdent42/physical-metric-space">View repository</a>
+                <a href="https://dentarthurdent42.github.io/physical-metric-space/">Open live demo</a>
               </div>
             </article>
           </div>
