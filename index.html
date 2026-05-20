@@ -1,7 +1,537 @@
 <!DOCTYPE html>
-<html>
-<body>
-<h1>Hello World</h1>
-<p>I'm hosted with GitHub Pages.</p>
-</body>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Mathieu Poulin</title>
+    <meta
+      name="description"
+      content="Mathieu Poulin is a machine learning developer who builds visualizations, interactive experiments, and mathematical software projects."
+    />
+    <style>
+      :root {
+        --bg: #0b1020;
+        --bg-alt: #121933;
+        --panel: rgba(18, 25, 51, 0.78);
+        --text: #edf2ff;
+        --muted: #a7b2d3;
+        --line: rgba(156, 178, 255, 0.16);
+        --accent: #7fe7d8;
+        --accent-2: #8fb4ff;
+        --shadow: 0 18px 50px rgba(0, 0, 0, 0.28);
+        --max: 1080px;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html {
+        scroll-behavior: smooth;
+      }
+
+      body {
+        margin: 0;
+        font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont,
+          "Segoe UI", sans-serif;
+        color: var(--text);
+        background:
+          radial-gradient(circle at top left, rgba(127, 231, 216, 0.1), transparent 28%),
+          radial-gradient(circle at top right, rgba(143, 180, 255, 0.12), transparent 32%),
+          linear-gradient(180deg, #09101f 0%, #0d1326 50%, #0b1020 100%);
+        line-height: 1.65;
+      }
+
+      a {
+        color: inherit;
+      }
+
+      .wrap {
+        width: min(calc(100% - 2rem), var(--max));
+        margin: 0 auto;
+      }
+
+      header {
+        position: sticky;
+        top: 0;
+        z-index: 20;
+        backdrop-filter: blur(14px);
+        background: rgba(9, 16, 31, 0.7);
+        border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+      }
+
+      .nav {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0.9rem 0;
+      }
+
+      .brand {
+        font-weight: 700;
+        letter-spacing: 0.02em;
+      }
+
+      .nav-links {
+        display: flex;
+        gap: 1rem;
+        flex-wrap: wrap;
+      }
+
+      .nav-links a {
+        text-decoration: none;
+        color: var(--muted);
+        font-size: 0.95rem;
+      }
+
+      .nav-links a:hover {
+        color: var(--text);
+      }
+
+      .hero {
+        padding: 5.5rem 0 3rem;
+      }
+
+      .hero-grid {
+        display: grid;
+        grid-template-columns: 1.2fr 0.8fr;
+        gap: 2rem;
+        align-items: center;
+      }
+
+      .eyebrow {
+        display: inline-block;
+        margin-bottom: 1rem;
+        padding: 0.35rem 0.75rem;
+        border-radius: 999px;
+        border: 1px solid rgba(127, 231, 216, 0.2);
+        background: rgba(127, 231, 216, 0.08);
+        color: var(--accent);
+        font-size: 0.88rem;
+        font-weight: 600;
+        letter-spacing: 0.03em;
+      }
+
+      h1 {
+        margin: 0;
+        font-size: clamp(2.5rem, 6vw, 4.8rem);
+        line-height: 0.95;
+        letter-spacing: -0.04em;
+      }
+
+      .hero p {
+        max-width: 42rem;
+        margin: 1.25rem 0 0;
+        font-size: 1.08rem;
+        color: var(--muted);
+      }
+
+      .hero strong {
+        color: var(--text);
+      }
+
+      .hero-actions {
+        display: flex;
+        gap: 1rem;
+        flex-wrap: wrap;
+        margin-top: 2rem;
+      }
+
+      .button {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        padding: 0.9rem 1.15rem;
+        border-radius: 0.9rem;
+        border: 1px solid transparent;
+        text-decoration: none;
+        font-weight: 600;
+        transition: transform 0.15s ease, border-color 0.15s ease, background 0.15s ease;
+      }
+
+      .button:hover {
+        transform: translateY(-1px);
+      }
+
+      .button.primary {
+        background: linear-gradient(135deg, var(--accent), #99fff1);
+        color: #06211d;
+        box-shadow: var(--shadow);
+      }
+
+      .button.secondary {
+        background: rgba(255, 255, 255, 0.04);
+        border-color: rgba(255, 255, 255, 0.08);
+        color: var(--text);
+      }
+
+      .hero-card,
+      .card,
+      .contact-card {
+        background: var(--panel);
+        border: 1px solid var(--line);
+        border-radius: 1.4rem;
+        box-shadow: var(--shadow);
+      }
+
+      .hero-card {
+        padding: 1.5rem;
+      }
+
+      .hero-card h2 {
+        margin: 0 0 0.9rem;
+        font-size: 1rem;
+        color: var(--accent);
+      }
+
+      .hero-card ul {
+        margin: 0;
+        padding-left: 1.1rem;
+        color: var(--muted);
+      }
+
+      .hero-card li + li {
+        margin-top: 0.55rem;
+      }
+
+      section {
+        padding: 2rem 0;
+      }
+
+      .section-title {
+        margin: 0 0 0.75rem;
+        font-size: 1.8rem;
+        letter-spacing: -0.03em;
+      }
+
+      .section-intro {
+        max-width: 44rem;
+        margin: 0 0 1.5rem;
+        color: var(--muted);
+      }
+
+      .about {
+        display: grid;
+        grid-template-columns: 1.1fr 0.9fr;
+        gap: 1.5rem;
+      }
+
+      .card {
+        padding: 1.5rem;
+      }
+
+      .card p:last-child {
+        margin-bottom: 0;
+      }
+
+      .fact-list {
+        display: grid;
+        gap: 0.9rem;
+      }
+
+      .fact {
+        padding: 0.95rem 1rem;
+        border-radius: 1rem;
+        background: rgba(255, 255, 255, 0.03);
+        border: 1px solid rgba(255, 255, 255, 0.06);
+      }
+
+      .fact strong {
+        display: block;
+        margin-bottom: 0.15rem;
+        color: var(--text);
+      }
+
+      .projects {
+        display: grid;
+        gap: 1.5rem;
+      }
+
+      .project-card {
+        padding: 1.6rem;
+      }
+
+      .project-top {
+        display: flex;
+        justify-content: space-between;
+        gap: 1rem;
+        align-items: start;
+        flex-wrap: wrap;
+      }
+
+      .project-card h3 {
+        margin: 0;
+        font-size: 1.3rem;
+      }
+
+      .tag {
+        display: inline-block;
+        padding: 0.35rem 0.65rem;
+        border-radius: 999px;
+        background: rgba(143, 180, 255, 0.12);
+        border: 1px solid rgba(143, 180, 255, 0.18);
+        color: var(--accent-2);
+        font-size: 0.82rem;
+        font-weight: 600;
+      }
+
+      .project-card p {
+        color: var(--muted);
+      }
+
+      .project-links {
+        display: flex;
+        gap: 0.9rem;
+        flex-wrap: wrap;
+        margin-top: 1.2rem;
+      }
+
+      .project-links a {
+        color: var(--accent);
+        text-decoration: none;
+        font-weight: 600;
+      }
+
+      .contact-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 1rem;
+      }
+
+      .contact-card {
+        padding: 1.25rem;
+        text-decoration: none;
+      }
+
+      .contact-card span {
+        display: block;
+      }
+
+      .contact-card .label {
+        color: var(--muted);
+        font-size: 0.92rem;
+      }
+
+      .contact-card .value {
+        margin-top: 0.35rem;
+        font-size: 1.05rem;
+        font-weight: 600;
+      }
+
+      footer {
+        padding: 2.5rem 0 4rem;
+        color: var(--muted);
+        font-size: 0.95rem;
+      }
+
+      @media (max-width: 860px) {
+        .hero-grid,
+        .about,
+        .contact-grid {
+          grid-template-columns: 1fr;
+        }
+
+        .hero {
+          padding-top: 4rem;
+        }
+      }
+
+      @media (max-width: 640px) {
+        .nav {
+          align-items: flex-start;
+          gap: 1rem;
+          flex-direction: column;
+        }
+
+        .nav-links {
+          gap: 0.8rem;
+        }
+
+        .hero-actions {
+          flex-direction: column;
+        }
+
+        .button {
+          width: 100%;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <div class="wrap nav">
+        <div class="brand">Mathieu Poulin</div>
+        <nav class="nav-links" aria-label="Primary">
+          <a href="#about">About</a>
+          <a href="#projects">Projects</a>
+          <a href="#contact">Contact</a>
+        </nav>
+      </div>
+    </header>
+
+    <main>
+      <section class="hero">
+        <div class="wrap hero-grid">
+          <div>
+            <div class="eyebrow">Machine learning + visualization</div>
+            <h1>Hi, I’m Mathieu Poulin.</h1>
+            <p>
+              I’m a <strong>machine learning developer</strong> who makes a lot of
+              visualizations. I like building projects that help people see what’s
+              going on — especially when a visual model can make an abstract idea feel
+              concrete, intuitive, and a little more alive.
+            </p>
+            <p>
+              This site is a home for experiments in mathematical structure,
+              interactive graphics, and machine learning-adjacent tools that turn
+              complicated ideas into something you can inspect and explore.
+            </p>
+
+            <div class="hero-actions">
+              <a class="button primary" href="#projects">See featured projects</a>
+              <a class="button secondary" href="https://github.com/Dentarthurdent42">Visit GitHub</a>
+            </div>
+          </div>
+
+          <aside class="hero-card">
+            <h2>What I like making</h2>
+            <ul>
+              <li>visual explanations for mathematical and technical ideas</li>
+              <li>interactive demos that make abstract systems easier to understand</li>
+              <li>machine learning projects with a strong sense of structure and clarity</li>
+              <li>tools that are a little bit experimental and a lot inspectable</li>
+            </ul>
+          </aside>
+        </div>
+      </section>
+
+      <section id="about">
+        <div class="wrap">
+          <h2 class="section-title">About</h2>
+          <p class="section-intro">
+            I’m especially interested in the point where math, software, and visual
+            intuition overlap. A good chunk of my work is about making hidden structure
+            visible: not just computing something correctly, but building a way to look
+            at it, rotate it, poke at it, and understand it.
+          </p>
+
+          <div class="about">
+            <div class="card">
+              <p>
+                I’m drawn to projects where the explanation is part of the product. That
+                might mean a 3D visualization of dimensional analysis, a graphics engine
+                built around geometric algebra, or a machine learning tool that makes its
+                own internal logic easier to grasp.
+              </p>
+              <p>
+                In other words: I like software that thinks out loud.
+              </p>
+            </div>
+
+            <div class="card fact-list">
+              <div class="fact">
+                <strong>Focus</strong>
+                Machine learning, technical visualization, and interactive mathematical software.
+              </div>
+              <div class="fact">
+                <strong>Style</strong>
+                Friendly, curious, and explanation-first.
+              </div>
+              <div class="fact">
+                <strong>Current showcase</strong>
+                Rotor-based graphics and dimensional analysis as navigable space.
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="projects">
+        <div class="wrap">
+          <h2 class="section-title">Featured Projects</h2>
+          <p class="section-intro">
+            These projects are good examples of the kind of work I enjoy most: visual,
+            technical, a little unusual, and built to make complex ideas easier to see.
+          </p>
+
+          <div class="projects">
+            <article class="card project-card">
+              <div class="project-top">
+                <div>
+                  <h3>RotorVision</h3>
+                </div>
+                <span class="tag">Geometric algebra + 3D graphics</span>
+              </div>
+              <p>
+                A small 3D graphics engine that uses <strong>geometric-algebra rotors</strong>
+                instead of quaternions to drive every rotation in the scene. It’s part
+                graphics demo, part mathematical experiment, and part attempt to make a
+                beautiful abstract idea feel concrete in code.
+              </p>
+              <p>
+                The demo includes a rotor-spun torus knot, a rotor-driven camera rig, and
+                a live HUD showing the current rotor components. It’s a project about
+                rendering, yes — but also about choosing the right language for rotation.
+              </p>
+              <div class="project-links">
+                <a href="https://github.com/Dentarthurdent42/RotorVision">View repository</a>
+              </div>
+            </article>
+
+            <article class="card project-card">
+              <div class="project-top">
+                <div>
+                  <h3>physical metric space</h3>
+                </div>
+                <span class="tag">Dimensional analysis + interactive visualization</span>
+              </div>
+              <p>
+                An interactive visualization of <strong>dimensional analysis in L/M/T exponent space</strong>,
+                where physical quantities become points in a navigable 3D geometry.
+                Instead of treating units and dimensions as static symbols, this project
+                turns them into a space you can explore.
+              </p>
+              <p>
+                The result is a more visual way of thinking about physical structure:
+                clusters, equivalences, and relationships become easier to notice when
+                they live in a world instead of a table.
+              </p>
+              <div class="project-links">
+                <a href="https://github.com/Dentarthurdent42/physical-metric-space">View repository</a>
+              </div>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <section id="contact">
+        <div class="wrap">
+          <h2 class="section-title">Contact</h2>
+          <p class="section-intro">
+            The easiest way to find what I’m building is through GitHub. You can also
+            connect with me on LinkedIn.
+          </p>
+
+          <div class="contact-grid">
+            <a class="contact-card" href="https://github.com/Dentarthurdent42">
+              <span class="label">GitHub</span>
+              <span class="value">github.com/Dentarthurdent42</span>
+            </a>
+            <a class="contact-card" href="https://www.linkedin.com/in/mathieu-poulin-5b4727b1/">
+              <span class="label">LinkedIn</span>
+              <span class="value">mathieu-poulin-5b4727b1</span>
+            </a>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer>
+      <div class="wrap">
+        Built by Mathieu Poulin. More sections and tabs can come later — for now, this is
+        the clean single-page version.
+      </div>
+    </footer>
+  </body>
 </html>
