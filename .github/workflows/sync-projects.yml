@@ -6,8 +6,12 @@ name: Sync project demos
 
 on:
   # Run on a schedule so the site stays fresh automatically.
+  # TEMPORARY: polling every 5 minutes as a near-instant fallback until the
+  # repository_dispatch trigger is configured in the source repos (see
+  # docs/auto-update-setup.md). Revert this to a daily cron ("0 6 * * *")
+  # once dispatch is live.
   schedule:
-    - cron: "0 6 * * *" # daily at 06:00 UTC
+    - cron: "*/5 * * * *" # every 5 minutes (temporary fallback)
   # Allow manual runs from the Actions tab.
   workflow_dispatch:
   # Allow a source repo to trigger a sync immediately (e.g. from its own
