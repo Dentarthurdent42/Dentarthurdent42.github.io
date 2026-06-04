@@ -1,0 +1,73 @@
+name: Sync project demos
+
+# Keeps the embedded project demos under projects/ in sync with the latest
+# default-branch contents of their source repositories. This way the homepage
+# embeds always reflect the current projects instead of a stale snapshot.
+
+on:
+  # Run on a schedule so the site stays fresh automatically.
+  # TEMPORARY: polling every 5 minutes as a near-instant fallback until the
+  # repository_dispatch trigger is configured in the source repos (see
+  # docs/auto-update-setup.md). Revert this to a daily cron ("0 6 * * *")
+  # once dispatch is live.
+  schedule:
+    - cron: "*/5 * * * *" # every 5 minutes (temporary fallback)
+  # Allow manual runs from the Actions tab.
+  workflow_dispatch:
+  # Allow a source repo to trigger a sync immediately (e.g. from its own
+  # workflow on push) via:
+  #   POST /repos/Dentarthurdent42/Dentarthurdent42.github.io/dispatches
+  #   { "event_type": "sync-projects" }
+  repository_dispatch:
+    types: [sync-projects]
+
+permissions:
+  contents: write
+
+concurrency:
+  group: sync-projects
+  cancel-in-progress: false
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout site
+        uses: actions/checkout@v4
+
+      - name: Sync project sources
+        env:
+          # owner/repo  =>  destination folder under projects/
+          PROJECTS: |
+            Dentarthurdent42/physical-metric-space=physical-metric-space
+            Dentarthurdent42/RotorVision=RotorVision
+        run: |
+          set -euo pipefail
+          mkdir -p projects
+          while IFS= read -r line; do
+            [ -z "$line" ] && continue
+            repo="${line%%=*}"
+            dest="${line##*=}"
+            echo "::group::Syncing $repo -> projects/$dest"
+            tmp="$(mktemp -d)"
+            git clone --depth 1 "https://github.com/${repo}.git" "$tmp"
+            rm -rf "$tmp/.git"
+            rm -rf "projects/$dest"
+            mkdir -p "projects/$dest"
+            cp -a "$tmp/." "projects/$dest/"
+            rm -rf "$tmp"
+            echo "::endgroup::"
+          done <<< "$PROJECTS"
+
+      - name: Commit and push if changed
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          if git diff --quiet -- projects; then
+            echo "No project changes to sync."
+            exit 0
+          fi
+          git add projects
+          git commit -m "Sync embedded project demos from source repos"
+          git push

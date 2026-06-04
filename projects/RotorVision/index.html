@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>RotorVision — a rotor-powered 3D engine</title>
+    <style>
+      :root {
+        --bg: #070a12;
+        --panel: rgba(16, 22, 36, 0.82);
+        --edge: rgba(120, 150, 200, 0.22);
+        --text: #c9d4e8;
+        --dim: #6b7791;
+        --accent: #5ce0d6;
+      }
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+      html,
+      body {
+        height: 100%;
+        background: var(--bg);
+        color: var(--text);
+        font-family: "SF Mono", "JetBrains Mono", Menlo, Consolas, monospace;
+        overflow: hidden;
+      }
+      #view {
+        position: fixed;
+        inset: 0;
+        width: 100vw;
+        height: 100vh;
+        display: block;
+        touch-action: none;
+        cursor: grab;
+      }
+      #view:active {
+        cursor: grabbing;
+      }
+      .panel {
+        position: fixed;
+        background: var(--panel);
+        border: 1px solid var(--edge);
+        border-radius: 10px;
+        backdrop-filter: blur(8px);
+      }
+      #hud {
+        top: 18px;
+        left: 18px;
+        min-width: 256px;
+        max-width: calc(100vw - 36px);
+      }
+      .hud__header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        width: 100%;
+        padding: 14px 16px;
+        background: transparent;
+        border: none;
+        font: inherit;
+        color: inherit;
+        cursor: pointer;
+        text-align: left;
+        user-select: none;
+      }
+      .hud__chevron {
+        color: var(--dim);
+        font-size: 11px;
+        transition: transform 0.18s ease;
+      }
+      #hud.hud--collapsed .hud__chevron {
+        transform: rotate(-90deg);
+      }
+      #hud.hud--collapsed .hud__body {
+        display: none;
+      }
+      #hud.hud--collapsed {
+        min-width: 0;
+      }
+      .hud__body {
+        padding: 0 18px 16px;
+      }
+      #hud h1 {
+        font-size: 15px;
+        letter-spacing: 0.5px;
+        color: #fff;
+        font-weight: 600;
+      }
+      #hud h1 span {
+        color: var(--accent);
+      }
+      #hud .tagline {
+        font-size: 11px;
+        color: var(--dim);
+        margin: 0 0 13px;
+        line-height: 1.5;
+      }
+      .readout {
+        display: grid;
+        grid-template-columns: auto 1fr;
+        gap: 4px 14px;
+        font-size: 12px;
+      }
+      .readout .label {
+        color: var(--dim);
+      }
+      .readout .value {
+        text-align: right;
+        color: var(--text);
+      }
+      .rotor-line {
+        margin: 12px 0 4px;
+        font-size: 11px;
+        color: var(--dim);
+        text-transform: uppercase;
+        letter-spacing: 0.8px;
+      }
+      .rotor-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 5px 14px;
+        font-size: 12px;
+      }
+      .rotor-grid .term {
+        display: flex;
+        justify-content: space-between;
+      }
+      .rotor-grid .basis {
+        color: var(--accent);
+      }
+      .rotor-grid .basis.scalar {
+        color: #e7b864;
+      }
+      .divider {
+        height: 1px;
+        background: var(--edge);
+        margin: 13px 0;
+      }
+      #controls {
+        bottom: 18px;
+        left: 50%;
+        transform: translateX(-50%);
+        padding: 9px;
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 8px;
+        max-width: calc(100vw - 24px);
+      }
+      button {
+        font-family: inherit;
+        font-size: 12px;
+        color: var(--text);
+        background: rgba(90, 120, 170, 0.16);
+        border: 1px solid var(--edge);
+        border-radius: 7px;
+        padding: 8px 15px;
+        cursor: pointer;
+        transition: background 0.12s, color 0.12s;
+      }
+      button:hover {
+        background: rgba(120, 160, 220, 0.3);
+      }
+      button.active {
+        background: var(--accent);
+        color: #04201e;
+        border-color: var(--accent);
+      }
+      button.off {
+        color: var(--dim);
+      }
+      #hint {
+        bottom: 18px;
+        right: 18px;
+        padding: 11px 14px;
+        font-size: 11px;
+        color: var(--dim);
+        line-height: 1.6;
+        max-width: 220px;
+      }
+      #hint b {
+        color: var(--text);
+        font-weight: 500;
+      }
+
+      @media (max-width: 720px) {
+        #hud {
+          top: 10px;
+          left: 10px;
+        }
+        .hud__header {
+          padding: 11px 13px;
+        }
+        .hud__body {
+          padding: 0 13px 12px;
+        }
+        #hud .tagline {
+          display: none;
+        }
+        #hint {
+          display: none;
+        }
+        #controls {
+          bottom: 10px;
+          padding: 6px;
+          gap: 6px;
+        }
+        #controls button {
+          font-size: 11px;
+          padding: 7px 10px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <canvas id="view"></canvas>
+
+    <div id="hud" class="panel">
+      <button
+        class="hud__header"
+        id="hud-toggle"
+        type="button"
+        aria-expanded="true"
+        aria-controls="hud-body"
+      >
+        <h1>Rotor<span>Vision</span></h1>
+        <span class="hud__chevron" aria-hidden="true">▾</span>
+      </button>
+      <div class="hud__body" id="hud-body">
+        <p class="tagline">
+          One rotor sandwich product, v′ = R v R~, in 3D and 4D alike — no
+          quaternions, which only ever work in 3D.
+        </p>
+
+        <div class="readout">
+          <span class="label">fps</span>
+          <span class="value"><span id="hud-fps">0</span></span>
+          <span class="label">primitives</span>
+          <span class="value"><span id="hud-faces">0</span></span>
+          <span class="label">4D shape</span>
+          <span class="value"><span id="hud-shape">tesseract</span></span>
+        </div>
+
+        <div class="rotor-line">4D orientation rotor — six planes</div>
+        <div class="rotor-grid rotor-grid--4d">
+          <div class="term">
+            <span class="basis scalar">1</span><span id="hud-s">+1.0000</span>
+          </div>
+          <div class="term">
+            <span class="basis">e₁₂₃₄</span><span id="hud-b1234">+0.0000</span>
+          </div>
+          <div class="term">
+            <span class="basis">e₁₂</span><span id="hud-b12">+0.0000</span>
+          </div>
+          <div class="term">
+            <span class="basis">e₂₃</span><span id="hud-b23">+0.0000</span>
+          </div>
+          <div class="term">
+            <span class="basis">e₁₃</span><span id="hud-b13">+0.0000</span>
+          </div>
+          <div class="term">
+            <span class="basis">e₂₄</span><span id="hud-b24">+0.0000</span>
+          </div>
+          <div class="term">
+            <span class="basis">e₁₄</span><span id="hud-b14">+0.0000</span>
+          </div>
+          <div class="term">
+            <span class="basis">e₃₄</span><span id="hud-b34">+0.0000</span>
+          </div>
+        </div>
+
+        <div class="divider"></div>
+
+        <p class="tagline" style="margin: 0">
+          Spinning in the <b style="color: var(--text)">xy</b> and
+          <b style="color: var(--text)">zw</b> planes at once — a 4D double
+          rotation. Edge colour tracks the w coordinate.
+        </p>
+      </div>
+    </div>
+
+    <div id="controls" class="panel">
+      <button id="btn-pause">Pause</button>
+      <button id="btn-shape">Shape</button>
+      <button id="btn-wireframe">Wireframe</button>
+      <button id="btn-fog">Fog</button>
+      <button id="btn-orbit">Auto-orbit</button>
+    </div>
+
+    <div id="hint" class="panel">
+      <b>Drag</b> to orbit the camera · <b>scroll</b> to zoom ·
+      <b>Shape</b> cycles the 4D polytope.<br />
+      The tesseract turns in two orthogonal planes at once — impossible for a
+      quaternion.
+    </div>
+
+    <script type="module" src="./src/demo.js"></script>
+  </body>
+</html>
