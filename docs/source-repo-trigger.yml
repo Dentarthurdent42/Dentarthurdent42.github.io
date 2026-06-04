@@ -1,0 +1,34 @@
+# Copy this file into each source repo at:
+#   .github/workflows/notify-site.yml
+#
+# It tells the portfolio site (Dentarthurdent42.github.io) to re-sync the
+# embedded demo immediately whenever this project's default branch changes,
+# giving near-instant updates instead of waiting for the site's daily sync.
+#
+# One-time setup required in EACH source repo (see docs/auto-update-setup.md
+# in the Dentarthurdent42.github.io repo for full instructions):
+#   1. Create a token that can write to Dentarthurdent42.github.io.
+#   2. Save it in this repo as an Actions secret named SITE_DISPATCH_TOKEN.
+
+name: Notify portfolio site
+
+on:
+  push:
+    branches: [main]
+  # Lets you trigger a manual refresh from the Actions tab too.
+  workflow_dispatch:
+
+jobs:
+  dispatch:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger site project sync
+        env:
+          SITE_DISPATCH_TOKEN: ${{ secrets.SITE_DISPATCH_TOKEN }}
+        run: |
+          curl -fsS -X POST \
+            -H "Authorization: Bearer $SITE_DISPATCH_TOKEN" \
+            -H "Accept: application/vnd.github+json" \
+            -H "X-GitHub-Api-Version: 2022-11-28" \
+            https://api.github.com/repos/Dentarthurdent42/Dentarthurdent42.github.io/dispatches \
+            -d '{"event_type":"sync-projects"}'
