@@ -1,0 +1,19 @@
+{
+  "name": "rotorvision",
+  "version": "1.0.0",
+  "description": "A 3D graphics engine that rotates with geometric-algebra rotors instead of quaternions.",
+  "type": "module",
+  "scripts": {
+    "test": "node --test",
+    "start": "python3 -m http.server 8000"
+  },
+  "keywords": [
+    "3d",
+    "graphics",
+    "engine",
+    "geometric-algebra",
+    "rotor",
+    "clifford"
+  ],
+  "license": "MIT"
+}
