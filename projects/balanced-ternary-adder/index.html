@@ -1,0 +1,632 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Balanced Ternary Adder</title>
+<style>
+  :root {
+    --bg: oklch(0.975 0.005 80);
+    --panel: oklch(0.99 0.003 80);
+    --ink: oklch(0.18 0.01 80);
+    --ink-2: oklch(0.42 0.008 80);
+    --ink-3: oklch(0.62 0.01 80);
+    --rule: oklch(0.88 0.005 80);
+    --accent: oklch(0.58 0.16 35);
+    --accent-pos: oklch(0.58 0.12 150);
+    --accent-neg: oklch(0.58 0.16 35);
+    --hex-stroke: oklch(0.20 0.01 80);
+    --socket: oklch(0.28 0.008 80);
+    --dial:   oklch(0.46 0.008 80);
+    --ghost-stroke: oklch(0.86 0.005 80);
+    --pulse: oklch(0.86 0.10 80);
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; height: 100%; }
+  body {
+    background: var(--bg);
+    color: var(--ink);
+    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+    min-height: 100svh;
+    overscroll-behavior: none;
+  }
+  .root { min-height: 100svh; display: grid; grid-template-rows: auto 1fr; }
+
+  .topbar {
+    padding: 18px 28px;
+    border-bottom: 1px solid var(--rule);
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 16px;
+    flex-wrap: wrap;
+  }
+  .title { font-size: 14px; letter-spacing: 0.06em; font-weight: 500; }
+  .sub {
+    font-family: "JetBrains Mono", "SF Mono", ui-monospace, Menlo, monospace;
+    font-variant-numeric: tabular-nums;
+    font-size: 11px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--ink-2);
+  }
+
+  .stage {
+    padding: 30px 24px 60px;
+    display: grid;
+    place-items: center;
+    gap: 22px;
+  }
+
+  .row {
+    display: grid;
+    grid-template-columns: repeat(10, var(--col)) 28px auto;
+    align-items: center;
+    gap: 6px 0;
+  }
+  .row.places {
+    color: var(--ink-3);
+    font-family: "JetBrains Mono", "SF Mono", ui-monospace, Menlo, monospace;
+    font-variant-numeric: tabular-nums;
+  }
+  .places .lbl-cell {
+    text-align: center;
+    font-size: 11px;
+    letter-spacing: 0.08em;
+  }
+  .row .equals {
+    text-align: center;
+    font-family: "SF Mono", ui-monospace, Menlo, monospace;
+    font-weight: 300;
+    font-size: 22px;
+    color: var(--ink-3);
+    line-height: 1;
+  }
+  .row .decimal {
+    font-family: "SF Mono", ui-monospace, Menlo, monospace;
+    font-variant-numeric: tabular-nums;
+    font-size: 24px;
+    color: var(--ink);
+    text-align: right;
+    min-width: 7ch;
+    padding-left: 10px;
+    letter-spacing: -0.01em;
+    transition: color 220ms ease;
+  }
+  .row .decimal.pos { color: var(--accent-pos); }
+  .row .decimal.neg { color: var(--accent-neg); }
+  .row.sum .decimal { font-size: 30px; }
+  .row.sum { padding-top: 14px; }
+
+  .rule {
+    display: grid;
+    grid-template-columns: repeat(10, var(--col)) 28px auto;
+    gap: 6px 0;
+  }
+  .rule .bar {
+    grid-column: 1 / span 10;
+    height: 1px;
+    background: var(--ink-2);
+    align-self: center;
+  }
+
+  .cell {
+    width: var(--col);
+    height: var(--cell);
+    display: grid;
+    place-items: center;
+    position: relative;
+  }
+  .cell .digit-mini {
+    position: absolute;
+    bottom: -18px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-family: "JetBrains Mono", "SF Mono", ui-monospace, Menlo, monospace;
+    font-variant-numeric: tabular-nums;
+    font-size: 11px;
+    letter-spacing: 0.04em;
+    color: var(--ink-3);
+  }
+  .cell.pos .digit-mini { color: var(--accent-pos); }
+  .cell.neg .digit-mini { color: var(--accent-neg); }
+
+  .hex-svg {
+    display: block;
+    touch-action: none;
+    user-select: none;
+    -webkit-user-select: none;
+  }
+  .cell.interactive .hex-svg { cursor: grab; }
+  .cell.interactive.dragging .hex-svg { cursor: grabbing; }
+
+  .cell.ghost svg .socket { fill: var(--ghost-stroke) !important; }
+  .cell.ghost svg .dial polygon,
+  .cell.ghost svg .dial line {
+    stroke: var(--ghost-stroke) !important;
+    fill: transparent !important;
+  }
+
+  .cell.overflow.hot { animation: hot-pulse 600ms ease; }
+  .cell.overflow.hot svg .socket { fill: var(--accent) !important; }
+  .cell.overflow.hot svg .dial polygon,
+  .cell.overflow.hot svg .dial line { stroke: var(--accent) !important; }
+  @keyframes hot-pulse {
+    0%, 100% { transform: scale(1); }
+    50%       { transform: scale(1.08); }
+  }
+
+  .cell.pulse::before {
+    content: "";
+    position: absolute;
+    left: 50%; top: 50%;
+    width: 60%; height: 60%;
+    border-radius: 50%;
+    background: var(--pulse);
+    transform: translate(-50%, -50%);
+    opacity: 0.55;
+    animation: ring-out 520ms ease-out forwards;
+    pointer-events: none;
+    z-index: -1;
+  }
+  @keyframes ring-out {
+    to { width: 130%; height: 130%; opacity: 0; }
+  }
+
+  .controls {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    justify-content: center;
+    padding-top: 14px;
+  }
+  .controls button {
+    font-family: inherit;
+    font-size: 13px;
+    letter-spacing: 0.06em;
+    border: 1px solid var(--hex-stroke);
+    background: oklch(0.99 0.003 80);
+    color: var(--ink);
+    padding: 10px 16px;
+    border-radius: 999px;
+    cursor: pointer;
+    transition: background 140ms ease, color 140ms ease, transform 80ms ease;
+  }
+  .controls .ghost {
+    color: var(--ink-2);
+    background: transparent;
+    border-color: var(--rule);
+  }
+  .controls button:hover { background: var(--ink); color: var(--bg); border-color: var(--ink); }
+  .controls button:active { transform: translateY(1px); }
+
+  .hint {
+    font-size: 11px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--ink-3);
+    text-align: center;
+    margin-top: 4px;
+  }
+
+  .math {
+    --cell: 86px;
+    --col: calc(var(--cell) * 0.86602540);
+    display: grid;
+    gap: 22px;
+  }
+  @media (max-width: 1100px) {
+    .math { --cell: 72px; }
+    .row .decimal { font-size: 20px; }
+    .row.sum .decimal { font-size: 24px; }
+  }
+  @media (max-width: 880px) {
+    .math { --cell: 60px; }
+  }
+  @media (max-width: 720px) {
+    .math { --cell: 48px; }
+    .row, .rule { grid-template-columns: repeat(10, var(--col)) 20px auto; }
+    .row .decimal { font-size: 16px; min-width: 6ch; padding-left: 6px; }
+    .row.sum .decimal { font-size: 20px; }
+  }
+
+  .overflow-toast {
+    position: fixed;
+    bottom: 24px;
+    left: 50%;
+    transform: translateX(-50%);
+    padding: 10px 16px;
+    border-radius: 999px;
+    border: 1px solid var(--accent);
+    color: var(--accent);
+    font-family: "JetBrains Mono", "SF Mono", ui-monospace, Menlo, monospace;
+    font-size: 12px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    background: oklch(0.99 0.003 80);
+    animation: toast-in 200ms ease;
+  }
+  @keyframes toast-in {
+    from { opacity: 0; transform: translate(-50%, 8px); }
+    to   { opacity: 1; transform: translate(-50%, 0); }
+  }
+</style>
+</head>
+<body>
+  <div id="root"></div>
+
+  <script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+
+  <script type="text/babel">
+    const { useState, useEffect, useRef } = React;
+
+    const HEX_R = 86;
+    const SOCKET_WALL = 8;
+    const DIAL_R = HEX_R - SOCKET_WALL;
+
+    const HEX_VERTS = (() => {
+      const v = [];
+      for (let i = 0; i < 6; i++) {
+        const a = (-90 + i * 60) * Math.PI / 180;
+        v.push([Math.cos(a) * HEX_R, Math.sin(a) * HEX_R]);
+      }
+      return v;
+    })();
+    const DIAL_VERTS = HEX_VERTS.map(([x, y]) => [x * DIAL_R / HEX_R, y * DIAL_R / HEX_R]);
+
+    const SOCKET_PATH =
+      'M ' + HEX_VERTS .map(v => v.map(n => n.toFixed(2)).join(',')).join(' L ') + ' Z ' +
+      'M ' + DIAL_VERTS.map(v => v.map(n => n.toFixed(2)).join(',')).join(' L ') + ' Z';
+
+    function dialScale(rotDeg) {
+      const t = (((rotDeg % 60) + 60) % 60) * Math.PI / 180;
+      return Math.cos(Math.PI / 6) / Math.cos(Math.PI / 6 - t);
+    }
+
+    function HexSVG({ rotDeg, dim }) {
+      const k = dialScale(rotDeg);
+      const rad = rotDeg * Math.PI / 180;
+      const cos = Math.cos(rad), sin = Math.sin(rad);
+      const dialVerts = DIAL_VERTS.map(([x, y]) => {
+        const xr = (cos * x - sin * y) * k;
+        const yr = (sin * x + cos * y) * k;
+        return [xr, yr];
+      });
+      const dialPoints = dialVerts.map(([x, y]) => `${x.toFixed(2)},${y.toFixed(2)}`).join(' ');
+      const [lx1, ly1] = dialVerts[0];
+      const [lx2, ly2] = dialVerts[3];
+      return (
+        <svg className="hex-svg" viewBox="-74.5 -86 149 172" width="100%" height="100%"
+             style={{ opacity: dim ? 0.32 : 1 }}>
+          <path className="socket" d={SOCKET_PATH}
+            fill="var(--socket)" fillRule="evenodd" stroke="none" />
+          <g className="dial">
+            <polygon points={dialPoints}
+              fill="none" stroke="var(--dial)"
+              strokeWidth="3.2" strokeLinejoin="miter" strokeLinecap="round" />
+            <line x1={lx1.toFixed(2)} y1={ly1.toFixed(2)}
+                  x2={lx2.toFixed(2)} y2={ly2.toFixed(2)}
+                  stroke="var(--dial)" strokeWidth="3.2" strokeLinecap="round" />
+          </g>
+        </svg>
+      );
+    }
+
+    function useTween(target, duration) {
+      const [shown, setShown] = useState(target);
+      const shownRef = useRef(target);
+      const rafRef = useRef(null);
+      const prevTargetRef = useRef(target);
+
+      useEffect(() => { shownRef.current = shown; }, [shown]);
+
+      useEffect(() => {
+        if (target === prevTargetRef.current) return;
+        prevTargetRef.current = target;
+        if (rafRef.current) cancelAnimationFrame(rafRef.current);
+        if (duration <= 0) {
+          shownRef.current = target;
+          setShown(target);
+          return;
+        }
+        const from = shownRef.current;
+        const t0 = performance.now();
+        const tick = (now) => {
+          const t = Math.min(1, (now - t0) / duration);
+          const e = 1 - Math.pow(1 - t, 3);
+          const v = from + (target - from) * e;
+          shownRef.current = v;
+          setShown(v);
+          if (t < 1) rafRef.current = requestAnimationFrame(tick);
+          else rafRef.current = null;
+        };
+        rafRef.current = requestAnimationFrame(tick);
+        return () => { if (rafRef.current) cancelAnimationFrame(rafRef.current); };
+      }, [target, duration]);
+
+      return shown;
+    }
+
+    function SmoothHex({ rotDeg, duration = 380, dim }) {
+      const shown = useTween(rotDeg, duration);
+      return <HexSVG rotDeg={shown} dim={dim} />;
+    }
+
+    function SwipeHex({ rotationDeg, onCommit }) {
+      const wrapRef = useRef(null);
+      const [dragging, setDragging] = useState(false);
+      const [liveDeg, setLiveDeg] = useState(rotationDeg);
+
+      const rotRef = useRef(rotationDeg);
+      useEffect(() => { rotRef.current = rotationDeg; }, [rotationDeg]);
+
+      useEffect(() => {
+        if (!dragging) setLiveDeg(rotationDeg);
+      }, [rotationDeg, dragging]);
+
+      const shownDeg = useTween(liveDeg, dragging ? 0 : 380);
+
+      const state = useRef({ pointerId: null, lastPA: 0, startRot: 0, accumDelta: 0 });
+
+      function pointerAngle(cx, cy) {
+        const r = wrapRef.current.getBoundingClientRect();
+        return Math.atan2(cy - (r.top + r.height / 2), cx - (r.left + r.width / 2)) * 180 / Math.PI;
+      }
+
+      function onDown(e) {
+        if (e.button !== undefined && e.button !== 0) return;
+        setDragging(true);
+        state.current.pointerId = e.pointerId;
+        state.current.lastPA = pointerAngle(e.clientX, e.clientY);
+        state.current.startRot = rotationDeg;
+        state.current.accumDelta = 0;
+        setLiveDeg(rotationDeg);
+        e.currentTarget.setPointerCapture?.(e.pointerId);
+        e.preventDefault();
+      }
+
+      function onMove(e) {
+        if (e.pointerId !== state.current.pointerId) return;
+        const pa = pointerAngle(e.clientX, e.clientY);
+        let d = pa - state.current.lastPA;
+        if (d > 180) d -= 360;
+        if (d < -180) d += 360;
+        state.current.accumDelta += d;
+        state.current.lastPA = pa;
+        setLiveDeg(state.current.startRot + state.current.accumDelta);
+      }
+
+      function onUp(e) {
+        if (e.pointerId !== state.current.pointerId) return;
+        setDragging(false);
+        e.currentTarget.releasePointerCapture?.(e.pointerId);
+        state.current.pointerId = null;
+        const live = state.current.startRot + state.current.accumDelta;
+        onCommit(Math.round(live / 60) * 60);
+      }
+
+      const wheelState = useRef({ accum: 0, lock: false });
+      useEffect(() => {
+        const el = wrapRef.current;
+        if (!el) return;
+        function handleWheel(e) {
+          e.preventDefault();
+          e.stopPropagation();
+          if (dragging) return;
+          wheelState.current.accum += e.deltaY;
+          if (wheelState.current.lock) return;
+          if (Math.abs(wheelState.current.accum) < 12) return;
+          const dir = wheelState.current.accum > 0 ? -1 : 1;
+          wheelState.current.accum = 0;
+          wheelState.current.lock = true;
+          setTimeout(() => { wheelState.current.lock = false; }, 80);
+          onCommit(rotRef.current + dir * 60);
+        }
+        el.addEventListener('wheel', handleWheel, { passive: false });
+        return () => el.removeEventListener('wheel', handleWheel);
+      }, [dragging, onCommit]);
+
+      return (
+        <div
+          ref={wrapRef}
+          onPointerDown={onDown}
+          onPointerMove={onMove}
+          onPointerUp={onUp}
+          onPointerCancel={onUp}
+          style={{ width: '100%', height: '100%', display: 'grid', placeItems: 'center' }}
+        >
+          <HexSVG rotDeg={shownDeg} />
+        </div>
+      );
+    }
+
+    function rotToTrit(deg) {
+      const step = Math.round(deg / 60);
+      const m = ((step % 3) + 3) % 3;
+      return m === 0 ? 0 : m === 1 ? 1 : -1;
+    }
+
+    function tritsToDecimal(trits) {
+      let v = 0;
+      for (const d of trits) v = v * 3 + d;
+      return v;
+    }
+
+    function addTrits(a, b) {
+      const n = a.length;
+      const out = new Array(n).fill(0);
+      let carry = 0;
+      for (let i = n - 1; i >= 0; i--) {
+        let s = a[i] + b[i] + carry;
+        let nc = 0;
+        while (s > 1)  { s -= 3; nc += 1; }
+        while (s < -1) { s += 3; nc -= 1; }
+        out[i] = s;
+        carry = nc;
+      }
+      return { result: out, carry };
+    }
+
+    function App() {
+      const N = 9;
+      const [Arot, setArot] = useState(Array(N).fill(0));
+      const [Brot, setBrot] = useState(Array(N).fill(0));
+      const [pulseSum, setPulseSum] = useState(new Set());
+      const prevSumRef = useRef(null);
+      const pulseTimer = useRef(null);
+
+      const A = Arot.map(rotToTrit);
+      const B = Brot.map(rotToTrit);
+      const { result, carry } = addTrits(A, B);
+      const sumTrits = [carry, ...result];
+      const decA = tritsToDecimal(A);
+      const decB = tritsToDecimal(B);
+      const decSum = decA + decB;
+
+      useEffect(() => {
+        const cur = sumTrits.join(',');
+        const prev = prevSumRef.current;
+        if (prev != null && prev !== cur) {
+          const prevArr = prev.split(',').map(Number);
+          const changed = new Set();
+          for (let i = 0; i < sumTrits.length; i++) {
+            if (sumTrits[i] !== prevArr[i]) changed.add(i);
+          }
+          setPulseSum(changed);
+          if (pulseTimer.current) clearTimeout(pulseTimer.current);
+          pulseTimer.current = setTimeout(() => setPulseSum(new Set()), 540);
+        }
+        prevSumRef.current = cur;
+      });
+
+      function setRotDigit(row, idx, rotDeg) {
+        if (row === 'A') setArot(prev => { const n = prev.slice(); n[idx] = rotDeg; return n; });
+        else             setBrot(prev => { const n = prev.slice(); n[idx] = rotDeg; return n; });
+      }
+
+      function clearRow(row) {
+        if (row === 'A') setArot(Array(N).fill(0));
+        else if (row === 'B') setBrot(Array(N).fill(0));
+        else { setArot(Array(N).fill(0)); setBrot(Array(N).fill(0)); }
+      }
+
+      function randomRow(row) {
+        const r = Array.from({ length: N }, () => (Math.floor(Math.random() * 3) - 1) * 60);
+        if (row === 'A') setArot(r); else setBrot(r);
+      }
+
+      const maxN   = ((Math.pow(3, N) - 1) / 2) | 0;
+      const maxSum = 2 * maxN;
+
+      const digitLabel  = (v) => v === 0 ? '0' : v > 0 ? '+' : '−';
+      const decimalClass = (n) => n > 0 ? 'pos' : n < 0 ? 'neg' : '';
+
+      const exponents = [9, 8, 7, 6, 5, 4, 3, 2, 1, 0];
+
+      return (
+        <div className="root">
+          <header className="topbar">
+            <div className="title">Balanced Ternary Adder</div>
+            <div className="sub">
+              9-trit addends &middot; range each -{maxN} to +{maxN} &middot; sum -{maxSum} to +{maxSum}
+            </div>
+          </header>
+
+          <main className="stage">
+            <div className="math">
+
+              <div className="row places">
+                {exponents.map((e, i) => (
+                  <div key={i} className="lbl-cell">3<sup>{e}</sup></div>
+                ))}
+                <div /><div />
+              </div>
+
+              <div className="row">
+                <div className="cell ghost"><HexSVG rotDeg={0} dim /></div>
+                {Arot.map((rot, i) => {
+                  const v = A[i];
+                  return (
+                    <div key={i} className={`cell interactive ${v > 0 ? 'pos' : v < 0 ? 'neg' : ''}`}>
+                      <SwipeHex rotationDeg={rot} onCommit={(nr) => setRotDigit('A', i, nr)} />
+                      <span className="digit-mini">{digitLabel(v)}</span>
+                    </div>
+                  );
+                })}
+                <div className="equals">=</div>
+                <div className={`decimal ${decimalClass(decA)}`}>
+                  {decA > 0 ? '+' : ''}{decA}
+                </div>
+              </div>
+
+              <div className="row">
+                <div className="cell ghost"><HexSVG rotDeg={0} dim /></div>
+                {Brot.map((rot, i) => {
+                  const v = B[i];
+                  return (
+                    <div key={i} className={`cell interactive ${v > 0 ? 'pos' : v < 0 ? 'neg' : ''}`}>
+                      <SwipeHex rotationDeg={rot} onCommit={(nr) => setRotDigit('B', i, nr)} />
+                      <span className="digit-mini">{digitLabel(v)}</span>
+                    </div>
+                  );
+                })}
+                <div className="equals">=</div>
+                <div className={`decimal ${decimalClass(decB)}`}>
+                  {decB > 0 ? '+' : ''}{decB}
+                </div>
+              </div>
+
+              <div className="rule"><div className="bar" /></div>
+
+              <div className="row sum">
+                {sumTrits.map((v, i) => {
+                  const isOverflow = i === 0;
+                  return (
+                    <div key={i} className={[
+                      'cell',
+                      v > 0 ? 'pos' : v < 0 ? 'neg' : '',
+                      isOverflow ? 'overflow' : '',
+                      isOverflow && v !== 0 ? 'hot' : '',
+                      pulseSum.has(i) ? 'pulse' : '',
+                    ].filter(Boolean).join(' ')}>
+                      <SmoothHex rotDeg={v * 60} duration={380} dim={isOverflow && v === 0} />
+                      <span className="digit-mini">{digitLabel(v)}</span>
+                    </div>
+                  );
+                })}
+                <div className="equals">=</div>
+                <div className={`decimal ${decimalClass(decSum)}`}>
+                  {decSum > 0 ? '+' : ''}{decSum}
+                </div>
+              </div>
+
+            </div>
+
+            <div className="controls">
+              <button onClick={() => randomRow('A')}>randomize A</button>
+              <button onClick={() => randomRow('B')}>randomize B</button>
+              <button className="ghost" onClick={() => clearRow('A')}>clear A</button>
+              <button className="ghost" onClick={() => clearRow('B')}>clear B</button>
+              <button className="ghost" onClick={() => clearRow('both')}>reset</button>
+            </div>
+
+            <div className="hint">swipe any hex in A or B to set that digit &middot; sum is computed below</div>
+          </main>
+
+          {carry !== 0 && (
+            <div className="overflow-toast">
+              {carry > 0 ? 'overflow' : 'underflow'} into 3<sup>9</sup> place ({carry > 0 ? '+1' : '−1'} &times; 19683)
+            </div>
+          )}
+        </div>
+      );
+    }
+
+    ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+  </script>
+</body>
+</html>
