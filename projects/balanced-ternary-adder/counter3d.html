@@ -1,0 +1,431 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Balanced Ternary Counter · 3D Geneva Simulation</title>
+<style>
+  :root {
+    --bg: #f3f1ea;
+    --ink: #2b2a26;
+    --ink-2: #6b6a63;
+    --ink-3: #97968d;
+    --rule: #ddd9cf;
+    --accent: #c0673f;
+    --pos: #4f9e7a;
+    --neg: #c0673f;
+    --zero: #8a897f;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; height: 100%; overflow: hidden; }
+  body {
+    background: var(--bg); color: var(--ink);
+    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+  #scene { position: fixed; inset: 0; display: block; }
+
+  .topbar {
+    position: fixed; top: 0; left: 0; right: 0;
+    padding: 14px 22px;
+    display: flex; align-items: baseline; gap: 14px; flex-wrap: wrap;
+    pointer-events: none;
+  }
+  .topbar .title { font-size: 13px; letter-spacing: 0.06em; font-weight: 500; }
+  .topbar .sub, .topbar .links {
+    font-family: "JetBrains Mono", "SF Mono", ui-monospace, Menlo, monospace;
+    font-size: 11px; letter-spacing: 0.06em; color: var(--ink-2);
+  }
+  .topbar .links { margin-left: auto; pointer-events: auto; }
+  .topbar .links a { color: var(--ink-2); text-decoration: none; border-bottom: 1px solid var(--rule); }
+  .topbar .links a:hover { color: var(--ink); }
+
+  .panel {
+    position: fixed; left: 50%; bottom: 20px; transform: translateX(-50%);
+    width: min(880px, calc(100vw - 32px));
+    background: rgba(252,251,247,0.92);
+    border: 1px solid var(--rule); border-radius: 16px;
+    padding: 14px 18px 16px;
+    backdrop-filter: blur(8px);
+    display: grid; gap: 12px;
+  }
+  .readline { display: flex; align-items: baseline; gap: 16px; flex-wrap: wrap; justify-content: center; }
+  .readline .decimal {
+    font-family: "SF Mono", ui-monospace, Menlo, monospace;
+    font-variant-numeric: tabular-nums; font-size: 34px; letter-spacing: -0.01em;
+  }
+  .readline .decimal.pos { color: var(--pos); }
+  .readline .decimal.neg { color: var(--neg); }
+  .readline .trits {
+    font-family: "JetBrains Mono", "SF Mono", ui-monospace, Menlo, monospace;
+    font-size: 15px; letter-spacing: 0.16em;
+  }
+  .readline .trits .t.p { color: var(--pos); }
+  .readline .trits .t.n { color: var(--neg); }
+  .readline .trits .t.z { color: var(--ink-3); }
+  .readline .crank { font-family: "JetBrains Mono", ui-monospace, monospace; font-size: 11px; color: var(--ink-3); letter-spacing: 0.06em; }
+
+  .crankrow { display: flex; align-items: center; gap: 12px; }
+  .crankrow label { font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink-3); white-space: nowrap; }
+  .crankrow input[type=range] { flex: 1; accent-color: var(--accent); }
+
+  .controls { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; }
+  .controls button {
+    font-family: inherit; font-size: 12px; letter-spacing: 0.03em;
+    border: 1px solid var(--ink); background: transparent; color: var(--ink);
+    padding: 7px 13px; border-radius: 999px; cursor: pointer;
+    transition: background 120ms, color 120ms, transform 70ms;
+  }
+  .controls button.ghost { border-color: var(--rule); color: var(--ink-2); }
+  .controls button:hover { background: var(--ink); color: var(--bg); border-color: var(--ink); }
+  .controls button:active { transform: translateY(1px); }
+  .controls button.run.on { background: var(--accent); color: #fff; border-color: var(--accent); }
+  .controls .nwheels { display: flex; align-items: center; gap: 6px; margin-right: 4px; }
+  .controls .nwheels span { font-size: 11px; letter-spacing: 0.06em; color: var(--ink-3); }
+
+  .hint {
+    position: fixed; left: 0; right: 0; bottom: 6px; text-align: center;
+    font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--ink-3);
+    pointer-events: none;
+  }
+</style>
+</head>
+<body>
+  <canvas id="scene"></canvas>
+
+  <div class="topbar">
+    <div class="title">Balanced Ternary Counter &middot; 3D Geneva Simulation</div>
+    <div class="sub" id="rangeline"></div>
+    <div class="links"><a href="./index.html">adder</a> &middot; <a href="./counter.html">2D counter</a></div>
+  </div>
+
+  <div class="panel">
+    <div class="readline">
+      <div class="decimal" id="decimal">0</div>
+      <div class="trits" id="trits"></div>
+      <div class="crank" id="crankreadout"></div>
+    </div>
+    <div class="crankrow">
+      <label>crank</label>
+      <input type="range" id="crank" min="-40" max="40" step="0.01" value="0" />
+    </div>
+    <div class="controls">
+      <div class="nwheels">
+        <span>trits</span>
+        <button class="ghost" id="nMinus">&minus;</button>
+        <span id="nval">5</span>
+        <button class="ghost" id="nPlus">+</button>
+      </div>
+      <button id="dec">&minus; count</button>
+      <button id="inc">+ count</button>
+      <button class="ghost" id="dec9">&minus;9</button>
+      <button class="ghost" id="inc9">+9</button>
+      <button class="run" id="run">run</button>
+      <button class="ghost" id="reset">reset</button>
+    </div>
+  </div>
+
+  <div class="hint">drag to orbit &middot; scroll to zoom &middot; turn the crank (slider) &mdash; carries emerge from the linkage</div>
+
+  <script type="importmap">
+  {
+    "imports": {
+      "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+      "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+    }
+  }
+  </script>
+
+  <script type="module">
+    import * as THREE from 'three';
+    import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+
+    const DEG = Math.PI / 180;
+
+    function geneva(driverDeg) {
+      const idx = Math.floor(driverDeg / 360);
+      const u = driverDeg - idx * 360;
+      const base = idx * 60;
+      if (u < 120) return base;
+      if (u > 240) return base + 60;
+      const psi = (-60 + 120 * ((u - 120) / 120)) * DEG;
+      let g = Math.atan2(0.5 * Math.sin(psi), 0.5 * Math.cos(psi) - 1) / DEG;
+      if (g < 0) g += 360;
+      return base + 60 * ((210 - g) / 60);
+    }
+
+    function rotToTrit(deg) {
+      const m = ((Math.round(deg / 60) % 3) + 3) % 3;
+      return m === 0 ? 0 : m === 1 ? 1 : -1;
+    }
+
+    function solveWheels(crankDeg, N) {
+      const th = new Array(N);
+      th[0] = geneva(crankDeg);
+      for (let k = 1; k < N; k++) th[k] = geneva(2 * th[k - 1]);
+      return th;
+    }
+
+    const WHEEL_R   = 1.5;
+    const TH        = 0.45;
+    const C         = 2 * WHEEL_R;
+    const PIN_R     = WHEEL_R;
+    const SLOT_HW   = 0.17;
+    const SLOT_IN   = 0.42 * WHEEL_R;
+    const HUB_R     = 0.26;
+
+    const COL = {
+      bg: 0xf3f1ea, body: 0x3b3a36, dial: 0x76746c,
+      pos: 0x4f9e7a, neg: 0xc0673f, zero: 0x8a897f,
+      pin: 0xc0673f, crank: 0x55534c, hub: 0x6b6a63,
+    };
+
+    function genevaShape() {
+      const R = WHEEL_R, hw = SLOT_HW, si = SLOT_IN, n = 6;
+      const aOuter = Math.sqrt(R * R - hw * hw);
+      const phi = Math.asin(hw / R);
+      const step = (Math.PI * 2) / n;
+      const pts = [];
+      const arc = (r, a0, a1, seg) => {
+        for (let s = 0; s <= seg; s++) {
+          const a = a0 + (a1 - a0) * s / seg;
+          pts.push(new THREE.Vector2(r * Math.cos(a), r * Math.sin(a)));
+        }
+      };
+      for (let i = 0; i < n; i++) {
+        const th = i * step;
+        const u = new THREE.Vector2(Math.cos(th), Math.sin(th));
+        const p = new THREE.Vector2(-Math.sin(th), Math.cos(th));
+        arc(R, th - step + phi, th - phi, 7);
+        pts.push(u.clone().multiplyScalar(aOuter).add(p.clone().multiplyScalar(-hw)));
+        pts.push(u.clone().multiplyScalar(si).add(p.clone().multiplyScalar(-hw)));
+        const O = u.clone().multiplyScalar(si);
+        for (let s = 0; s <= 10; s++) {
+          const psi = (-90 - 180 * s / 10) * DEG;
+          const d = u.clone().multiplyScalar(Math.cos(psi)).add(p.clone().multiplyScalar(Math.sin(psi)));
+          pts.push(O.clone().add(d.multiplyScalar(hw)));
+        }
+        pts.push(u.clone().multiplyScalar(aOuter).add(p.clone().multiplyScalar(hw)));
+      }
+      const shape = new THREE.Shape(pts);
+      const hole = new THREE.Path();
+      hole.absarc(0, 0, HUB_R, 0, Math.PI * 2, true);
+      shape.holes.push(hole);
+      return shape;
+    }
+
+    const wheelGeo = new THREE.ExtrudeGeometry(genevaShape(), {
+      depth: TH, bevelEnabled: true, bevelThickness: 0.04, bevelSize: 0.04, bevelSegments: 2,
+    });
+    wheelGeo.translate(0, 0, -TH / 2);
+    wheelGeo.computeVertexNormals();
+
+    const barGeo  = new THREE.BoxGeometry(2 * (WHEEL_R - 0.32), 0.2, 0.12);
+    const pinGeo  = new THREE.CylinderGeometry(0.11, 0.11, TH + 0.5, 20);
+    pinGeo.rotateX(Math.PI / 2);
+    const hubGeo  = new THREE.CylinderGeometry(HUB_R + 0.02, HUB_R + 0.02, TH + 0.12, 24);
+    hubGeo.rotateX(Math.PI / 2);
+
+    function mat(color, rough = 0.55, metal = 0.1) {
+      return new THREE.MeshStandardMaterial({ color, roughness: rough, metalness: metal });
+    }
+    const bodyMat = mat(COL.body, 0.6);
+    const dialMat = mat(COL.dial, 0.5);
+    const pinMat  = mat(COL.pin, 0.4, 0.2);
+    const crankMat = mat(COL.crank, 0.5);
+    const hubMat  = mat(COL.hub, 0.4, 0.3);
+
+    const canvas = document.getElementById('scene');
+    const renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
+    renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+    renderer.shadowMap.enabled = true;
+    renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+
+    const scene = new THREE.Scene();
+    scene.background = new THREE.Color(COL.bg);
+
+    const camera = new THREE.PerspectiveCamera(42, 1, 0.1, 200);
+    const controls = new OrbitControls(camera, renderer.domElement);
+    controls.enableDamping = true;
+    controls.minDistance = 6;
+    controls.maxDistance = 70;
+
+    scene.add(new THREE.AmbientLight(0xffffff, 0.55));
+    const key = new THREE.DirectionalLight(0xffffff, 0.95);
+    key.position.set(6, 12, 10); key.castShadow = true;
+    key.shadow.mapSize.set(2048, 2048);
+    key.shadow.camera.left = -30; key.shadow.camera.right = 30;
+    key.shadow.camera.top = 30; key.shadow.camera.bottom = -30;
+    scene.add(key);
+    const fill = new THREE.DirectionalLight(0xffffff, 0.3);
+    fill.position.set(-8, 4, 6); scene.add(fill);
+
+    const ground = new THREE.Mesh(
+      new THREE.PlaneGeometry(400, 400),
+      new THREE.MeshStandardMaterial({ color: 0xe9e6dc, roughness: 0.95 })
+    );
+    ground.rotation.x = -Math.PI / 2;
+    ground.position.y = -WHEEL_R - 0.8;
+    ground.receiveShadow = true;
+    scene.add(ground);
+
+    let N = 5;
+    let machine = null;
+
+    function tritColor(t) { return t > 0 ? COL.pos : t < 0 ? COL.neg : COL.zero; }
+
+    function buildMachine(n) {
+      if (machine) { scene.remove(machine.group); }
+      const group = new THREE.Group();
+      const wheels = [];
+      const xOf = (k) => ((n - 1) * C) / 2 - k * C;
+
+      for (let k = 0; k < n; k++) {
+        const pivot = new THREE.Group();
+        pivot.position.set(xOf(k), 0, 0);
+
+        const wheel = new THREE.Mesh(wheelGeo, bodyMat);
+        wheel.castShadow = true; wheel.receiveShadow = true;
+        pivot.add(wheel);
+
+        const hub = new THREE.Mesh(hubGeo, hubMat);
+        pivot.add(hub);
+
+        const barMat = mat(COL.zero, 0.4, 0.15);
+        const bar = new THREE.Mesh(barGeo, barMat);
+        bar.position.z = TH / 2 + 0.07;
+        bar.castShadow = true;
+        pivot.add(bar);
+
+        if (k < n - 1) {
+          for (const a of [90, 270]) {
+            const pin = new THREE.Mesh(pinGeo, pinMat);
+            pin.position.set(PIN_R * Math.cos(a * DEG), PIN_R * Math.sin(a * DEG), 0);
+            pin.castShadow = true;
+            pivot.add(pin);
+          }
+        }
+
+        group.add(pivot);
+        wheels.push({ pivot, barMat });
+      }
+
+      const crankPivot = new THREE.Group();
+      crankPivot.position.set(xOf(0) + C, 0, 0);
+      const disc = new THREE.Mesh(
+        new THREE.CylinderGeometry(WHEEL_R * 0.55, WHEEL_R * 0.55, TH, 28).rotateX(Math.PI / 2),
+        crankMat
+      );
+      disc.castShadow = true;
+      crankPivot.add(disc);
+      const cpin = new THREE.Mesh(pinGeo, pinMat);
+      cpin.position.set(PIN_R, 0, 0);
+      cpin.castShadow = true;
+      crankPivot.add(cpin);
+      const handle = new THREE.Mesh(
+        new THREE.BoxGeometry(WHEEL_R * 0.9, 0.16, 0.16),
+        crankMat
+      );
+      handle.position.set(WHEEL_R * 0.35, 0, TH / 2 + 0.1);
+      crankPivot.add(handle);
+      group.add(crankPivot);
+
+      group.position.x = -C / 2;
+
+      scene.add(group);
+      machine = { group, wheels, crankPivot };
+      frameCamera(n);
+      document.getElementById('nval').textContent = n;
+      const MAX = (Math.pow(3, n) - 1) / 2;
+      document.getElementById('rangeline').textContent = `${n} wheels · range −${MAX} … +${MAX}`;
+    }
+
+    function frameCamera(n) {
+      const span = n * C + C;
+      camera.position.set(span * 0.10, span * 0.34 + 2.5, span * 0.92 + 5);
+      controls.target.set(0, 0, 0);
+      controls.update();
+    }
+
+    let crankTurns = 0;
+    let targetTurns = 0;
+    let running = false;
+    const slider = document.getElementById('crank');
+
+    function setTarget(t) {
+      targetTurns = Math.max(-40, Math.min(40, t));
+    }
+
+    const decEl = document.getElementById('decimal');
+    const tritsEl = document.getElementById('trits');
+    const crankEl = document.getElementById('crankreadout');
+
+    function updateReadout(th) {
+      let V = 0;
+      const trits = th.map(rotToTrit);
+      for (let k = 0; k < trits.length; k++) V += trits[k] * Math.pow(3, k);
+      decEl.textContent = (V > 0 ? '+' : '') + V;
+      decEl.className = 'decimal ' + (V > 0 ? 'pos' : V < 0 ? 'neg' : '');
+      tritsEl.innerHTML = trits.slice().reverse().map(t => {
+        const cls = t > 0 ? 'p' : t < 0 ? 'n' : 'z';
+        const g = t > 0 ? '+' : t < 0 ? '−' : '0';
+        return `<span class="t ${cls}">${g}</span>`;
+      }).join(' ');
+      crankEl.textContent = `crank ${crankTurns >= 0 ? '+' : ''}${crankTurns.toFixed(2)} turns`;
+    }
+
+    let last = performance.now();
+    function animate(now) {
+      requestAnimationFrame(animate);
+      const dt = Math.min(0.05, (now - last) / 1000); last = now;
+
+      if (running) setTarget(targetTurns + dt * 0.7);
+
+      const k = 1 - Math.exp(-dt * 7);
+      crankTurns += (targetTurns - crankTurns) * k;
+      if (Math.abs(targetTurns - crankTurns) < 1e-4) crankTurns = targetTurns;
+      if (!running && Math.abs(parseFloat(slider.value) - crankTurns) > 1e-3) slider.value = crankTurns;
+
+      const crankDeg = crankTurns * 360;
+      const th = solveWheels(crankDeg, N);
+      for (let kk = 0; kk < N; kk++) {
+        const w = machine.wheels[kk];
+        w.pivot.rotation.z = th[kk] * DEG;
+        w.barMat.color.setHex(tritColor(rotToTrit(th[kk])));
+      }
+      machine.crankPivot.rotation.z = crankDeg * DEG;
+
+      updateReadout(th);
+      controls.update();
+      renderer.render(scene, camera);
+    }
+
+    slider.addEventListener('input', () => {
+      running = false; document.getElementById('run').classList.remove('on');
+      crankTurns = targetTurns = parseFloat(slider.value);
+    });
+    const roundTurn = () => Math.round(crankTurns);
+    document.getElementById('inc').onclick  = () => setTarget(roundTurn() + 1);
+    document.getElementById('dec').onclick  = () => setTarget(roundTurn() - 1);
+    document.getElementById('inc9').onclick = () => setTarget(roundTurn() + 9);
+    document.getElementById('dec9').onclick = () => setTarget(roundTurn() - 9);
+    document.getElementById('reset').onclick = () => { setTarget(0); };
+    document.getElementById('run').onclick = (e) => {
+      running = !running; e.target.classList.toggle('on', running);
+    };
+    document.getElementById('nPlus').onclick  = () => { if (N < 7) { N++; buildMachine(N); } };
+    document.getElementById('nMinus').onclick = () => { if (N > 2) { N--; buildMachine(N); } };
+
+    function resize() {
+      const w = innerWidth, h = innerHeight;
+      renderer.setSize(w, h, false);
+      camera.aspect = w / h; camera.updateProjectionMatrix();
+    }
+    addEventListener('resize', resize);
+
+    buildMachine(N);
+    resize();
+    requestAnimationFrame(animate);
+  </script>
+</body>
+</html>
