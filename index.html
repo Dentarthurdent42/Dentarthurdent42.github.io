@@ -570,6 +570,71 @@
               </div>
             </article>
 
+            <article class="card project-card">
+              <div class="project-top">
+                <div>
+                  <h3>Balanced Ternary Counter &middot; Geneva Drives</h3>
+                </div>
+                <span class="tag">Mechanical computing + animation</span>
+              </div>
+              <p>
+                A 2D animated counter showing how <strong>6-slot Geneva drives</strong> implement
+                balanced ternary counting in hardware. Each wheel indexes 60&deg; per input crank
+                revolution; a twin-pin coupler between adjacent wheels propagates the carry every
+                three counts, exactly like a balanced-ternary ripple counter.
+              </p>
+              <p>
+                Step it one count at a time to watch individual carries, or hit Run to see carries
+                ripple leftward through the train as the machine counts.
+              </p>
+              <iframe
+                class="project-frame"
+                src="./projects/balanced-ternary-adder/counter.html"
+                title="Balanced Ternary Counter live embed"
+                loading="lazy"
+              ></iframe>
+              <p class="embed-note">
+                If the embedded demo doesn't load, open it directly from the repository or deployed project page.
+              </p>
+              <div class="project-links">
+                <a href="https://github.com/Dentarthurdent42/BalancedTernaryAdder">View repository</a>
+                <a href="./projects/balanced-ternary-adder/counter.html">Open live demo</a>
+              </div>
+            </article>
+
+            <article class="card project-card">
+              <div class="project-top">
+                <div>
+                  <h3>Balanced Ternary Counter &middot; 3D Simulation</h3>
+                </div>
+                <span class="tag">3D graphics + mechanical simulation</span>
+              </div>
+              <p>
+                A real-time <strong>3D Three.js simulation</strong> of the same Geneva-drive
+                counter, with physically modelled kinematics. The wheel angles are solved from
+                a single crank input degree using the true external Geneva transfer function &mdash;
+                carries are emergent from the linkage geometry, not scripted.
+              </p>
+              <p>
+                Drag to orbit, scroll to zoom, and use the crank slider or buttons to drive the
+                machine. Adjust the number of wheels (2&ndash;7) to see how the carry chain scales.
+              </p>
+              <iframe
+                class="project-frame"
+                src="./projects/balanced-ternary-adder/counter3d.html"
+                title="Balanced Ternary Counter 3D live embed"
+                loading="lazy"
+                height="560"
+              ></iframe>
+              <p class="embed-note">
+                If the embedded demo doesn't load, open it directly from the repository or deployed project page.
+              </p>
+              <div class="project-links">
+                <a href="https://github.com/Dentarthurdent42/BalancedTernaryAdder">View repository</a>
+                <a href="./projects/balanced-ternary-adder/counter3d.html">Open live demo</a>
+              </div>
+            </article>
+
           </div>
         </div>
       </section>

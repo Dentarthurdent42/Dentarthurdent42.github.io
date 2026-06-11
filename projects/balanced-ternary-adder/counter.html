@@ -1,0 +1,435 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Balanced Ternary Counter · Geneva Drives</title>
+<style>
+  :root {
+    --bg: oklch(0.975 0.005 80);
+    --panel: oklch(0.99 0.003 80);
+    --ink: oklch(0.18 0.01 80);
+    --ink-2: oklch(0.42 0.008 80);
+    --ink-3: oklch(0.62 0.01 80);
+    --rule: oklch(0.88 0.005 80);
+    --accent: oklch(0.58 0.16 35);
+    --accent-pos: oklch(0.58 0.12 150);
+    --accent-neg: oklch(0.58 0.16 35);
+    --socket: oklch(0.28 0.008 80);
+    --dial:   oklch(0.46 0.008 80);
+    --slot:   oklch(0.965 0.004 80);
+    --pin:    oklch(0.58 0.16 35);
+    --carry:  oklch(0.70 0.13 80);
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; height: 100%; }
+  body {
+    background: var(--bg);
+    color: var(--ink);
+    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+    min-height: 100svh;
+    overscroll-behavior: none;
+  }
+  .root { min-height: 100svh; display: grid; grid-template-rows: auto 1fr; }
+
+  .topbar {
+    padding: 18px 28px;
+    border-bottom: 1px solid var(--rule);
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 16px;
+    flex-wrap: wrap;
+  }
+  .title { font-size: 14px; letter-spacing: 0.06em; font-weight: 500; }
+  .sub {
+    font-family: "JetBrains Mono", "SF Mono", ui-monospace, Menlo, monospace;
+    font-variant-numeric: tabular-nums;
+    font-size: 11px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--ink-2);
+  }
+  .topbar .links a { color: var(--ink-2); text-decoration: none; border-bottom: 1px solid var(--rule); }
+  .topbar .links a:hover { color: var(--ink); }
+
+  .stage {
+    padding: 34px 24px 70px;
+    display: grid;
+    place-items: center;
+    gap: 26px;
+  }
+
+  .train {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-wrap: nowrap;
+    max-width: 100%;
+    overflow-x: auto;
+    padding: 8px 4px 4px;
+  }
+  .digit { display: grid; justify-items: center; gap: 6px; }
+  .digit .place {
+    font-family: "JetBrains Mono", "SF Mono", ui-monospace, Menlo, monospace;
+    font-size: 11px;
+    letter-spacing: 0.06em;
+    color: var(--ink-3);
+  }
+  .digit .trit {
+    font-family: "SF Mono", ui-monospace, Menlo, monospace;
+    font-variant-numeric: tabular-nums;
+    font-size: 15px;
+    line-height: 1;
+    color: var(--ink-3);
+    min-height: 1em;
+  }
+  .digit.pos .trit { color: var(--accent-pos); }
+  .digit.neg .trit { color: var(--accent-neg); }
+
+  .coupler {
+    display: grid;
+    place-items: center;
+    width: var(--couple, 34px);
+    align-self: center;
+    margin-top: -14px;
+  }
+
+  .readout {
+    display: grid;
+    justify-items: center;
+    gap: 8px;
+  }
+  .readout .decimal {
+    font-family: "SF Mono", ui-monospace, Menlo, monospace;
+    font-variant-numeric: tabular-nums;
+    font-size: 44px;
+    letter-spacing: -0.01em;
+    transition: color 220ms ease;
+  }
+  .readout .decimal.pos { color: var(--accent-pos); }
+  .readout .decimal.neg { color: var(--accent-neg); }
+  .readout .trits {
+    font-family: "JetBrains Mono", "SF Mono", ui-monospace, Menlo, monospace;
+    font-size: 12px;
+    letter-spacing: 0.18em;
+    color: var(--ink-2);
+  }
+
+  .controls {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+  .controls button {
+    font-family: inherit;
+    font-size: 13px;
+    letter-spacing: 0.04em;
+    border: 1px solid var(--socket);
+    background: oklch(0.99 0.003 80);
+    color: var(--ink);
+    padding: 9px 15px;
+    border-radius: 999px;
+    cursor: pointer;
+    transition: background 140ms ease, color 140ms ease, transform 80ms ease;
+  }
+  .controls button.ghost { color: var(--ink-2); background: transparent; border-color: var(--rule); }
+  .controls button:hover { background: var(--ink); color: var(--bg); border-color: var(--ink); }
+  .controls button:active { transform: translateY(1px); }
+  .controls button.run { border-color: var(--accent); color: var(--accent); }
+  .controls button.run.on { background: var(--accent); color: var(--bg); }
+
+  .hint {
+    font-size: 11px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--ink-3);
+    text-align: center;
+    max-width: 60ch;
+    line-height: 1.7;
+  }
+  .legend {
+    display: flex; gap: 18px; flex-wrap: wrap; justify-content: center;
+    font-size: 11px; letter-spacing: 0.04em; color: var(--ink-2);
+  }
+  .legend b { font-weight: 600; color: var(--ink); }
+
+  .geneva-svg { display: block; }
+</style>
+</head>
+<body>
+  <div id="root"></div>
+
+  <script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+
+  <script type="text/babel">
+    const { useState, useEffect, useRef } = React;
+
+    const R       = 60;
+    const SLOT_W  = 13;
+    const SLOT_IN = 20;
+    const HUB_R   = 9;
+
+    const HEX = (() => {
+      const v = [];
+      for (let i = 0; i < 6; i++) {
+        const a = (-90 + i * 60) * Math.PI / 180;
+        v.push([Math.cos(a) * R, Math.sin(a) * R]);
+      }
+      return v;
+    })();
+    const HEX_PTS = HEX.map(([x, y]) => `${x.toFixed(2)},${y.toFixed(2)}`).join(' ');
+
+    function rotToTrit(deg) {
+      const m = ((Math.round(deg / 60) % 3) + 3) % 3;
+      return m === 0 ? 0 : m === 1 ? 1 : -1;
+    }
+
+    function decompose(V, N) {
+      const trits = [], counts = [];
+      let h = V;
+      for (let k = 0; k < N; k++) {
+        counts.push(h);
+        let r = ((h % 3) + 3) % 3;
+        let t = r === 0 ? 0 : r === 1 ? 1 : -1;
+        trits.push(t);
+        h = (h - t) / 3;
+      }
+      return { trits, counts };
+    }
+
+    function useTween(target, duration) {
+      const [shown, setShown] = useState(target);
+      const shownRef = useRef(target);
+      const rafRef = useRef(null);
+      const prevTargetRef = useRef(target);
+      useEffect(() => { shownRef.current = shown; }, [shown]);
+      useEffect(() => {
+        if (target === prevTargetRef.current) return;
+        prevTargetRef.current = target;
+        if (rafRef.current) cancelAnimationFrame(rafRef.current);
+        if (duration <= 0) { shownRef.current = target; setShown(target); return; }
+        const from = shownRef.current;
+        const t0 = performance.now();
+        const tick = (now) => {
+          const t = Math.min(1, (now - t0) / duration);
+          const e = t < 0.5 ? 4*t*t*t : 1 - Math.pow(-2*t + 2, 3) / 2;
+          const v = from + (target - from) * e;
+          shownRef.current = v; setShown(v);
+          if (t < 1) rafRef.current = requestAnimationFrame(tick); else rafRef.current = null;
+        };
+        rafRef.current = requestAnimationFrame(tick);
+        return () => { if (rafRef.current) cancelAnimationFrame(rafRef.current); };
+      }, [target, duration]);
+      return shown;
+    }
+
+    function GenevaWheel({ rotDeg, trit }) {
+      const shown = useTween(rotDeg, 430);
+      const rad = shown * Math.PI / 180, cos = Math.cos(rad), sin = Math.sin(rad);
+      const rot = ([x, y]) => [cos * x - sin * y, sin * x + cos * y];
+
+      const slots = [];
+      for (let i = 0; i < 6; i++) {
+        const a = (-90 + i * 60) * Math.PI / 180;
+        const ux = Math.cos(a), uy = Math.sin(a);
+        const outer = [ux * (R + 2), uy * (R + 2)];
+        const inner = [ux * SLOT_IN, uy * SLOT_IN];
+        const [ox, oy] = rot(outer), [ix, iy] = rot(inner);
+        slots.push(
+          <line key={i} x1={ox.toFixed(2)} y1={oy.toFixed(2)} x2={ix.toFixed(2)} y2={iy.toFixed(2)}
+                stroke="var(--slot)" strokeWidth={SLOT_W} strokeLinecap="round" />
+        );
+      }
+      const hexPts = HEX.map(rot).map(([x, y]) => `${x.toFixed(2)},${y.toFixed(2)}`).join(' ');
+      const [bx1, by1] = rot([0, -R + 6]);
+      const [bx2, by2] = rot([0,  R - 6]);
+      const tritColor = trit > 0 ? 'var(--accent-pos)' : trit < 0 ? 'var(--accent-neg)' : 'var(--dial)';
+
+      return (
+        <svg className="geneva-svg" viewBox="-72 -72 144 144" width="100%" height="100%">
+          <circle cx="0" cy="0" r={R} fill="var(--socket)" />
+          {slots}
+          <polygon points={hexPts} fill="none" stroke="var(--dial)" strokeWidth="2.4"
+                   strokeLinejoin="miter" opacity="0.65" />
+          <line x1={bx1.toFixed(2)} y1={by1.toFixed(2)} x2={bx2.toFixed(2)} y2={by2.toFixed(2)}
+                stroke={tritColor} strokeWidth="5" strokeLinecap="round" />
+          <circle cx="0" cy="0" r={HUB_R} fill="var(--dial)" />
+          <circle cx="0" cy="0" r={HUB_R} fill="none" stroke="var(--socket)" strokeWidth="2" />
+        </svg>
+      );
+    }
+
+    function InputDriver({ phaseDeg }) {
+      const shown = useTween(phaseDeg, 430);
+      const rad = shown * Math.PI / 180;
+      const pinx = Math.cos(rad) * 30, piny = Math.sin(rad) * 30;
+      return (
+        <svg className="geneva-svg" viewBox="-56 -56 112 112" width="100%" height="100%">
+          <circle cx="0" cy="0" r="42" fill="var(--socket)" opacity="0.9" />
+          <path d="M 0 0 L 42 0 A 42 42 0 0 0 29.7 -29.7 Z" fill="var(--bg)" />
+          <line x1="0" y1="0" x2={pinx.toFixed(2)} y2={piny.toFixed(2)}
+                stroke="var(--dial)" strokeWidth="4" strokeLinecap="round" />
+          <circle cx={pinx.toFixed(2)} cy={piny.toFixed(2)} r="6" fill="var(--pin)" />
+          <circle cx="0" cy="0" r={HUB_R} fill="var(--dial)" />
+        </svg>
+      );
+    }
+
+    function Coupler({ carrierDeg, hot }) {
+      const shown = useTween(carrierDeg, 430);
+      const rad = shown * Math.PI / 180;
+      const p = (sgn) => [Math.cos(rad) * sgn * 16, Math.sin(rad) * sgn * 16];
+      const [ax, ay] = p(1), [bx, by] = p(-1);
+      return (
+        <svg className="geneva-svg" viewBox="-26 -26 52 52" width="100%" height="100%"
+             style={{ transition: 'filter 200ms ease', filter: hot ? 'drop-shadow(0 0 6px var(--carry))' : 'none' }}>
+          <line x1={ax.toFixed(2)} y1={ay.toFixed(2)} x2={bx.toFixed(2)} y2={by.toFixed(2)}
+                stroke={hot ? 'var(--carry)' : 'var(--ink-3)'} strokeWidth="2.5" strokeLinecap="round" />
+          <circle cx={ax.toFixed(2)} cy={ay.toFixed(2)} r="4" fill={hot ? 'var(--carry)' : 'var(--pin)'} />
+          <circle cx={bx.toFixed(2)} cy={by.toFixed(2)} r="4" fill={hot ? 'var(--carry)' : 'var(--pin)'} />
+          <circle cx="0" cy="0" r="5" fill="var(--ink-2)" />
+        </svg>
+      );
+    }
+
+    function App() {
+      const N = 7;
+      const MAX = (Math.pow(3, N) - 1) / 2;
+      const [V, setV] = useState(0);
+      const [running, setRunning] = useState(false);
+      const [dir, setDir] = useState(1);
+      const [crank, setCrank] = useState(0);
+      const prevCounts = useRef(null);
+      const [hotCarry, setHotCarry] = useState(new Set());
+      const carryTimer = useRef(null);
+
+      useEffect(() => () => { if (carryTimer.current) clearTimeout(carryTimer.current); }, []);
+
+      const { trits, counts } = decompose(V, N);
+
+      useEffect(() => {
+        const prev = prevCounts.current;
+        if (prev) {
+          const hot = new Set();
+          for (let k = 1; k < N; k++) if (counts[k] !== prev[k]) hot.add(k);
+          if (hot.size) {
+            setHotCarry(hot);
+            if (carryTimer.current) clearTimeout(carryTimer.current);
+            carryTimer.current = setTimeout(() => setHotCarry(new Set()), 420);
+          }
+        }
+        prevCounts.current = counts;
+      });
+
+      function step(d) {
+        setV(v => {
+          const nv = Math.max(-MAX, Math.min(MAX, v + d));
+          if (nv !== v) setCrank(c => c + (nv - v) * 360);
+          return nv;
+        });
+      }
+      function reset() { setV(0); setCrank(0); }
+
+      useEffect(() => {
+        if (!running) return;
+        const id = setInterval(() => {
+          setV(v => {
+            let nv = v + dir;
+            if (nv > MAX) { nv = MAX; setDir(-1); }
+            if (nv < -MAX) { nv = -MAX; setDir(1); }
+            if (nv !== v) setCrank(c => c + (nv - v) * 360);
+            return nv;
+          });
+        }, 520);
+        return () => clearInterval(id);
+      }, [running, dir]);
+
+      const cls = (t) => t > 0 ? 'pos' : t < 0 ? 'neg' : '';
+      const glyph = (t) => t > 0 ? '+' : t < 0 ? '−' : '0';
+
+      const items = [];
+      for (let k = N - 1; k >= 0; k--) {
+        items.push(
+          <div className={`digit ${cls(trits[k])}`} key={`w${k}`} style={{ width: 96 }}>
+            <div className="place">3<sup>{k}</sup></div>
+            <GenevaWheel rotDeg={counts[k] * 60} trit={trits[k]} />
+            <div className="trit">{glyph(trits[k])}</div>
+          </div>
+        );
+        if (k > 0) {
+          items.push(
+            <div className="coupler" key={`c${k}`} style={{ width: 34 }}>
+              <Coupler carrierDeg={counts[k - 1] * 60} hot={hotCarry.has(k)} />
+            </div>
+          );
+        }
+      }
+      items.push(
+        <div className="coupler" key="ci" style={{ width: 34 }}>
+          <Coupler carrierDeg={crank} hot={false} />
+        </div>
+      );
+      items.push(
+        <div className="digit" key="input" style={{ width: 84 }}>
+          <div className="place">input</div>
+          <InputDriver phaseDeg={crank} />
+          <div className="trit">crank</div>
+        </div>
+      );
+
+      return (
+        <div className="root">
+          <header className="topbar">
+            <div className="title">Balanced Ternary Counter &middot; 6-Slot Geneva Drives</div>
+            <div className="sub">{N} wheels &middot; range &minus;{MAX} &hellip; +{MAX} &middot; &divide;3 carry per stage</div>
+            <div className="links sub"><a href="./index.html">the adder &nearr;</a> &middot; <a href="./counter3d.html">3D view &nearr;</a></div>
+          </header>
+
+          <main className="stage">
+            <div className="train">{items}</div>
+
+            <div className="readout">
+              <div className={`decimal ${cls(V)}`}>{V > 0 ? '+' : ''}{V}</div>
+              <div className="trits">
+                {trits.slice().reverse().map(glyph).join(' ')}
+                {'  '}= &Sigma; trit&#8336;&middot;3&#8331;
+              </div>
+            </div>
+
+            <div className="controls">
+              <button onClick={() => step(-1)}>&minus; count</button>
+              <button onClick={() => step(+1)}>+ count</button>
+              <button className="ghost" onClick={() => step(-9)}>&minus;9</button>
+              <button className="ghost" onClick={() => step(+9)}>+9</button>
+              <button className={`run ${running ? 'on' : ''}`} onClick={() => setRunning(r => !r)}>
+                {running ? 'stop' : 'run'}
+              </button>
+              <button className="ghost" onClick={reset}>reset</button>
+            </div>
+
+            <div className="legend">
+              <span><b>wheel</b> 6-slot Geneva &middot; 60&deg; per count</span>
+              <span><b>bar</b> reads the trit (0 / + / &minus;)</span>
+              <span><b>coupler</b> twin pins &middot; one carry every 3 counts</span>
+            </div>
+
+            <div className="hint">
+              each count turns the input crank one revolution, indexing the units wheel 60&deg;.
+              every third count, a wheel's twin-pin coupler indexes the next wheel &mdash; a balanced-ternary carry.
+              run it to watch the carries ripple left.
+            </div>
+          </main>
+        </div>
+      );
+    }
+
+    ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+  </script>
+</body>
+</html>
