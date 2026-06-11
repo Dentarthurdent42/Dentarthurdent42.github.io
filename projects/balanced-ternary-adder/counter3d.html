@@ -106,15 +106,15 @@
       <div class="crank" id="crankreadout"></div>
     </div>
     <div class="crankrow">
-      <label>crank</label>
+      <label for="crank">crank</label>
       <input type="range" id="crank" min="-40" max="40" step="0.01" value="0" />
     </div>
     <div class="controls">
       <div class="nwheels">
         <span>trits</span>
-        <button class="ghost" id="nMinus">&minus;</button>
+        <button class="ghost" id="nMinus" aria-label="Decrease trit count">&minus;</button>
         <span id="nval">5</span>
-        <button class="ghost" id="nPlus">+</button>
+        <button class="ghost" id="nPlus" aria-label="Increase trit count">+</button>
       </div>
       <button id="dec">&minus; count</button>
       <button id="inc">+ count</button>
@@ -230,10 +230,11 @@
       return new THREE.MeshStandardMaterial({ color, roughness: rough, metalness: metal });
     }
     const bodyMat = mat(COL.body, 0.6);
-    const dialMat = mat(COL.dial, 0.5);
     const pinMat  = mat(COL.pin, 0.4, 0.2);
     const crankMat = mat(COL.crank, 0.5);
     const hubMat  = mat(COL.hub, 0.4, 0.3);
+    const sharedGeometries = new Set([wheelGeo, barGeo, pinGeo, hubGeo]);
+    const sharedMaterials = new Set([bodyMat, pinMat, crankMat, hubMat]);
 
     const canvas = document.getElementById('scene');
     const renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
@@ -274,8 +275,22 @@
 
     function tritColor(t) { return t > 0 ? COL.pos : t < 0 ? COL.neg : COL.zero; }
 
+    function disposeMachineGroup(group) {
+      group.traverse((node) => {
+        if (!node.isMesh) return;
+        if (node.geometry && !sharedGeometries.has(node.geometry)) node.geometry.dispose();
+        const materials = Array.isArray(node.material) ? node.material : [node.material];
+        for (const material of materials) {
+          if (material && !sharedMaterials.has(material)) material.dispose();
+        }
+      });
+    }
+
     function buildMachine(n) {
-      if (machine) { scene.remove(machine.group); }
+      if (machine) {
+        disposeMachineGroup(machine.group);
+        scene.remove(machine.group);
+      }
       const group = new THREE.Group();
       const wheels = [];
       const xOf = (k) => ((n - 1) * C) / 2 - k * C;
