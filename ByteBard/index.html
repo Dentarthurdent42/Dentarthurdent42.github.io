@@ -1,0 +1,33 @@
+<!doctype html>
+<!--
+  MotionMuse used to be ByteBard, served from this address. QR codes shared in
+  that period point here, and a QR code can never be updated — so this page
+  exists to forward them.
+
+  The setup lives in the URL fragment (#s=…), so it is carried across by hand:
+  an HTTP or meta-refresh redirect would drop it, and the code would open an
+  empty app.
+-->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>MotionMuse</title>
+<script>
+  location.replace('https://dentarthurdent42.github.io/MotionMuse/' + location.search + location.hash);
+</script>
+<style>
+  body { font: 16px/1.5 system-ui, sans-serif; margin: 0; padding: 16px;
+         background: #fff; color: #111; }
+  @media (prefers-color-scheme: dark) { body { background: #111; color: #eee; } a { color: #8ab4ff; } }
+</style>
+</head>
+<body>
+  <p>ByteBard is now MotionMuse. <a id="go" href="https://dentarthurdent42.github.io/MotionMuse/">Continue to MotionMuse</a>.</p>
+  <script>
+    // Only reached if the redirect above did not happen: keep the setup on the link.
+    document.getElementById('go').href += location.search + location.hash;
+  </script>
+</body>
+</html>
