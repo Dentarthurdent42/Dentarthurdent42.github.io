@@ -487,10 +487,13 @@ const SYMBOLS={'Length':['l','L','x'],'Displacement':['x','Δx','s','d'],'Wavele
 const PT_OF_NAME=new Map();
 PTS.forEach(pt=>pt.entries.forEach(n=>PT_OF_NAME.set(n,pt)));
 
+// Sphere size counts kinds (incommensurable quantities) on it, not synonyms: R0 for one kind,
+// growing with each extra kind. It is set per view, since hiding a dimension can merge spheres.
+const R0=0.085, radiusFor=k=>R0+Math.min(k-1,7)*0.03;
 const pickMeshes=[];
 PTS.forEach(pt=>{
   const col=coordToColor(pt.L,pt.M,pt.T); pt.col=col;
-  const r=0.085+Math.min(pt.entries.length-1,7)*0.022;
+  const r=R0; pt.sc=1;
   pt.lum=(0.299*col.r+0.587*col.g+0.114*col.b)/255;
   pt.vis=new THREE.Mesh(new THREE.SphereGeometry(r,20,20),
     new THREE.MeshPhongMaterial({color:col.hex,emissive:col.hex,emissiveIntensity:0.15,shininess:110}));
@@ -550,7 +553,7 @@ function buildBeads(pt){
   if(pt.holder){scene.remove(pt.holder);pt.holder=null;}
   pt.beads=null;
   const kinds=grpKinds(pt), n=kinds.length; if(!pt.lead||n<2) return;
-  const R=pt.vis.geometry.parameters.radius+0.13;
+  const R=R0*pt.sc+0.13;
   const holder=new THREE.Group(); holder.position.copy(pt.pos); scene.add(holder);
   pt.holder=holder; pt.beads=[];
   kinds.forEach((members,i)=>{
@@ -585,6 +588,10 @@ function placePoints(){
     // The sphere is led by the point with the smallest |A| (then the most names)
     arr.sort((a,b)=>Math.abs(a.A)-Math.abs(b.A)||b.entries.length-a.entries.length);
     const L=arr[0]; L.lead=true; L.grp=arr; arr.forEach(p=>p.leadPt=L);
+  });
+  PTS.forEach(pt=>{
+    pt.sc=radiusFor(Math.max(1,grpKinds(pt).length))/R0;
+    [pt.vis,pt.glow,pt.ring,pt.pick].forEach(o=>o.scale.setScalar(pt.sc));
   });
   beadPickMeshes.length=0;
   PTS.forEach(buildBeads);
@@ -1077,14 +1084,14 @@ drawBtn.addEventListener('click',()=>setDrawMode(!drawMode));
 let lblSize=9.5, lblFont="'Courier New',monospace", lblEffect='halo';
 function applyNodeEffect(){
   PTS.forEach(pt=>{
-    pt.rim.visible=false; pt.rim.material.opacity=0;
+    pt.rim.visible=false; pt.rim.material.opacity=0; pt.rim.scale.setScalar(pt.sc);
     pt.glow.visible=false; pt.glow.material.opacity=0;
     pt.ring.visible=false; pt.ring.material.opacity=0;
     if(!pt.lead) return;
     const c=pt.col;
-    if(lblEffect==='halo'){pt.rim.visible=true;pt.rim.material.color.setRGB(.01,.01,.03);pt.rim.material.opacity=.92;pt.rim.scale.setScalar(1);}
-    else if(lblEffect==='shadow'){pt.rim.visible=true;pt.rim.material.color.setRGB(0,0,.02);pt.rim.material.opacity=.6;pt.rim.scale.setScalar(1.15);}
-    else if(lblEffect==='outline'){pt.rim.visible=true;if(pt.lum>.55)pt.rim.material.color.setRGB(0,0,.02);else pt.rim.material.color.setRGB(.88,.88,.95);pt.rim.material.opacity=1;pt.rim.scale.setScalar(.95);}
+    if(lblEffect==='halo'){pt.rim.visible=true;pt.rim.material.color.setRGB(.01,.01,.03);pt.rim.material.opacity=.92;pt.rim.scale.setScalar(1*pt.sc);}
+    else if(lblEffect==='shadow'){pt.rim.visible=true;pt.rim.material.color.setRGB(0,0,.02);pt.rim.material.opacity=.6;pt.rim.scale.setScalar(1.15*pt.sc);}
+    else if(lblEffect==='outline'){pt.rim.visible=true;if(pt.lum>.55)pt.rim.material.color.setRGB(0,0,.02);else pt.rim.material.color.setRGB(.88,.88,.95);pt.rim.material.opacity=1;pt.rim.scale.setScalar(.95*pt.sc);}
     else if(lblEffect==='glow'){pt.glow.visible=true;pt.glow.material.color.setHex(c.hex);pt.glow.material.opacity=.22;}
     else if(lblEffect==='pill'){pt.ring.visible=true;pt.ring.material.color.setHex(c.hex);pt.ring.material.opacity=.7;pt.glow.visible=true;pt.glow.material.color.setHex(c.hex);pt.glow.material.opacity=.1;}
     pt.rim.material.needsUpdate=true; pt.glow.material.needsUpdate=true; pt.ring.material.needsUpdate=true;
