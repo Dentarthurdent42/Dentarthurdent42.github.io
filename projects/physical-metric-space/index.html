@@ -22,12 +22,15 @@ html,body{width:100%;height:100%;overflow:hidden;background:#06061a}
   background:rgba(4,4,18,.97);border:1px solid rgba(255,255,255,.13);border-radius:9px;
   font:12px/1.7 'Courier New',monospace;color:#dde;pointer-events:none;
   box-shadow:0 6px 28px rgba(0,0,0,.8)}
-#info{position:absolute;top:12px;left:12px;z-index:5;padding:6px 11px;
+#tl{position:absolute;top:12px;left:12px;z-index:25;display:flex;flex-direction:column;align-items:flex-start;gap:8px;
+  max-width:calc(100% - 58px);pointer-events:none}
+#tl>*{pointer-events:auto}
+#info{position:relative;max-width:100%;padding:6px 11px;
   background:rgba(4,4,18,.88);border:1px solid rgba(255,255,255,.07);
   border-radius:7px;pointer-events:none}
 #badge{position:absolute;bottom:14px;left:12px;z-index:5;padding:3px 8px;
   background:rgba(4,4,18,.82);border:1px solid rgba(255,255,255,.06);
-  border-radius:5px;font:8px 'Courier New',monospace;color:#3a4e6a;pointer-events:none}
+  border-radius:5px;font:10px 'Courier New',monospace;color:#6380aa;pointer-events:none}
 #panel{position:absolute;top:0;right:0;bottom:0;width:220px;
   background:rgba(5,5,22,.97);border-left:1px solid rgba(255,255,255,.09);
   font:11px 'Courier New',monospace;color:#aab;overflow-y:auto;z-index:30;
@@ -43,20 +46,20 @@ html,body{width:100%;height:100%;overflow:hidden;background:#06061a}
 #tab.open{right:220px}
 #tab:hover{background:rgba(16,16,48,.99)}
 .ti{font-size:16px;color:#8899ff;pointer-events:none;line-height:1}
-.tl{font:7px/1 'Courier New',monospace;color:#445a88;letter-spacing:.12em;
+.tl{font:7px/1 'Courier New',monospace;color:#667fb3;letter-spacing:.12em;
   writing-mode:vertical-rl;transform:rotate(180deg);text-transform:uppercase;pointer-events:none}
 .psec{padding:8px 11px;border-bottom:1px solid rgba(255,255,255,.06)}
 .psec:last-child{border-bottom:none}
-.ph{color:#3d5280;font-size:9px;letter-spacing:.08em;text-transform:uppercase;
+.ph{color:#667fb6;font-size:9px;letter-spacing:.08em;text-transform:uppercase;
   display:flex;align-items:center;justify-content:space-between;
   cursor:pointer;user-select:none;touch-action:manipulation;
   min-height:36px;padding:4px 0;-webkit-tap-highlight-color:transparent}
-.ph:hover{color:#5577aa}
-.ph-arr{font-size:10px;color:#2a3a60;transition:transform .18s;pointer-events:none}
+.ph:hover{color:#a9bdf0}
+.ph-arr{font-size:10px;color:#637dbb;transition:transform .18s;pointer-events:none}
 .ph-arr.open{transform:rotate(180deg)}
 .pb{overflow:hidden;transition:max-height .22s ease}
 .prow{display:flex;align-items:center;gap:6px;margin:4px 0}
-.pl{color:#445a88;font-size:9px;flex-shrink:0}
+.pl{color:#667fb3;font-size:9px;flex-shrink:0}
 .pv{color:#8899cc;font-size:9px;min-width:34px;text-align:right;flex-shrink:0}
 input[type=range]{-webkit-appearance:none;appearance:none;flex:1;height:3px;
   border-radius:2px;outline:none;cursor:pointer;background:rgba(100,120,200,.25)}
@@ -70,7 +73,7 @@ select{width:100%;background:rgba(6,6,26,.99);border:1px solid rgba(255,255,255,
 .segs{display:flex;gap:4px;flex-wrap:wrap}
 .seg{flex:1;min-width:44px;padding:8px 0;border-radius:5px;
   border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.04);
-  cursor:pointer;font:10px 'Courier New',monospace;color:#667;text-align:center;
+  cursor:pointer;font:10px 'Courier New',monospace;color:#7d7d90;text-align:center;
   touch-action:manipulation;-webkit-tap-highlight-color:transparent;
   transition:background .12s,color .12s}
 .seg:hover,.seg:active{background:rgba(255,255,255,.09);color:#aab}
@@ -81,8 +84,8 @@ select{width:100%;background:rgba(6,6,26,.99);border:1px solid rgba(255,255,255,
   -webkit-tap-highlight-color:transparent;transition:background .12s}
 .pbtn:hover,.pbtn:active{background:rgba(255,255,255,.1)}
 .pbtn.on{background:rgba(80,110,220,.25);border-color:rgba(100,140,255,.45);color:#aaccff}
-#tools{position:absolute;top:58px;left:12px;z-index:25;display:flex;gap:6px;align-items:flex-start;
-  max-width:calc(100% - 58px)}
+#tools{position:relative;z-index:25;display:flex;gap:6px;align-items:flex-start;
+  max-width:100%}
 #drawBtn{flex-shrink:0;padding:8px 12px;border-radius:7px;white-space:nowrap;
   border:1px solid rgba(255,255,255,.1);background:rgba(4,4,18,.88);cursor:pointer;
   font:11px 'Courier New',monospace;color:#aabbee;touch-action:manipulation;
@@ -108,23 +111,23 @@ input.nin.bad{border-color:rgba(255,90,90,.7)}
 .lawrow:hover{background:rgba(255,200,120,.1)}
 .lawrow.on{background:rgba(255,200,120,.16);border-color:rgba(255,200,120,.4)}
 .lawl{color:#ffe6bf;font-size:10px;font-weight:bold}
-.lawd{color:#556;font-size:8.5px}
+.lawd{color:#7d7d92;font-size:8.5px}
 #vcard{position:absolute;left:12px;bottom:40px;z-index:20;display:none;width:330px;
   max-width:calc(100% - 32px);max-height:50%;overflow-y:auto;padding:10px 12px;
   background:rgba(4,4,18,.97);border:1px solid rgba(255,255,255,.14);border-radius:9px;
   font:11px/1.5 'Courier New',monospace;color:#dde;box-shadow:0 6px 28px rgba(0,0,0,.8)}
 .vhead{display:flex;justify-content:space-between;align-items:center;gap:8px;font-weight:bold;font-size:12px}
-.vx{background:none;border:none;color:#667;cursor:pointer;font-size:13px;padding:2px 4px}
+.vx{background:none;border:none;color:#7d7d90;cursor:pointer;font-size:13px;padding:2px 4px}
 .vx:hover{color:#ccd}
-.vsub{color:#667;font-size:10px;margin:3px 0 6px}
-.vlbl{color:#3d5280;font-size:9px;letter-spacing:.08em;text-transform:uppercase;margin:8px 0 2px}
+.vsub{color:#7d7d90;font-size:10px;margin:3px 0 6px}
+.vlbl{color:#667fb6;font-size:9px;letter-spacing:.08em;text-transform:uppercase;margin:8px 0 2px}
 .veq{padding:4px 6px;margin:2px 0;border-radius:5px;cursor:copy;color:#eef;font-weight:bold;
   background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.06)}
 .veq:hover{background:rgba(100,130,255,.18);border-color:rgba(120,150,255,.35)}
 .veq.alt{font-weight:normal;color:#bbc}
 .veq.gen{font-weight:normal;color:#99aacc}
 .veq.known{font-weight:normal;color:#8fb;font-size:10px}
-.vfoot{color:#334;font-size:8.5px;margin-top:6px}
+.vfoot{color:#7b7b9c;font-size:8.5px;margin-top:6px}
 .vrow{display:flex;align-items:center;gap:6px;margin:4px 0}
 .vrow .veq{flex:1;font-size:9px;font-weight:normal;padding:3px 5px}
 #search{position:static;width:230px;min-width:0;flex:0 1 230px}
@@ -134,9 +137,9 @@ input.nin.bad{border-color:rgba(255,90,90,.7)}
 #sq::-webkit-search-cancel-button{display:none}
 @media (pointer:coarse){#sq{font-size:16px;padding-top:6px;padding-bottom:6px}}
 #sq:focus{border-color:rgba(120,150,255,.5);background:rgba(8,10,34,.96)}
-#sq::placeholder{color:#556}
-.sqi{position:relative;float:left;width:0;left:9px;top:8px;font-size:11px;color:#556;pointer-events:none}
-#sqx{position:relative;float:right;margin-top:-30px;margin-right:2px;display:none;background:none;border:none;color:#667;
+#sq::placeholder{color:#7d7d92}
+.sqi{position:relative;float:left;width:0;left:9px;top:8px;font-size:11px;color:#7d7d92;pointer-events:none}
+#sqx{position:relative;float:right;margin-top:-30px;margin-right:2px;display:none;background:none;border:none;color:#7d7d90;
   cursor:pointer;font-size:12px;padding:4px 6px}
 #sres{display:none;position:absolute;left:0;top:calc(100% + 4px);max-height:min(55vh,420px);overflow-y:auto;border-radius:8px;
   background:rgba(4,4,18,.98);border:1px solid rgba(255,255,255,.14);box-shadow:0 6px 28px rgba(0,0,0,.8);
@@ -147,9 +150,9 @@ input.nin.bad{border-color:rgba(255,90,90,.7)}
 .srk{flex-shrink:0;font-size:8px;letter-spacing:.06em;text-transform:uppercase;padding:2px 4px;border-radius:3px;
   margin-top:1px;min-width:52px;text-align:center;border:1px solid currentColor;opacity:.85}
 .srt{font-weight:bold;color:#eef}
-.srs{color:#778;font-size:9.5px;margin-top:1px}
+.srs{color:#7e7e8e;font-size:9.5px;margin-top:1px}
 .sr mark{background:rgba(120,150,255,.35);color:inherit;border-radius:2px}
-.snone{padding:9px;color:#667;font-size:10px}
+.snone{padding:9px;color:#7d7d90;font-size:10px}
 .flash{animation:flash 1.4s ease-out 2}
 @keyframes flash{0%{box-shadow:0 0 0 0 rgba(140,170,255,.9)}100%{box-shadow:0 0 0 12px rgba(140,170,255,0)}}
 #helpBtn{flex-shrink:0;width:34px;height:34px;border-radius:50%;border:1px solid rgba(255,255,255,.14);
@@ -162,7 +165,7 @@ input.nin.bad{border-color:rgba(255,90,90,.7)}
   background:rgba(4,4,18,.98);border:1px solid rgba(255,255,255,.14);border-radius:9px;padding:6px;
   box-shadow:0 6px 28px rgba(0,0,0,.8);font:11px/1.4 'Courier New',monospace;color:#dde}
 .tmh{display:flex;justify-content:space-between;padding:4px 6px 8px;color:#8899ff;font-weight:bold;letter-spacing:.05em;text-transform:uppercase;font-size:10px}
-.tmh span{color:#556;font-weight:normal}
+.tmh span{color:#7d7d92;font-weight:normal}
 .ti2{display:flex;gap:8px;align-items:flex-start;width:100%;text-align:left;padding:7px 6px;border:none;border-radius:6px;
   background:none;color:#dde;font:inherit;cursor:pointer}
 .ti2:hover{background:rgba(80,110,220,.2)}
@@ -170,10 +173,10 @@ input.nin.bad{border-color:rgba(255,90,90,.7)}
   border:1px solid rgba(140,160,255,.4);color:#99a;font-size:10px}
 .ti2.done .tck{background:rgba(80,200,140,.25);border-color:#6d9;color:#8fb;font-weight:bold}
 .ti2.done b{color:#8fb}
-.tbl{color:#667;font-size:9.5px}
+.tbl{color:#7d7d90;font-size:9.5px}
 .tnew{color:#ff9;font-size:9px}
-.treset{margin:4px 6px;background:none;border:none;color:#556;font:9px 'Courier New',monospace;cursor:pointer;text-decoration:underline}
-#coach{display:none;position:absolute;top:104px;left:12px;z-index:22;width:min(360px,calc(100vw - 58px));
+.treset{margin:4px 6px;background:none;border:none;color:#7d7d92;font:9px 'Courier New',monospace;cursor:pointer;text-decoration:underline}
+#coach{display:none;position:relative;z-index:22;width:min(360px,calc(100vw - 58px));
   background:rgba(6,8,30,.97);border:1px solid rgba(140,170,255,.35);border-radius:10px;padding:10px 12px;
   box-shadow:0 6px 28px rgba(0,0,0,.8);font:12px/1.6 Georgia,serif;color:#c8cce0}
 .ch{display:flex;align-items:center;gap:8px;font:bold 11px 'Courier New',monospace;color:#8899ff;margin-bottom:6px}
@@ -192,7 +195,7 @@ input.nin.bad{border-color:rgba(255,90,90,.7)}
   font:11.5px/1.55 Georgia,serif;color:#c8cce0}
 .tt[data-lv="1"]{border-color:rgba(200,160,255,.5)}.tt[data-lv="2"],.tt[data-lv="3"]{border-color:rgba(140,230,190,.5)}
 .tth{display:flex;justify-content:space-between;gap:8px;font:bold 11px 'Courier New',monospace;color:#eef;margin-bottom:5px}
-.ttd{font-weight:normal;font-size:8.5px;color:#667;text-transform:uppercase;letter-spacing:.06em}
+.ttd{font-weight:normal;font-size:8.5px;color:#7d7d90;text-transform:uppercase;letter-spacing:.06em}
 .ttv{display:block;margin:2px 0 6px;max-width:100%;height:auto;font-family:'Courier New',monospace}
 .mout{min-height:50px;margin:4px 0 2px;font-family:'Courier New',monospace}
 .mout svg{max-width:100%;height:auto;font-family:'Courier New',monospace}
@@ -208,33 +211,11 @@ input.nin.bad{border-color:rgba(255,90,90,.7)}
   <canvas id="c3d"></canvas>
   <canvas id="clbl"></canvas>
   <div id="tip"></div>
-  <div id="preface" style="position:absolute;inset:0;z-index:100;display:flex;align-items:center;justify-content:center;background:rgba(6,6,26,.97);padding:24px;overflow-y:auto">
-    <div style="max-width:600px;font:'Courier New',monospace;color:#aab;line-height:1.75">
-      <div style="font:bold 13px 'Courier New',monospace;color:#8899ff;letter-spacing:.08em;margin-bottom:18px;text-transform:uppercase">Dimensional Analysis · L M T Exponent Space</div>
-      <p style="font:13px/1.8 Georgia,serif;color:#c8cce0;margin-bottom:14px">
-        What you are about to explore is, in a precise sense, a <em>semantic embedding</em> — except the embedding space predates machine learning by two centuries, and the geometry is not learned but exact.
-      </p>
-      <p style="font:13px/1.8 Georgia,serif;color:#b0b4cc;margin-bottom:14px">
-        Every physical quantity — force, energy, pressure, viscosity — can be expressed as a product of powers of three base dimensions: <strong style="color:#aaccff">Length (L)</strong>, <strong style="color:#aaccff">Mass (M)</strong>, and <strong style="color:#aaccff">Time (T)</strong>.
-      </p>
-      <p style="font:13px/1.8 Georgia,serif;color:#b0b4cc;margin-bottom:14px">
-        The structure that emerges is not decorative. Quantities sharing a point are <em>dimensionally identical</em>. Nearby regions often encode meaningful structural relationships.
-      </p>
-      <p style="font:13px/1.8 Georgia,serif;color:#b0b4cc;margin-bottom:14px">
-        For someone working at the intersection of formula search and mathematical information retrieval, dimensional exponents are a compact, language-independent coordinate system.
-      </p>
-      <p style="font:13px/1.8 Georgia,serif;color:#b0b4cc;margin-bottom:14px">
-        The origin — the single point at (0, 0, 0) — is the home of all dimensionless quantities: strain, Mach number, Reynolds number, angles.
-      </p>
-      <p style="font:13px/1.8 Georgia,serif;color:#b0b4cc;margin-bottom:20px">
-        Hover over any sphere for a tooltip; click it to copy its name. Turn on formula arrows in the controls panel to see familiar formulas, and with <strong style="color:#aaccff">✎ Draw vector</strong> you can connect any two points to see the equation that links them. The Operators panel shows derivatives and integrals as uniform shifts of the whole space, and Power laws traces formulas like E(k) = C·ε²ᐟ³·k⁻⁵ᐟ³ as paths. Beads ringing a sphere are commensurable quantities sharing one dimension — hover to see them all. Use the controls panel (⚙) to adjust projection, labels, and rotation. New here? Press the glowing <strong style="color:#aaccff">?</strong> for short tutorials. Search (/) finds any quantity, symbol, formula, operator or control. Keyboard: arrow keys orbit, space pauses, R resets, V draws, O cycles operators.
-      </p>
-      <button onclick="document.getElementById('preface').style.display='none'" style="background:rgba(80,110,220,.22);border:1px solid rgba(100,140,255,.4);border-radius:7px;color:#aaccff;font:12px 'Courier New',monospace;padding:10px 14px;cursor:pointer">Enter visualization</button>
-    </div>
-  </div>
+  <div id="tl">
   <div id="info">
     <div style="font:bold 10px 'Courier New',monospace;color:#8899ff;letter-spacing:.04em">DIMENSIONAL ANALYSIS</div>
-    <div style="font:8.5px 'Courier New',monospace;color:#2c3f60;margin-top:2px">Physical metrics · L M T exponent space · OKLAB color</div>
+    <div style="font:10px 'Courier New',monospace;color:#6b80a8;margin-top:2px">Each sphere is a physical quantity, placed by its powers of length, mass &amp; time</div>
+    <div id="newHint" style="font:10px 'Courier New',monospace;color:#8fa4d8;margin-top:2px">New here? Press <b style="color:#cce0ff">?</b> for a short tour</div>
   </div>
   <div id="tools">
     <button id="helpBtn" class="glow" title="Tutorials" aria-label="Tutorials">?</button>
@@ -250,6 +231,7 @@ input.nin.bad{border-color:rgba(255,90,90,.7)}
   <div id="drawHint"></div>
   <div id="opHint"></div>
   <div id="coach" role="dialog" aria-label="Tutorial"></div>
+  </div>
   <div id="vcard"></div>
   <div id="toast"></div>
   <div id="badge"></div>
@@ -463,27 +445,51 @@ PTS.forEach(pt=>{
   pick.position.set(pt.L,pt.M,pt.T); pick.userData=pt; scene.add(pick); pickMeshes.push(pick);
 });
 
-// ── Commensurable members ─────────────────────────────────────────────────────
-// Quantities with identical dimensions are commensurable: they can be added and compared, and
-// they share one point. Each member gets its own bead on a ring around that point, turned to
-// face the camera every frame, so a shared point visibly holds several distinct quantities.
+// ── Kinds of quantity ─────────────────────────────────────────────────────────
+// Sharing L·M·T exponents is necessary but not enough to be commensurable. Torque and energy are
+// both L²·M·T⁻², yet adding a torque to an energy is meaningless. Quantities of the same KIND
+// (time, period, half-life) are commensurable. A point holding several kinds gets one bead per
+// kind on a ring, turned to face the camera every frame; a point with a single kind gets none.
+const KIND_GROUPS=[
+  ['Length','Displacement','Wavelength','Arm / Lever'],['Area','Cross-section'],
+  ['Velocity','Speed of Light'],['Acceleration','Free-fall g'],
+  ['Kinematic Viscosity','Diffusivity','Thermal Diffusivity'],
+  ['Grav. Potential','Specific Energy','Absorbed Dose (Gy)'],
+  ['Time','Period','Half-life'],['Angular Velocity','Angular Frequency ω','Vorticity'],
+  ['Momentum','Impulse'],['Angular Momentum','Angular Impulse'],
+  ['Force','Weight','Drag','Thrust','Tension','Lift'],
+  ['Energy','Work','Heat (Q)','Enthalpy','Helmholtz Energy'],
+  ['Power','Radiant Flux','Luminosity'],
+  ['Pressure','Stress',"Young's Modulus",'Shear Modulus','Bulk Modulus','Yield Strength'],
+  ['Pressure Gradient','Force Density'],['Spring Constant','Stiffness'],
+  ['Intensity (W/m²)','Irradiance'],['Spec. Power (W/kg)','Dissipation Rate ε'],
+];
+const KIND_OF=new Map();
+KIND_GROUPS.forEach(g=>g.forEach(n=>KIND_OF.set(n,g)));
+PTS.forEach(pt=>{
+  const seen=new Map();
+  pt.entries.forEach(n=>{const g=KIND_OF.get(n)||[n];const k=g[0];
+    if(!seen.has(k))seen.set(k,[]);seen.get(k).push(n);});
+  pt.kinds=[...seen.values()];  // each kind: the member names present at this point
+});
+const kindLabel=k=>k.length>1?`${k[0]} +${k.length-1}`:k[0];
 const BEAD_GEO=new THREE.SphereGeometry(0.034,10,8), BEAD_PICK_GEO=new THREE.SphereGeometry(0.06,6,6);
 const BEAD_PICK_MAT=new THREE.MeshBasicMaterial({transparent:true,opacity:0,depthWrite:false});
 const beadPickMeshes=[];
 PTS.forEach(pt=>{
-  const n=pt.entries.length; if(n<2) return;
+  const n=pt.kinds.length; if(n<2) return;
   const R=pt.vis.geometry.parameters.radius+0.13;
   const holder=new THREE.Group(); holder.position.copy(pt.vis.position); scene.add(holder);
   pt.holder=holder; pt.beads=[];
-  pt.entries.forEach((name,i)=>{
+  pt.kinds.forEach((members,i)=>{
     const th=Math.PI/2-i*2*Math.PI/n;
     const pos=new THREE.Vector3(R*Math.cos(th),R*Math.sin(th),0);
-    // Step lightness across members so neighbours on the ring are told apart
+    // Step lightness across kinds so neighbours on the ring are told apart
     const col=new THREE.Color(pt.col.hex).offsetHSL(0,0,(i/(n-1)-0.5)*0.3);
     const mat=new THREE.MeshBasicMaterial({color:col,transparent:true,opacity:0.9,depthWrite:false});
     const bead=new THREE.Mesh(BEAD_GEO,mat); bead.position.copy(pos); bead.renderOrder=3; holder.add(bead);
     const pk=new THREE.Mesh(BEAD_PICK_GEO,BEAD_PICK_MAT); pk.position.copy(pos); holder.add(pk);
-    const m={pt,name,i,bead,mat,css:`#${col.getHexString()}`};
+    const m={pt,members,name:members.join(', '),label:kindLabel(members),i,bead,mat,css:`#${col.getHexString()}`};
     pk.userData={__cm:m}; beadPickMeshes.push(pk); pt.beads.push(m);
   });
 });
@@ -781,8 +787,8 @@ function syncOverlayUI(){
   if(!overlayOn()) opHint.style.display='none';
 }
 const tipHead=t=>`<div style="font:bold 11px 'Courier New',monospace;color:#eef;margin-bottom:4px">${esc(t)}</div>`;
-const tipSub=t=>`<div style="font-size:9px;color:#667;margin-bottom:4px">${t}</div>`;
-const tipFoot='<div style="font-size:8px;color:#445;margin-top:4px">click to copy</div>';
+const tipSub=t=>`<div style="font-size:9px;color:#7d7d90;margin-bottom:4px">${t}</div>`;
+const tipFoot='<div style="font-size:8px;color:#7d7d97;margin-top:4px">click to copy</div>';
 function setOperator(op){
   clearOpArrows();
   activeOp=op; activeLaw=null; lawLanding=null;
@@ -800,8 +806,8 @@ function setOperator(op){
     const o={...arrow,from:a,to:b,target:t,baseOp:b?0.9:0.2,
       eq:op.eq(nm(a),b?nm(b):`[${dimStr(...t)}]`)};
     o.tipHtml=tipHead(o.eq)+tipSub(`${esc(op.label)} · ${esc(opMove(op))}`)+
-      `<div style="font-size:9px"><span style="color:${arrow.sc.css}">${esc(nm(a))}</span><span style="color:#334"> → </span><span style="color:${arrow.ec.css}">${b?esc(nm(b)):'unnamed'}</span></div>`+
-      (b?'':`<div style="font-size:8.5px;color:#667;margin-top:3px">No quantity in the list sits at ${esc(dimStr(...t))}</div>`)+tipFoot;
+      `<div style="font-size:9px"><span style="color:${arrow.sc.css}">${esc(nm(a))}</span><span style="color:#7b7b9c"> → </span><span style="color:${arrow.ec.css}">${b?esc(nm(b)):'unnamed'}</span></div>`+
+      (b?'':`<div style="font-size:8.5px;color:#7d7d90;margin-top:3px">No quantity in the list sits at ${esc(dimStr(...t))}</div>`)+tipFoot;
     arrow.pm.userData={__op:o}; opPickMeshes.push(arrow.pm); opObjs.push(o);
   });
   const lbl=op===POW_OP?`x${supStr(fracStr(op.scale))}`:op.label;
@@ -904,7 +910,7 @@ function showCard(uv){
   const sgn=n=>n>0?`+${fracStr(n)}`:fracStr(n);
   const row=(t,cls='veq')=>`<div class="${cls}" data-copy="${esc(t)}" title="Click to copy">${esc(t)}</div>`;
   vcard.innerHTML=
-    `<div class="vhead"><span><span style="color:${sc.css}">${esc(nm(a))}</span> <span style="color:#556">→</span> <span style="color:${ec.css}">${esc(nm(b))}</span></span><button class="vx" id="vcardX" title="Close">✕</button></div>`+
+    `<div class="vhead"><span><span style="color:${sc.css}">${esc(nm(a))}</span> <span style="color:#7d7d92">→</span> <span style="color:${ec.css}">${esc(nm(b))}</span></span><button class="vx" id="vcardX" title="Close">✕</button></div>`+
     `<div class="vsub">Δ = (${sgn(eq.dL)}, ${sgn(eq.dM)}, ${sgn(eq.dT)}) = ${esc(eq.delta)}</div>`+
     (eq.named.length?eq.named.map((n,i)=>row(n.eq,i?'veq alt':'veq')).join(''):'<div class="vsub">No named quantity spans this step.</div>')+
     row(eq.generic,'veq gen')+
@@ -1011,32 +1017,33 @@ function pick(e,force=false){
   if(force||newPt!==hovered||newFo!==hoveredFormula||newUV!==hoveredUV||newOp!==hoveredOp||newCm!==hoveredCm){
     hovered=newPt; hoveredFormula=newFo; hoveredUV=newUV; hoveredOp=newOp; hoveredCm=newCm;
     if(newPt||newCm) tutEmit('point'); else if(newFo) tutEmit('formula');
+    if(newCm) tutEmit('bead');
     if(newCm){
-      const{pt,name,css}=newCm, others=pt.entries.filter(e=>e!==name);
-      tip.innerHTML=`<div style="font:bold 11px 'Courier New',monospace;color:${css};margin-bottom:4px">${esc(name)}</div>`+
-        `<div style="font-size:9px;color:#667;margin-bottom:5px">${esc(dimStr(pt.L,pt.M,pt.T))}</div>`+
-        `<div style="font-size:9px;color:#99aacc;line-height:1.7">Commensurable with ${others.length}:<br>${others.map(e=>`• ${esc(e)}`).join('<br>')}</div>`+
-        `<div style="font-size:8px;color:#445;margin-top:4px">click to copy</div>`;
+      const{pt,members,css}=newCm, others=pt.kinds.filter(k=>k!==members);
+      tip.innerHTML=`<div style="font:bold 11px 'Courier New',monospace;color:${css};margin-bottom:4px">${members.map(esc).join(' = ')}</div>`+
+        `<div style="font-size:9px;color:#7d7d90;margin-bottom:5px">${esc(dimStr(pt.L,pt.M,pt.T))}${members.length>1?' · one kind, commensurable':''}</div>`+
+        `<div style="font-size:9px;color:#99aacc;line-height:1.7">Same dimension, different kind (not commensurable):<br>${others.map(k=>`• ${k.map(esc).join(' = ')}`).join('<br>')}</div>`+
+        `<div style="font-size:8px;color:#7d7d97;margin-top:4px">click to copy</div>`;
     } else if(newPt){
       const c=newPt.col;
       const preview=(drawMode&&drawStart&&drawStart!==newPt)
         ?`<div style="color:#cce0ff;font-weight:bold;margin-bottom:5px;border-bottom:1px solid rgba(255,255,255,.1);padding-bottom:4px">${esc(vectorEquations(drawStart,newPt).primary)}</div>`:'';
-      tip.innerHTML=preview+`<div style="display:flex;align-items:center;gap:8px;margin-bottom:5px"><span style="display:inline-block;width:13px;height:13px;border-radius:3px;background:${c.css};flex-shrink:0"></span><span style="color:${c.css};font-weight:bold">L<sup>${fracStr(newPt.L)}</sup>·M<sup>${fracStr(newPt.M)}</sup>·T<sup>${fracStr(newPt.T)}</sup> <span style="font-weight:normal;color:#667;font-size:10px">(${newPt.entries.length})</span></span></div>${newPt.entries.length>1?'<div style="color:#556;font-size:8.5px;margin-bottom:3px">commensurable · same dimension, addable</div>':''}<div style="color:#334;font-size:8.5px;margin-bottom:4px">OKLAB L=${c.oL.toFixed(2)} a=${c.oa.toFixed(3)} b=${c.ob.toFixed(3)}</div><div style="color:#99aacc;font-size:10px;line-height:1.8">${newPt.entries.map(n=>`• ${n}`).join('<br>')}</div>`;
+      tip.innerHTML=preview+`<div style="display:flex;align-items:center;gap:8px;margin-bottom:5px"><span style="display:inline-block;width:13px;height:13px;border-radius:3px;background:${c.css};flex-shrink:0"></span><span style="color:${c.css};font-weight:bold">L<sup>${fracStr(newPt.L)}</sup>·M<sup>${fracStr(newPt.M)}</sup>·T<sup>${fracStr(newPt.T)}</sup> <span style="font-weight:normal;color:#7d7d90;font-size:10px">(${newPt.entries.length})</span></span></div>${newPt.kinds.length>1?`<div style="color:#7e7e8e;font-size:8.5px;margin-bottom:3px">${newPt.kinds.length} kinds share this dimension · only the same kind is commensurable</div>`:newPt.entries.length>1?'<div style="color:#7e7e8e;font-size:8.5px;margin-bottom:3px">one kind · all commensurable</div>':''}<div style="color:#99aacc;font-size:10px;line-height:1.8">${newPt.kinds.map(k=>`• ${k.map(esc).join(' = ')}`).join('<br>')}</div>${tipFoot}`;
     } else if(newFo){
       const d=newFo.def,sc=coordToColor(...d.from),ec=coordToColor(...d.to);
       const fp=PTS.find(p=>p.key===newFo.fromKey),tp=PTS.find(p=>p.key===newFo.toKey);
       tip.innerHTML=`<div style="font:bold 11px 'Courier New',monospace;color:#eef;margin-bottom:4px">${d.label}</div>`+
-        `<div style="font-size:9px;color:#667;margin-bottom:6px">${d.desc}</div>`+
+        `<div style="font-size:9px;color:#7d7d90;margin-bottom:6px">${d.desc}</div>`+
         `<div style="display:flex;align-items:center;gap:5px;font-size:9px">`+
         `<span style="color:${sc.css}">${fp?fp.entries[0]:'?'}</span>`+
-        `<span style="color:#334"> → </span>`+
+        `<span style="color:#7b7b9c"> → </span>`+
         `<span style="color:${ec.css}">${tp?tp.entries[0]:'?'}</span></div>`;
     } else if(newUV){
       const{eq,sc,ec}=newUV;
       tip.innerHTML=`<div style="font:bold 11px 'Courier New',monospace;color:#eef;margin-bottom:4px">${esc(eq.primary)}</div>`+
-        `<div style="font-size:9px;color:#667;margin-bottom:4px">Δ = ${esc(eq.delta)}</div>`+
-        `<div style="font-size:9px"><span style="color:${sc.css}">${esc(nm(newUV.from))}</span><span style="color:#334"> → </span><span style="color:${ec.css}">${esc(nm(newUV.to))}</span></div>`+
-        `<div style="font-size:8px;color:#445;margin-top:4px">click to copy · open details</div>`;
+        `<div style="font-size:9px;color:#7d7d90;margin-bottom:4px">Δ = ${esc(eq.delta)}</div>`+
+        `<div style="font-size:9px"><span style="color:${sc.css}">${esc(nm(newUV.from))}</span><span style="color:#7b7b9c"> → </span><span style="color:${ec.css}">${esc(nm(newUV.to))}</span></div>`+
+        `<div style="font-size:8px;color:#7d7d97;margin-top:4px">click to copy · open details</div>`;
     } else if(newOp){
       tip.innerHTML=newOp.tipHtml;
     }
@@ -1067,7 +1074,7 @@ c3d.addEventListener('pointerup',e=>{
   }
   if(uv){showCard(uv);copyText(uv.eq.primary);}
   else if(op) copyText(op.eq);
-  else if(cm){copyText(cm.name);tutEmit('point');}
+  else if(cm){copyText(cm.name);tutEmit('point');tutEmit('bead');}
   else if(fo){copyText(fo.def.label);tutEmit('formula');}
   else if(pt){copyText(pt.entries.join(', '));tutEmit('point');}
 });
@@ -1178,7 +1185,7 @@ function updFov(s){
   });
   rb.addEventListener('mousedown',e=>e.stopPropagation());
   row.append(rotBtn,rb);
-  const hint=document.createElement('div'); hint.style.cssText='font-size:8px;color:#1e2a40;margin-top:6px;line-height:1.8;';
+  const hint=document.createElement('div'); hint.style.cssText='font-size:8px;color:#6380b6;margin-top:6px;line-height:1.8;';
   hint.textContent='←→↑↓ orbit · scroll/pinch zoom · Space pause · R reset · V draw vector · O cycle operators · / search · click a label to copy';
   div.append(row,hint);
   panel.appendChild(acc('VIEW',div,true));
@@ -1195,7 +1202,7 @@ function updFov(s){
     segs.appendChild(btn); opBtns.push(btn);
   });
   const note=document.createElement('div');
-  note.style.cssText='margin-top:7px;font-size:8px;color:#2a3a55;line-height:1.6;';
+  note.style.cssText='margin-top:7px;font-size:8px;color:#627fb1;line-height:1.6;';
   note.textContent='A derivative or integral shifts every quantity by the same vector, so it draws as parallel arrows. ∇, ∇· and ∇× all shift by L⁻¹ — they differ in tensor rank, not dimension. √ and x² scale the vector instead, so their arrows point toward or away from the origin. O cycles operators.';
   const nrow=document.createElement('div'); nrow.className='prow'; nrow.style.marginTop='6px';
   const nl=document.createElement('span'); nl.className='pl'; nl.textContent='xⁿ   n =';
@@ -1224,7 +1231,7 @@ function updFov(s){
     div.appendChild(row); lawRows.push(row);
   });
   const note=document.createElement('div');
-  note.style.cssText='margin-top:7px;font-size:8px;color:#2a3a55;line-height:1.6;';
+  note.style.cssText='margin-top:7px;font-size:8px;color:#627fb1;line-height:1.6;';
   note.textContent='Each factor Xᵖ steps p times along X\'s ray. The path can pass through fractional points and still land on a whole-number one.';
   div.appendChild(note);
   panel.appendChild(acc('POWER LAWS',div,true));
@@ -1257,7 +1264,7 @@ const vecList=document.createElement('div');
 function renderVecList(){
   vecList.innerHTML='';
   if(!userVecs.length){
-    vecList.innerHTML='<div style="font-size:8.5px;color:#2a3a55;line-height:1.6;margin-top:6px">Turn on drawing, then click any two points. The arrow\'s exponent difference is the factor that turns one quantity into the other.</div>';
+    vecList.innerHTML='<div style="font-size:8.5px;color:#627fb1;line-height:1.6;margin-top:6px">Turn on drawing, then click any two points. The arrow\'s exponent difference is the factor that turns one quantity into the other.</div>';
     return;
   }
   userVecs.forEach(uv=>{
@@ -1295,7 +1302,7 @@ function focusPoint(pt,name){
   vcard.innerHTML=`<div class="vhead"><span style="color:${c.css}">${esc(name||nm(pt))}</span><button class="vx" id="vcardX" title="Close">✕</button></div>`+
     `<div class="vsub">${esc(dimStr(pt.L,pt.M,pt.T))} · coordinate (${pt.L}, ${pt.M}, ${pt.T})</div>`+
     `<div class="vlbl">Quantities at this point</div>`+
-    pt.entries.map(n=>`<div class="veq alt" data-copy="${esc(n)}" title="Click to copy">${esc(n)}${syms(n)?` <span style="color:#778">· ${esc(syms(n))}</span>`:''}</div>`).join('')+
+    pt.entries.map(n=>`<div class="veq alt" data-copy="${esc(n)}" title="Click to copy">${esc(n)}${syms(n)?` <span style="color:#7e7e8e">· ${esc(syms(n))}</span>`:''}</div>`).join('')+
     (rel.length?`<div class="vlbl">Formulas touching it</div>`+rel.map(d=>`<div class="veq known" data-copy="${esc(d.label)}">${esc(d.label)}  (${esc(d.desc)})</div>`).join(''):'');
   vcard.style.display='block';
   document.getElementById('vcardX').addEventListener('click',hideCard);
@@ -1432,11 +1439,11 @@ const GLOSS={
     v:SVG(150,80,`<line x1="40" y1="60" x2="140" y2="60" stroke="${LC}" stroke-width="2"/><line x1="40" y1="60" x2="40" y2="4" stroke="${MC}" stroke-width="2"/><line x1="40" y1="60" x2="6" y2="78" stroke="${TC}" stroke-width="2"/><path d="M40 60 L80 60 L80 40 L66 47" stroke="#9bf" fill="none" stroke-dasharray="3 2"/><circle cx="66" cy="47" r="4" fill="#9bf"/><text x="72" y="36" fill="#9bf" font-size="9">(2, 1, −1)</text><text x="128" y="74" fill="${LC}" font-size="9">L</text><text x="44" y="10" fill="${MC}" font-size="9">M</text><text x="12" y="70" fill="${TC}" font-size="9">T</text>`)},
   unit:{t:'SI unit',h:'The agreed measuring stick. Dimensions ignore its size: a kilometre and a millimetre are both just L.',
     v:SVG(170,30,`<rect x="2" y="6" width="150" height="6" fill="${LC}" opacity=".7"/><text x="2" y="26" fill="#aab" font-size="9">1 km</text><rect x="2" y="16" width="2" height="6" fill="${LC}"/><text x="60" y="26" fill="#aab" font-size="9">1 mm → both L</text>`)},
-  same:{t:'Dimensionally identical',h:'Same point ⇒ same [[exponent|exponents]], so they can be added or compared. Energy and torque are both L²·M·T⁻², even though torque is not energy.',
+  same:{t:'Dimensionally identical',h:'Same point ⇒ same [[exponent|exponents]]. That is necessary, but not enough, to add them: energy and torque are both L²·M·T⁻², yet torque is not energy. Only quantities of the same kind are [[commensurable|commensurable]]; a sphere holding several kinds gets one bead per kind.',
     v:SVG(170,44,`<text x="0" y="12" fill="#aab" font-size="9">Energy</text><text x="0" y="38" fill="#aab" font-size="9">Torque</text><path d="M40 9 L110 22 M40 35 L110 22" stroke="#667" fill="none"/><circle cx="118" cy="22" r="7" fill="#c9a2ff"/><text x="130" y="26" fill="#c9a2ff" font-size="9">(2,1,−2)</text>`)},
   dimensionless:{t:'Dimensionless',h:'All [[exponent|exponents]] are 0 — the origin. A pure number, usually a ratio: strain = Δlength ÷ length, so the Ls cancel.',
     v:SVG(150,40,`<text x="0" y="16" fill="${LC}" font-size="11">m</text><line x1="0" x2="14" y1="20" y2="20" stroke="#aab"/><text x="0" y="34" fill="${LC}" font-size="11">m</text><text x="22" y="25" fill="#aab" font-size="11">= L¹⁻¹ = L⁰ = 1</text>`)},
-  commensurable:{t:'Commensurable',h:'Strictly, quantities of the same [[dimension|dimension]] are commensurable: they can be measured against each other. Two different points become comparable once you know the [[delta|step]] between them — here, a named quantity.',
+  commensurable:{t:'Commensurable',h:'Quantities of the same kind — time, period and half-life — are commensurable: they can be added and measured against each other. That needs the same [[dimension|dimension]] and the same kind, so energy and torque are not. Two different points are linked by the [[delta|step]] between them — here, a named quantity.',
     v:SVG(170,40,`<circle cx="15" cy="22" r="6" fill="#c9a2ff"/><text x="2" y="38" fill="#aab" font-size="8">Force</text><path d="M24 22 L140 22" stroke="#9bf" stroke-width="2"/><path d="M140 17 L150 22 L140 27Z" fill="#9bf"/><circle cx="158" cy="22" r="6" fill="#d9a2ff"/><text x="132" y="38" fill="#aab" font-size="8">Energy</text><text x="62" y="16" fill="${LC}" font-size="9">× Length</text>`)},
   vector:{t:'Vector',h:'An arrow from A to B. Its components are B − A: the [[delta|exponent difference]]. Moving along it means [[mult|multiplying]] by that dimension.',
     v:SVG(160,50,`<circle cx="14" cy="38" r="5" fill="#9bf"/><path d="M18 35 L124 12" stroke="#ccd" stroke-width="2"/><path d="M118 8 L132 10 L122 19Z" fill="#ccd"/><circle cx="138" cy="9" r="5" fill="#fc8"/><text x="4" y="50" fill="#9bf" font-size="9">A</text><text x="144" y="22" fill="#fc8" font-size="9">B</text><text x="50" y="40" fill="#aab" font-size="9">Δ = B − A</text>`)},
@@ -1454,9 +1461,8 @@ const GLOSS={
     v:SVG(120,36,`<g stroke="#fc8">${[0,1,2,3].map(i=>`<line x1="${10+i*33}" y1="34" x2="${50+i*7}" y2="2"/>`).join('')}</g>`)},
   fov:{t:'Field of view',h:'The angle the camera sees. Small = telephoto (flat), large = wide-angle (deep).',
     v:SVG(150,44,`<path d="M6 22 L70 10 L70 34Z" fill="#9bf" opacity=".35"/><text x="20" y="44" fill="#9bf" font-size="8">narrow</text><path d="M86 22 L146 0 L146 44Z" fill="#fc8" opacity=".35"/><text x="104" y="44" fill="#fc8" font-size="8">wide</text>`)},
-  colour:{t:'Colour = position',h:'Each point is coloured from its [[coord|coordinate]] in [[oklab|OKLAB]]: the L exponent sets green↔pink, T sets blue↔yellow, M sets darker↔lighter. Nearby points look alike.',
+  colour:{t:'Colour = position',h:'Each point is coloured from its [[coord|coordinate]]: the L exponent sets green↔pink, T sets blue↔yellow, M sets darker↔lighter. The colours are [[perceptual|perceptually uniform]], so nearby points look alike.',
     v:SVG(170,52,[['L',-3,3,c=>coordToColor(c,0,0)],['T',-4,1,c=>coordToColor(0,0,c)],['M',-1,1,c=>coordToColor(0,c,0)]].map(([s,a,b,f],i)=>`<defs><linearGradient id="g${s}"><stop offset="0" stop-color="${f(a).css}"/><stop offset="1" stop-color="${f(b).css}"/></linearGradient></defs><text x="0" y="${12+i*17}" fill="#aab" font-size="9">${s}</text><rect x="14" y="${4+i*17}" width="150" height="10" rx="3" fill="url(#g${s})"/>`).join(''))},
-  oklab:{t:'OKLAB',h:'A colour space designed so equal numeric steps look like equal colour changes — it is [[perceptual|perceptually uniform]].'},
   perceptual:{t:'Perceptually uniform',h:'A step of the same size looks equally big anywhere in the space — unlike RGB, where some steps are barely visible and others jump.',
     v:SVG(170,30,[0,1,2,3,4,5,6].map(i=>{const c=oklabToSRGB(.7,.12*Math.cos(i),.12*Math.sin(i)).map(x=>Math.round(Math.max(0,Math.min(1,x))*255));return`<rect x="${i*24}" y="4" width="22" height="22" rx="3" fill="rgb(${c})"/>`;}).join(''))},
 };
@@ -1504,7 +1510,9 @@ function openTT(key,anchor,src){
   let x=Math.min(Math.max(8,r.left+r.width/2-w/2+lv*10),vw-w-8);
   let y=r.bottom+6; if(y+h>vh-8) y=Math.max(8,r.top-h-6);
   // A nested card goes below (or above) its whole parent card so the parent stays readable
-  if(parent){const pr=parent.getBoundingClientRect();
+  // Terms in the tutorial card open below (or above) the whole card, never over its buttons
+  const box=parent||(src&&src.closest('#coach'));
+  if(box){const pr=box.getBoundingClientRect();
     if(pr.bottom+6+h<=vh-8) y=pr.bottom+6; else if(pr.top-h-6>=8) y=pr.top-h-6;}
   el.style.left=x+'px'; el.style.top=y+'px';
   if(src) src.classList.add('open');
@@ -1536,8 +1544,10 @@ const TUTS=[
   {id:'points',title:'What the points are',blurb:'Lattice points, coordinates, shared points',steps:[
     {h:'Each sphere is a [[point|lattice point]]. Its position is its [[coord|coordinate]] (L, M, T): the [[exponent|exponents]] of the [[base|base dimensions]] in that quantity’s [[dimension|dimension]].',
      act:'Hover (or tap) any sphere.',wait:'point'},
-    {h:'Force sits at (1, 1, −2) because force = L¹·M¹·T⁻² (kg·m/s²). Every name listed at a point is [[same|dimensionally identical]] — Force, Weight, Drag and Thrust share one sphere.',
+    {h:'Force sits at (1, 1, −2) because force = L¹·M¹·T⁻² (kg·m/s²). Every name listed at a point is [[same|dimensionally identical]] — Force, Weight, Drag and Thrust share one sphere, and are all one kind.',
      btn:['Show Force',()=>focusPoint(PT_OF_NAME.get('Force'),'Force')]},
+    {h:'When different kinds share a point, small beads ring the sphere, one per kind. Energy and Torque share L²·M·T⁻² but are not [[commensurable|commensurable]], so they get separate beads; Work and Heat share Energy’s bead.',
+     act:'Hover (or tap) a bead.',wait:'bead',btn:['Show Energy',()=>focusPoint(PT_OF_NAME.get('Energy'),'Energy')]},
     {h:'The origin (0, 0, 0) holds the [[dimensionless|dimensionless]] numbers. The colours are positions too: [[colour|colour = position]].',
      btn:['Show the origin',()=>focusPoint(PT_BY_KEY.get(keyOf(0,0,0)),'Strain')]},
   ]},
@@ -1579,7 +1589,8 @@ const store={get(k,d){try{const v=localStorage.getItem(k);return v===null?d:JSON
 const tutDone=new Set(store.get('pms.tutDone',[]));
 
 const helpBtn=document.getElementById('helpBtn'), tmenu=document.getElementById('tmenu'), coach=document.getElementById('coach');
-if(!store.get('pms.helpSeen',false)) helpBtn.classList.add('glow');
+const newHint=document.getElementById('newHint');
+if(store.get('pms.helpSeen',false)){helpBtn.classList.remove('glow');newHint.style.display='none';}
 function renderMenu(){
   tmenu.innerHTML=`<div class="tmh">Tutorials <span>${tutDone.size}/${TUTS.length} done</span></div>`+
     TUTS.map((t,i)=>`<button class="ti2${tutDone.has(t.id)?' done':''}" data-i="${i}"><span class="tck">${tutDone.has(t.id)?'✓':i+1}</span><span><b>${esc(t.title)}</b>${i===0&&!tutDone.has(t.id)?' <span class="tnew">start here</span>':''}<br><span class="tbl">${esc(t.blurb)}</span></span></button>`).join('')+
@@ -1590,7 +1601,7 @@ function toggleMenu(show){
   if(show){renderMenu();tmenu.style.display='block';}else tmenu.style.display='none';
 }
 helpBtn.addEventListener('click',()=>{
-  helpBtn.classList.remove('glow'); store.set('pms.helpSeen',true); toggleMenu();
+  helpBtn.classList.remove('glow'); newHint.style.display='none'; store.set('pms.helpSeen',true); toggleMenu();
 });
 tmenu.addEventListener('click',e=>{
   const b=e.target.closest('.ti2'); if(b){toggleMenu(false);startTut(+b.dataset.i);return;}
@@ -1716,9 +1727,9 @@ function animate(){
   const dpr=window.devicePixelRatio||1;
   lc.setTransform(dpr,0,0,dpr,0,0); lc.clearRect(0,0,W,H); lc.textAlign='center';
 
-  [[AX+.5,0,0,'L →',3,0,0],[-(AX+.5),0,0,'← −L',-3,0,0],
-   [0,AX+.5,0,'M ↑',0,1,0],[0,-(AX+.5),0,'↓ −M',0,-1,0],
-   [0,0,AX+.5,'T →',0,0,1],[0,0,-(AX+.5),'← −T',0,0,-4]
+  [[AX+.5,0,0,'L length →',3,0,0],[-(AX+.5),0,0,'← −L',-3,0,0],
+   [0,AX+.5,0,'M mass ↑',0,1,0],[0,-(AX+.5),0,'↓ −M',0,-1,0],
+   [0,0,AX+.5,'T time →',0,0,1],[0,0,-(AX+.5),'← −T',0,0,-4]
   ].forEach(([x,y,z,lbl,...cd])=>{
     const col=coordToColor(...cd),[sx,sy]=toSc(x,y,z);
     drawLbl(sx,sy+16,lbl,col.r,col.g,col.b,false,false);
@@ -1778,7 +1789,7 @@ function animate(){
             lc.textAlign=ux>0.25?'left':ux<-0.25?'right':'center';
             const tx=bx+ux*9, ty=by+uy*9+(uy>0.25?sz*.8:uy<-0.25?-2:sz*.35);
             lc.strokeStyle='rgba(4,4,20,.97)';lc.lineWidth=Math.max(2,sz*.25);lc.lineJoin='round';
-            lc.strokeText(m.name,tx,ty); lc.fillStyle=m.css; lc.fillText(m.name,tx,ty);
+            lc.strokeText(m.label,tx,ty); lc.fillStyle=m.css; lc.fillText(m.label,tx,ty);
           });
           lc.textAlign='center';
           return;
