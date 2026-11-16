@@ -93,6 +93,22 @@ select{width:100%;background:rgba(6,6,26,.99);border:1px solid rgba(255,255,255,
   max-width:calc(100% - 32px);padding:6px 12px;border-radius:7px;background:rgba(40,50,120,.85);
   border:1px solid rgba(120,150,255,.35);font:11px 'Courier New',monospace;color:#dde6ff;
   pointer-events:none;text-align:center}
+#opHint{position:absolute;top:48px;left:50%;transform:translateX(-50%);z-index:6;display:none;
+  width:max-content;max-width:calc(100% - 32px);padding:7px 12px;border-radius:7px;background:rgba(4,4,18,.94);
+  border:1px solid rgba(255,200,120,.35);font:11px/1.55 'Courier New',monospace;color:#dde;text-align:center}
+#opHint .oph{color:#ffd89a;font-weight:bold}
+#opHint .opc{margin-top:4px;padding:3px 6px;border-radius:5px;cursor:copy;color:#ffe6bf;
+  background:rgba(255,200,120,.08);border:1px solid rgba(255,200,120,.18)}
+#opHint .opc:hover{background:rgba(255,200,120,.2)}
+input.nin{width:70px;background:rgba(6,6,26,.99);border:1px solid rgba(255,255,255,.14);border-radius:5px;
+  color:#ffe6bf;font:11px 'Courier New',monospace;padding:5px 6px;outline:none}
+input.nin.bad{border-color:rgba(255,90,90,.7)}
+.lawrow{width:100%;text-align:left;font-family:'Courier New',monospace;color:inherit;padding:5px 6px;margin:3px 0;border-radius:5px;cursor:pointer;border:1px solid rgba(255,255,255,.06);
+  background:rgba(255,255,255,.03);display:flex;flex-direction:column;gap:1px}
+.lawrow:hover{background:rgba(255,200,120,.1)}
+.lawrow.on{background:rgba(255,200,120,.16);border-color:rgba(255,200,120,.4)}
+.lawl{color:#ffe6bf;font-size:10px;font-weight:bold}
+.lawd{color:#556;font-size:8.5px}
 #vcard{position:absolute;left:12px;bottom:40px;z-index:20;display:none;width:330px;
   max-width:calc(100% - 32px);max-height:50%;overflow-y:auto;padding:10px 12px;
   background:rgba(4,4,18,.97);border:1px solid rgba(255,255,255,.14);border-radius:9px;
@@ -211,7 +227,7 @@ select{width:100%;background:rgba(6,6,26,.99);border:1px solid rgba(255,255,255,
         The origin — the single point at (0, 0, 0) — is the home of all dimensionless quantities: strain, Mach number, Reynolds number, angles.
       </p>
       <p style="font:13px/1.8 Georgia,serif;color:#b0b4cc;margin-bottom:20px">
-        Hover over any sphere for a tooltip; click it to copy its name. Turn on formula arrows in the controls panel to see familiar formulas, and with <strong style="color:#aaccff">✎ Draw vector</strong> you can connect any two points to see the equation that links them. Use the controls panel (⚙) to adjust projection, labels, and rotation. New here? Press the glowing <strong style="color:#aaccff">?</strong> for short tutorials. Search (/) finds any quantity, symbol, formula or control. Keyboard: arrow keys orbit, space pauses, R resets, V draws.
+        Hover over any sphere for a tooltip; click it to copy its name. Turn on formula arrows in the controls panel to see familiar formulas, and with <strong style="color:#aaccff">✎ Draw vector</strong> you can connect any two points to see the equation that links them. The Operators panel shows derivatives and integrals as uniform shifts of the whole space, and Power laws traces formulas like E(k) = C·ε²ᐟ³·k⁻⁵ᐟ³ as paths. Beads ringing a sphere are commensurable quantities sharing one dimension — hover to see them all. Use the controls panel (⚙) to adjust projection, labels, and rotation. New here? Press the glowing <strong style="color:#aaccff">?</strong> for short tutorials. Search (/) finds any quantity, symbol, formula, operator or control. Keyboard: arrow keys orbit, space pauses, R resets, V draws, O cycles operators.
       </p>
       <button onclick="document.getElementById('preface').style.display='none'" style="background:rgba(80,110,220,.22);border:1px solid rgba(100,140,255,.4);border-radius:7px;color:#aaccff;font:12px 'Courier New',monospace;padding:10px 14px;cursor:pointer">Enter visualization</button>
     </div>
@@ -232,6 +248,7 @@ select{width:100%;background:rgba(6,6,26,.99);border:1px solid rgba(255,255,255,
     </div>
   </div>
   <div id="drawHint"></div>
+  <div id="opHint"></div>
   <div id="coach" role="dialog" aria-label="Tutorial"></div>
   <div id="vcard"></div>
   <div id="toast"></div>
@@ -396,10 +413,18 @@ scene.add(new THREE.Mesh(new THREE.SphereGeometry(0.07,12,12),
   new THREE.MeshPhongMaterial({color:coordToColor(0,0,0).hex})));
 
 // ── Data ──────────────────────────────────────────────────────────────────────
-const RAW=[['Length',1,0,0],['Displacement',1,0,0],['Wavelength',1,0,0],['Arm / Lever',1,0,0],['Area',2,0,0],['Cross-section',2,0,0],['Volume',3,0,0],['Wavenumber',-1,0,0],['Curvature',-1,0,0],['Velocity',1,0,-1],['Speed of Light',1,0,-1],['Acceleration',1,0,-2],['Free-fall g',1,0,-2],['Jerk',1,0,-3],['Snap / Jounce',1,0,-4],['Vol. Flow Rate',3,0,-1],['Kinematic Viscosity',2,0,-1],['Diffusivity',2,0,-1],['Thermal Diffusivity',2,0,-1],['Spec. Ang. Mom.',2,0,-1],['Grav. Potential',2,0,-2],['Specific Energy',2,0,-2],['Absorbed Dose (Gy)',2,0,-2],['Dose Equivalent',2,0,-2],['Std. Grav. Param GM',3,0,-2],['Strain',0,0,0],['Angle (rad)',0,0,0],['Mach Number',0,0,0],['Reynolds Number',0,0,0],['Coeff. of Restitution',0,0,0],['Time',0,0,1],['Period',0,0,1],['Half-life',0,0,1],['Frequency',0,0,-1],['Angular Velocity',0,0,-1],['Angular Frequency ω',0,0,-1],['Radioactivity (Bq)',0,0,-1],['Angular Acceleration',0,0,-2],['Mass',0,1,0],['Linear Density',-1,1,0],['Surface Density',-2,1,0],['Volume Density',-3,1,0],['Moment of Inertia',2,1,0],['Specific Volume',3,-1,0],['Mass Flow Rate',0,1,-1],['Mech. Impedance',0,1,-1],['Mech. Admittance',0,-1,1],['Momentum',1,1,-1],['Impulse',1,1,-1],['Angular Momentum',2,1,-1],['Action (ℏ)',2,1,-1],['Angular Impulse',2,1,-1],['Force',1,1,-2],['Weight',1,1,-2],['Drag',1,1,-2],['Thrust',1,1,-2],['Tension',1,1,-2],['Lift',1,1,-2],['Energy',2,1,-2],['Work',2,1,-2],['Heat (Q)',2,1,-2],['Torque',2,1,-2],['Enthalpy',2,1,-2],['Helmholtz Energy',2,1,-2],['Power',2,1,-3],['Radiant Flux',2,1,-3],['Luminosity',2,1,-3],['Pressure',-1,1,-2],['Stress',-1,1,-2],["Young's Modulus",-1,1,-2],['Shear Modulus',-1,1,-2],['Bulk Modulus',-1,1,-2],['Yield Strength',-1,1,-2],['Surface Tension',0,1,-2],['Spring Constant',0,1,-2],['Stiffness',0,1,-2],['Dynamic Viscosity',-1,1,-1],['Intensity (W/m²)',0,1,-3],['Power Density',-1,1,-3],['Spec. Power (W/kg)',2,0,-3],['Irradiance',0,1,-3],['Grav. Constant G',3,-1,-2]];
+const RAW=[['Length',1,0,0],['Displacement',1,0,0],['Wavelength',1,0,0],['Arm / Lever',1,0,0],['Area',2,0,0],['Cross-section',2,0,0],['Volume',3,0,0],['Wavenumber',-1,0,0],['Curvature',-1,0,0],['Velocity',1,0,-1],['Speed of Light',1,0,-1],['Acceleration',1,0,-2],['Free-fall g',1,0,-2],['Jerk',1,0,-3],['Snap / Jounce',1,0,-4],['Vol. Flow Rate',3,0,-1],['Kinematic Viscosity',2,0,-1],['Diffusivity',2,0,-1],['Thermal Diffusivity',2,0,-1],['Spec. Ang. Mom.',2,0,-1],['Grav. Potential',2,0,-2],['Specific Energy',2,0,-2],['Absorbed Dose (Gy)',2,0,-2],['Dose Equivalent',2,0,-2],['Std. Grav. Param GM',3,0,-2],['Energy Spectrum E(k)',3,0,-2],['Sorptivity',1,0,-0.5],['Accel. Noise Density',1,0,-1.5],['Angle Random Walk',0,0,-0.5],['Strain',0,0,0],['Angle (rad)',0,0,0],['Mach Number',0,0,0],['Reynolds Number',0,0,0],['Coeff. of Restitution',0,0,0],['Time',0,0,1],['Period',0,0,1],['Half-life',0,0,1],['Frequency',0,0,-1],['Angular Velocity',0,0,-1],['Angular Frequency ω',0,0,-1],['Radioactivity (Bq)',0,0,-1],['Vorticity',0,0,-1],['Strain Rate',0,0,-1],['Angular Acceleration',0,0,-2],['Mass',0,1,0],['Linear Density',-1,1,0],['Surface Density',-2,1,0],['Volume Density',-3,1,0],['Moment of Inertia',2,1,0],['Specific Volume',3,-1,0],['Mass Flow Rate',0,1,-1],['Mech. Impedance',0,1,-1],['Mech. Admittance',0,-1,1],['Momentum',1,1,-1],['Impulse',1,1,-1],['Angular Momentum',2,1,-1],['Action (ℏ)',2,1,-1],['Angular Impulse',2,1,-1],['Force',1,1,-2],['Weight',1,1,-2],['Drag',1,1,-2],['Thrust',1,1,-2],['Tension',1,1,-2],['Lift',1,1,-2],['Energy',2,1,-2],['Work',2,1,-2],['Heat (Q)',2,1,-2],['Torque',2,1,-2],['Enthalpy',2,1,-2],['Helmholtz Energy',2,1,-2],['Power',2,1,-3],['Radiant Flux',2,1,-3],['Luminosity',2,1,-3],['Pressure',-1,1,-2],['Stress',-1,1,-2],["Young's Modulus",-1,1,-2],['Shear Modulus',-1,1,-2],['Bulk Modulus',-1,1,-2],['Energy Density',-1,1,-2],['Pressure Gradient',-2,1,-2],['Force Density',-2,1,-2],['Mass Flux (ρv)',-2,1,-1],['Yield Strength',-1,1,-2],['Surface Tension',0,1,-2],['Spring Constant',0,1,-2],['Stiffness',0,1,-2],['Dynamic Viscosity',-1,1,-1],['Intensity (W/m²)',0,1,-3],['Power Density',-1,1,-3],['Spec. Power (W/kg)',2,0,-3],['Dissipation Rate ε',2,0,-3],['Fracture Toughness',-0.5,1,-2],['Charge (CGS-Gaussian)',1.5,0.5,-1],['Irradiance',0,1,-3],['Grav. Constant G',3,-1,-2]];
+// Exponents can be fractional (√m in fracture toughness, √Hz in noise densities). Points are
+// keyed by exponent × 60 rounded, so halves, thirds, quarters, fifths and sixths computed in
+// floating point always find the same point.
+const keyOf=(L,M,T)=>[L,M,T].map(v=>Math.round(v*60)+0).join(',');
+function fracStr(v){
+  for(let d=1;d<=6;d++){const n=Math.round(v*d);if(Math.abs(v*d-n)<1e-9)return d===1?String(n):`${n}/${d}`;}
+  return String(+v.toFixed(3));
+}
 const GROUPS=new Map();
 RAW.forEach(([name,L,M,T])=>{
-  const k=`${L},${M},${T}`;
+  const k=keyOf(L,M,T);
   if(!GROUPS.has(k)) GROUPS.set(k,{L,M,T,entries:[]});
   GROUPS.get(k).entries.push(name);
 });
@@ -438,12 +463,38 @@ PTS.forEach(pt=>{
   pick.position.set(pt.L,pt.M,pt.T); pick.userData=pt; scene.add(pick); pickMeshes.push(pick);
 });
 
+// ── Commensurable members ─────────────────────────────────────────────────────
+// Quantities with identical dimensions are commensurable: they can be added and compared, and
+// they share one point. Each member gets its own bead on a ring around that point, turned to
+// face the camera every frame, so a shared point visibly holds several distinct quantities.
+const BEAD_GEO=new THREE.SphereGeometry(0.034,10,8), BEAD_PICK_GEO=new THREE.SphereGeometry(0.06,6,6);
+const BEAD_PICK_MAT=new THREE.MeshBasicMaterial({transparent:true,opacity:0,depthWrite:false});
+const beadPickMeshes=[];
+PTS.forEach(pt=>{
+  const n=pt.entries.length; if(n<2) return;
+  const R=pt.vis.geometry.parameters.radius+0.13;
+  const holder=new THREE.Group(); holder.position.copy(pt.vis.position); scene.add(holder);
+  pt.holder=holder; pt.beads=[];
+  pt.entries.forEach((name,i)=>{
+    const th=Math.PI/2-i*2*Math.PI/n;
+    const pos=new THREE.Vector3(R*Math.cos(th),R*Math.sin(th),0);
+    // Step lightness across members so neighbours on the ring are told apart
+    const col=new THREE.Color(pt.col.hex).offsetHSL(0,0,(i/(n-1)-0.5)*0.3);
+    const mat=new THREE.MeshBasicMaterial({color:col,transparent:true,opacity:0.9,depthWrite:false});
+    const bead=new THREE.Mesh(BEAD_GEO,mat); bead.position.copy(pos); bead.renderOrder=3; holder.add(bead);
+    const pk=new THREE.Mesh(BEAD_PICK_GEO,BEAD_PICK_MAT); pk.position.copy(pos); holder.add(pk);
+    const m={pt,name,i,bead,mat,css:`#${col.getHexString()}`};
+    pk.userData={__cm:m}; beadPickMeshes.push(pk); pt.beads.push(m);
+  });
+});
+
 let metricsVis='full', labelsVis='full';
 function applyMetricsVis(){
   PTS.forEach(pt=>{
     const h=metricsVis==='hidden',l=metricsVis==='low';
     pt.vis.visible=!h; pt.vis.material.opacity=l?0.18:1; pt.vis.material.transparent=l; pt.vis.material.needsUpdate=true;
     if(pt.projLine){pt.projLine.visible=!h;pt.projLine.material.opacity=l?0.06:0.2;pt.projLine.material.needsUpdate=true;}
+    if(pt.holder) pt.holder.visible=!h;
   });
 }
 
@@ -480,6 +531,7 @@ const FORMULA_DEFS=[
   // Gravity
   {label:'g=GM/r²',   from:[3,0,-2], to:[1,0,-2],  desc:'grav. param ÷ r² = accel'},
   // Fluids & continuum
+  {label:'K = σ√(πa)', from:[-1,1,-2],to:[-0.5,1,-2],desc:'stress × √length = fracture toughness'},
   {label:'P = F/A',   from:[1,1,-2], to:[-1,1,-2], desc:'force ÷ area = pressure'},
   {label:'Q = Av',    from:[1,0,-1], to:[3,0,-1],  desc:'vel × area = vol. flow rate'},
   {label:'ν = μ/ρ',  from:[-1,1,-1],to:[2,0,-1],  desc:'dyn. visc ÷ density = kin. visc'},
@@ -495,9 +547,10 @@ const FORMULA_DEFS=[
 // Builds a gradient arrow from one exponent coordinate to another, oriented along +Y of its group.
 // Caller adds the group to the scene (after applying any bundle offset).
 function makeArrow(from,to,{SR,CR,opacity,emissive=0}){
-  const MARGIN=0.22, HEAD=0.25;
   const s=new THREE.Vector3(...from), e=new THREE.Vector3(...to);
   const dir=e.clone().sub(s), total=dir.length();
+  // Half-steps (fractional exponents) are short, so shrink the end gaps and head to fit
+  const MARGIN=Math.min(0.22,total*0.2), HEAD=Math.min(0.25,total*0.3);
   dir.normalize();
   const shaftLen=total-MARGIN*2-HEAD;
   if(shaftLen<=0.05) return null;
@@ -529,13 +582,13 @@ function makeArrow(from,to,{SR,CR,opacity,emissive=0}){
 let showFormulas=false;
 const formulaObjs=[], formulaPickMeshes=[];
 // Pre-cache point keys for fast lookup
-PTS.forEach(pt=>{pt.key=`${pt.L},${pt.M},${pt.T}`;});
+PTS.forEach(pt=>{pt.key=keyOf(pt.L,pt.M,pt.T);});
 (()=>{
   const TAU=Math.PI*2;
   // Group by unordered endpoint pair — arrows between the same two points (in either direction) bundle together
   const segMap=new Map();
   FORMULA_DEFS.forEach((def,idx)=>{
-    const a=def.from.join(','), b=def.to.join(',');
+    const a=keyOf(...def.from), b=keyOf(...def.to);
     const k=a<b?`${a}|${b}`:`${b}|${a}`;
     if(!segMap.has(k)) segMap.set(k,[]);
     segMap.get(k).push(idx);
@@ -544,7 +597,7 @@ PTS.forEach(pt=>{pt.key=`${pt.L},${pt.M},${pt.T}`;});
   const segFrames=new Map();
   segMap.forEach((indices,k)=>{
     const d=FORMULA_DEFS[indices[0]];
-    const a=d.from.join(','), b=d.to.join(',');
+    const a=keyOf(...d.from), b=keyOf(...d.to);
     const cf=a<b?d.from:d.to, ct=a<b?d.to:d.from;
     const cd=new THREE.Vector3(...ct).sub(new THREE.Vector3(...cf)).normalize();
     const up=new THREE.Vector3(0,1,0);
@@ -554,7 +607,7 @@ PTS.forEach(pt=>{pt.key=`${pt.L},${pt.M},${pt.T}`;});
     segFrames.set(k,{lx:new THREE.Vector3(1,0,0).applyQuaternion(q),lz:new THREE.Vector3(0,0,1).applyQuaternion(q)});
   });
   FORMULA_DEFS.forEach((def,defIdx)=>{
-    const a=def.from.join(','), b=def.to.join(',');
+    const a=keyOf(...def.from), b=keyOf(...def.to);
     const segKey=a<b?`${a}|${b}`:`${b}|${a}`;
     const bundle=segMap.get(segKey);
     const n=bundle.length, bi=bundle.indexOf(defIdx);
@@ -574,7 +627,7 @@ PTS.forEach(pt=>{pt.key=`${pt.L},${pt.M},${pt.T}`;});
     // World-space midpoint of shaft (including bundle offset) — used for label positioning
     const mid=new THREE.Vector3(0,shaftLen/2,0).applyQuaternion(g.quaternion).add(g.position);
     const midCol={r:Math.round((sc.r+ec.r)/2),g:Math.round((sc.g+ec.g)/2),b:Math.round((sc.b+ec.b)/2)};
-    const fromKey=def.from.join(','), toKey=def.to.join(',');
+    const fromKey=keyOf(...def.from), toKey=keyOf(...def.to);
     const fo={g,def,mid,midCol,shaftMat,coneMat,fromKey,toKey};
     formulaObjs.push(fo);
     pm.userData={__fo:fo}; formulaPickMeshes.push(pm);
@@ -586,11 +639,17 @@ PTS.forEach(pt=>{pt.key=`${pt.L},${pt.M},${pt.T}`;});
 // dimension you must multiply A by to get B, so [B] = [A] · L^ΔL M^ΔM T^ΔT. We then look for
 // named quantities with dimension Δ (multiply) or −Δ (divide) to phrase it as a physical equation.
 const PT_BY_KEY=new Map(PTS.map(p=>[p.key,p]));
-const SUP={'-':'⁻','0':'⁰','1':'¹','2':'²','3':'³','4':'⁴','5':'⁵','6':'⁶','7':'⁷','8':'⁸','9':'⁹'};
+// The key only narrows the search; a hit must really sit at those exponents, so an arbitrary power
+// like 0.499 doesn't snap Area's image (0.998) onto Length.
+function ptAt(L,M,T){
+  const p=PT_BY_KEY.get(keyOf(L,M,T));
+  return p&&Math.abs(p.L-L)<1e-6&&Math.abs(p.M-M)<1e-6&&Math.abs(p.T-T)<1e-6?p:undefined;
+}
+const SUP={'-':'⁻','0':'⁰','1':'¹','2':'²','3':'³','4':'⁴','5':'⁵','6':'⁶','7':'⁷','8':'⁸','9':'⁹','/':'ᐟ','.':'·'};
 const supStr=n=>String(n).split('').map(c=>SUP[c]).join('');
 function dimStr(L,M,T){
   const parts=[];
-  [['L',L],['M',M],['T',T]].forEach(([s,e])=>{if(e)parts.push(e===1?s:s+supStr(e));});
+  [['L',L],['M',M],['T',T]].forEach(([s,e])=>{const f=fracStr(e);if(f!=='0')parts.push(f==='1'?s:s+supStr(f));});
   return parts.join('·')||'1';
 }
 const esc=t=>String(t).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -600,7 +659,7 @@ function vectorEquations(a,b){
   const delta=dimStr(dL,dM,dT);
   const A=nm(a), B=nm(b);
   const named=[];   // [{eq, short}]
-  const mul=PT_BY_KEY.get(`${dL},${dM},${dT}`), div=PT_BY_KEY.get(`${-dL},${-dM},${-dT}`);
+  const mul=ptAt(dL,dM,dT), div=ptAt(-dL,-dM,-dT);
   if(mul) named.push({eq:`${B} = ${A} × ${nm(mul)}`,short:`× ${nm(mul)}`});
   if(div) named.push({eq:`${B} = ${A} ÷ ${nm(div)}`,short:`÷ ${nm(div)}`});
   // Prefer the factor with fewer negative exponents: "÷ Time" reads better than "× Frequency"
@@ -611,10 +670,10 @@ function vectorEquations(a,b){
     const seen=new Set(), isZero=p=>!p.L&&!p.M&&!p.T;
     for(const P of PTS){
       if(isZero(P)) continue;
-      const Q=PT_BY_KEY.get(`${dL-P.L},${dM-P.M},${dT-P.T}`);
+      const Q=ptAt(dL-P.L,dM-P.M,dT-P.T);
       if(Q&&!isZero(Q)){const k=[P.key,Q.key].sort().join('|');
         if(!seen.has(k)){seen.add(k);named.push({eq:`${B} = ${A} × ${nm(P)} × ${nm(Q)}`,short:`× ${nm(P)} × ${nm(Q)}`});}}
-      const R=PT_BY_KEY.get(`${P.L-dL},${P.M-dM},${P.T-dT}`);
+      const R=ptAt(P.L-dL,P.M-dM,P.T-dT);
       if(R&&!isZero(R)&&R!==P) named.push({eq:`${B} = ${A} × ${nm(P)} ÷ ${nm(R)}`,short:`× ${nm(P)} ÷ ${nm(R)}`});
       if(named.length>=4) break;
     }
@@ -622,7 +681,7 @@ function vectorEquations(a,b){
   const generic=`[${B}] = [${A}] · ${delta}`;
   const known=[];
   FORMULA_DEFS.forEach(d=>{
-    const f=d.from.join(','), t=d.to.join(',');
+    const f=keyOf(...d.from), t=keyOf(...d.to);
     if(f===a.key&&t===b.key) known.push(`${d.label}  (${d.desc})`);
     else if(f===b.key&&t===a.key) known.push(`${d.label}  (inverse: ${d.desc})`);
   });
@@ -657,6 +716,163 @@ function removeUserVector(uv){
   renderVecList();
 }
 
+// ── Calculus operators ────────────────────────────────────────────────────────
+// A derivative d/dx divides by [x]; an integral ∫…dx multiplies by it. Either way it is the same
+// fixed translation (∓[x]) applied to every point, so an operator shows as a field of parallel
+// arrows. Gradient, divergence and curl all share ∂/∂x's shift — they differ only in tensor rank,
+// which L·M·T exponents can't see. Powers are different: √ and x² scale the vector about the origin
+// (halving or doubling every exponent), so their arrows fan out radially instead of running parallel.
+const OPERATORS=[
+  {id:'ddt',   label:'d/dt',   shift:[0,0,-1], desc:'time derivative · rate of change',          eq:(a,b)=>`${b} = d(${a})/dt`},
+  {id:'d2dt2', label:'d²/dt²', shift:[0,0,-2], desc:'second time derivative',                    eq:(a,b)=>`${b} = d²(${a})/dt²`},
+  {id:'intdt', label:'∫dt',    shift:[0,0,1],  desc:'integral over time · accumulation',         eq:(a,b)=>`${b} = ∫ ${a} dt`},
+  {id:'ddx',   label:'∂/∂x',   shift:[-1,0,0], desc:'space derivative · ∇, ∇·, ∇× share this shift', eq:(a,b)=>`${b} = ∂(${a})/∂x`},
+  {id:'lap',   label:'∇²',     shift:[-2,0,0], desc:'Laplacian · second space derivative',       eq:(a,b)=>`${b} = ∇²(${a})`},
+  {id:'intdx', label:'∫dx',    shift:[1,0,0],  desc:'line integral',                             eq:(a,b)=>`${b} = ∫ ${a} dx`},
+  {id:'intdA', label:'∫dA',    shift:[2,0,0],  desc:'surface integral · flux',                   eq:(a,b)=>`${b} = ∫ ${a} dA`},
+  {id:'intdV', label:'∫dV',    shift:[3,0,0],  desc:'volume integral',                           eq:(a,b)=>`${b} = ∫ ${a} dV`},
+  {id:'sqrt',  label:'√',      scale:1/2,      desc:'square root · halves every exponent, toward the origin', eq:(a,b)=>`${b} = √(${a})`},
+  {id:'sq',    label:'x²',     scale:2,        desc:'square · doubles every exponent, away from the origin', eq:(a,b)=>`${b} = (${a})²`},
+  {id:'pow',   label:'xⁿ',     scale:2/3,      desc:'power · multiplies every exponent by n', eq:(a,b)=>`${b} = (${a})${supStr(fracStr(POW_OP.scale))}`},
+];
+const POW_OP=OPERATORS.find(o=>o.id==='pow');
+// Parses "2/3", "-5/3", "1.5" → number; null when unusable
+function parseExp(str){
+  const m=String(str).trim().match(/^(-?\d+(?:\.\d+)?)(?:\s*\/\s*(\d+(?:\.\d+)?))?$/);
+  if(!m) return null;
+  const v=m[2]?parseFloat(m[1])/parseFloat(m[2]):parseFloat(m[1]);
+  return Number.isFinite(v)&&Math.abs(v)<=6?v:null;
+}
+// Where op sends point p (or, with inv, where p came from)
+const opApply=(op,p,inv=false)=>op.scale!==undefined
+  ?[p.L,p.M,p.T].map(v=>inv?v/op.scale:v*op.scale)
+  :[p.L,p.M,p.T].map((v,i)=>v+(inv?-op.shift[i]:op.shift[i]));
+const opMove=op=>op.scale!==undefined?`scale ×${fracStr(op.scale)}`:`shift ${dimStr(...op.shift)}`;
+const opObjs=[], opPickMeshes=[];
+let activeOp=null, hoveredOp=null;
+const opHint=document.getElementById('opHint');
+const opBtns=[];
+// Longest run P → op(P) → op(op(P)) … where every step lands on a named quantity
+function opChain(op){
+  let best=[];
+  PTS.forEach(p=>{
+    if(keyOf(...opApply(op,p))===p.key) return;           // the origin is fixed under scaling
+    if(op.scale!==0&&ptAt(...opApply(op,p,true))) return; // only start chains at their first link
+    const chain=[p];
+    for(let q=ptAt(...opApply(op,p));q&&!chain.includes(q);q=ptAt(...opApply(op,q))) chain.push(q);
+    if(chain.length>best.length) best=chain;
+  });
+  return best.length>=3?best:null;
+}
+// Operators and power laws share one overlay: arrows in opObjs, waypoint labels in overlayLabels.
+let activeLaw=null, lawLanding=null;
+const lawRows=[], overlayLabels=[];
+const overlayOn=()=>!!(activeOp||activeLaw);
+function clearOpArrows(){
+  opObjs.forEach(o=>{scene.remove(o.g);o.g.traverse(x=>{if(x.geometry)x.geometry.dispose();if(x.material)x.material.dispose();});});
+  opObjs.length=0; opPickMeshes.length=0; overlayLabels.length=0; hoveredOp=null;
+}
+function syncOverlayUI(){
+  // Whatever was under the pointer may just have been hidden or removed
+  hoveredFormula=null; hoveredOp=null; tip.style.display='none';
+  formulaObjs.forEach(({g})=>g.visible=showFormulas&&!overlayOn());
+  opBtns.forEach(b=>b.classList.toggle('on',!!activeOp&&b.dataset.v===activeOp.id));
+  lawRows.forEach(r=>r.classList.toggle('on',r.__law===activeLaw));
+  if(!overlayOn()) opHint.style.display='none';
+}
+const tipHead=t=>`<div style="font:bold 11px 'Courier New',monospace;color:#eef;margin-bottom:4px">${esc(t)}</div>`;
+const tipSub=t=>`<div style="font-size:9px;color:#667;margin-bottom:4px">${t}</div>`;
+const tipFoot='<div style="font-size:8px;color:#445;margin-top:4px">click to copy</div>';
+function setOperator(op){
+  clearOpArrows();
+  activeOp=op; activeLaw=null; lawLanding=null;
+  syncOverlayUI();
+  if(!activeOp) return;
+  let hits=0;
+  PTS.forEach(a=>{
+    const t=opApply(op,a);
+    if(t.some(v=>Math.abs(v)>5)) return;
+    const b=ptAt(...t)||null;
+    const arrow=makeArrow([a.L,a.M,a.T],t,b?{SR:0.03,CR:0.075,opacity:0.9,emissive:0.1}:{SR:0.014,CR:0.04,opacity:0.2});
+    if(!arrow) return;
+    scene.add(arrow.g);
+    if(b) hits++;
+    const o={...arrow,from:a,to:b,target:t,baseOp:b?0.9:0.2,
+      eq:op.eq(nm(a),b?nm(b):`[${dimStr(...t)}]`)};
+    o.tipHtml=tipHead(o.eq)+tipSub(`${esc(op.label)} · ${esc(opMove(op))}`)+
+      `<div style="font-size:9px"><span style="color:${arrow.sc.css}">${esc(nm(a))}</span><span style="color:#334"> → </span><span style="color:${arrow.ec.css}">${b?esc(nm(b)):'unnamed'}</span></div>`+
+      (b?'':`<div style="font-size:8.5px;color:#667;margin-top:3px">No quantity in the list sits at ${esc(dimStr(...t))}</div>`)+tipFoot;
+    arrow.pm.userData={__op:o}; opPickMeshes.push(arrow.pm); opObjs.push(o);
+  });
+  const lbl=op===POW_OP?`x${supStr(fracStr(op.scale))}`:op.label;
+  const chain=opChain(op), chainTxt=chain&&chain.map(nm).join(` —${lbl}→ `);
+  opHint.innerHTML=`<span class="oph">${esc(lbl)}</span> · ${esc(opMove(op))} · ${esc(op.desc)}<br>`+
+    `<span style="color:#99a">${hits} of ${opObjs.length} points land on a named quantity (bright arrows)</span>`+
+    (chain?`<div class="opc" data-copy="${esc(chainTxt)}" title="Click to copy">longest chain: ${esc(chainTxt)}</div>`:'');
+  opHint.style.display='block';
+}
+
+// ── Power laws ────────────────────────────────────────────────────────────────
+// A power law multiplies powers of quantities: E(k) = C·ε²ᐟ³·k⁻⁵ᐟ³. Each factor Xᵖ adds p times X's
+// vector, so the law is a path from the origin that steps along each factor's ray in turn. The
+// steps can wander through fractional points even when the law lands on a whole-number one.
+const POWER_LAWS=[
+  {label:'E(k) = C·ε²ᐟ³·k⁻⁵ᐟ³', desc:'Kolmogorov turbulence spectrum', lands:'Energy Spectrum E(k)', terms:[['ε',[2,0,-3],2/3],['k',[-1,0,0],-5/3]]},
+  {label:'η = (ν³/ε)¹ᐟ⁴',       desc:'Kolmogorov length scale',        terms:[['ν',[2,0,-1],3/4],['ε',[2,0,-3],-1/4]]},
+  {label:'τη = (ν/ε)¹ᐟ²',       desc:'Kolmogorov time scale',          terms:[['ν',[2,0,-1],1/2],['ε',[2,0,-3],-1/2]]},
+  {label:'ω = √(g/L)',          desc:'pendulum angular frequency',     terms:[['g',[1,0,-2],1/2],['L',[1,0,0],-1/2]]},
+  {label:'v = √(T/μ)',          desc:'wave speed on a string',         terms:[['T',[1,1,-2],1/2],['μ',[-1,1,0],-1/2]]},
+  {label:'v = √(2GM/r)',        desc:'escape velocity',                terms:[['GM',[3,0,-2],1/2],['r',[1,0,0],-1/2]]},
+  {label:'T = 2π√(a³/GM)',      desc:"Kepler's third law",             terms:[['a',[1,0,0],3/2],['GM',[3,0,-2],-1/2]]},
+  {label:'ℓ = √(D·t)',          desc:'diffusion length',               terms:[['D',[2,0,-1],1/2],['t',[0,0,1],1/2]]},
+];
+const termStr=([sym,,p])=>p===1?sym:sym+supStr(fracStr(p));
+function setLaw(law){
+  clearOpArrows();
+  activeLaw=law; activeOp=null; lawLanding=null;
+  syncOverlayUI();
+  if(!law) return;
+  let pos=[0,0,0], sofar='';
+  const end=law.terms.reduce((acc,[,d,p])=>acc.map((v,i)=>v+p*d[i]),[0,0,0]);
+  const landing=ptAt(...end);
+  // Name the result after the quantity the law is about, not whichever member is listed first
+  const landName=landing&&(landing.entries.includes(law.lands)?law.lands:nm(landing));
+  if(landing) lawLanding={pt:landing,name:landName};
+  law.terms.forEach((term,i)=>{
+    const[sym,d,p]=term, next=pos.map((v,j)=>v+p*d[j]);
+    const step=termStr(term); sofar=sofar?`${sofar}·${step}`:step;
+    const last=i===law.terms.length-1;
+    const arrow=makeArrow(pos,next,{SR:0.034,CR:0.085,opacity:0.95,emissive:0.2});
+    if(arrow){
+      scene.add(arrow.g);
+      const o={...arrow,from:ptAt(...pos)||null,to:last?landing:null,law,baseOp:0.95,eq:law.label};
+      o.tipHtml=tipHead(law.label)+tipSub(esc(law.desc))+
+        `<div style="font-size:9px;color:#ccd">step ${i+1}: × ${esc(step)} — adds ${esc(fracStr(p))} × [${esc(sym)}] = ${esc(dimStr(...d.map(v=>v*p)))}</div>`+
+        `<div style="font-size:9px;color:#99a;margin-top:2px">now at ${esc(dimStr(...next))}${last&&landing?` = ${esc(landName)}`:''}</div>`+tipFoot;
+      arrow.pm.userData={__op:o}; opPickMeshes.push(arrow.pm); opObjs.push(o);
+    }
+    if(!last){
+      // Ghost marker for the intermediate product, which usually has no name of its own
+      const col=coordToColor(...next);
+      const ghost=new THREE.Mesh(new THREE.SphereGeometry(0.07,10,8),new THREE.MeshBasicMaterial({color:col.hex,wireframe:true,transparent:true,opacity:0.8}));
+      ghost.position.set(...next); scene.add(ghost);
+      opObjs.push({g:ghost,ghost:true});
+      overlayLabels.push({pos:next,text:sofar,col});
+    }
+    pos=next;
+  });
+  const path=['1',...law.terms.map((t,i)=>law.terms.slice(0,i+1).map(termStr).join('·'))].join(' → ');
+  opHint.innerHTML=`<span class="oph">${esc(law.label)}</span> · ${esc(law.desc)}<br>`+
+    `<span style="color:#99a">path: ${esc(path)} = ${esc(dimStr(...end))}${landing?` (${esc(landName)})`:''}</span>`+
+    `<div class="opc" data-copy="${esc(law.label)}" title="Click to copy">${esc(law.label)}</div>`;
+  opHint.style.display='block';
+}
+
+function cycleOperator(){
+  const i=activeOp?OPERATORS.indexOf(activeOp):-1;
+  setOperator(i+1<OPERATORS.length?OPERATORS[i+1]:null);
+}
+
 // ── Clipboard ─────────────────────────────────────────────────────────────────
 const toastEl=document.getElementById('toast');
 let toastTimer=0;
@@ -685,7 +901,7 @@ const vcard=document.getElementById('vcard');
 function showCard(uv){
   selectedUV=uv;
   const{from:a,to:b,eq,sc,ec}=uv;
-  const sgn=n=>n>0?`+${n}`:String(n);
+  const sgn=n=>n>0?`+${fracStr(n)}`:fracStr(n);
   const row=(t,cls='veq')=>`<div class="${cls}" data-copy="${esc(t)}" title="Click to copy">${esc(t)}</div>`;
   vcard.innerHTML=
     `<div class="vhead"><span><span style="color:${sc.css}">${esc(nm(a))}</span> <span style="color:#556">→</span> <span style="color:${ec.css}">${esc(nm(b))}</span></span><button class="vx" id="vcardX" title="Close">✕</button></div>`+
@@ -777,29 +993,35 @@ function drawLbl(sx,sy,text,r,g,b,isH,isBadge=false,sizeBoost=0){
 
 // ── Picking ───────────────────────────────────────────────────────────────────
 const ray=new THREE.Raycaster(), mouse=new THREE.Vector2();
-let hovered=null, hoveredFormula=null, hoveredUV=null, lastMouse=null;
-// Returns {pt, fo, uv} for whatever is under the given client coordinates (at most one is set).
+let hovered=null, hoveredFormula=null, hoveredUV=null, hoveredCm=null, lastMouse=null;
+// Returns {pt, fo, uv, op} for whatever is under the given client coordinates (at most one is set).
 // While drawing, only points are pickable so arrows never block endpoint selection.
 function hitAt(cx,cy){
   mouse.x=(cx/W)*2-1; mouse.y=-(cy/H)*2+1;
   ray.setFromCamera(mouse,activeCamera);
-  const targets=drawMode?pickMeshes:[...(showFormulas?formulaPickMeshes:[]),...uvPickMeshes,...pickMeshes];
+  const targets=drawMode?pickMeshes:[...(showFormulas&&!overlayOn()?formulaPickMeshes:[]),...opPickMeshes,...uvPickMeshes,...beadPickMeshes,...pickMeshes];
   const hits=ray.intersectObjects(targets).sort((a,b)=>a.distance-b.distance);
   const hit=hits.length?hits[0].object.userData:null;
-  return{fo:hit&&hit.__fo||null,uv:hit&&hit.__uv||null,pt:hit&&!hit.__fo&&!hit.__uv?hit:null};
+  return{fo:hit&&hit.__fo||null,uv:hit&&hit.__uv||null,op:hit&&hit.__op||null,cm:hit&&hit.__cm||null,pt:hit&&!hit.__fo&&!hit.__uv&&!hit.__op&&!hit.__cm?hit:null};
 }
 function pick(e,force=false){
   const src=e.touches?e.touches[0]:e;
   lastMouse={x:src.clientX,y:src.clientY};
-  const{pt:newPt,fo:newFo,uv:newUV}=hitAt(src.clientX,src.clientY);
-  if(force||newPt!==hovered||newFo!==hoveredFormula||newUV!==hoveredUV){
-    hovered=newPt; hoveredFormula=newFo; hoveredUV=newUV;
-    if(newPt) tutEmit('point'); else if(newFo) tutEmit('formula');
-    if(newPt){
+  const{pt:newPt,fo:newFo,uv:newUV,op:newOp,cm:newCm}=hitAt(src.clientX,src.clientY);
+  if(force||newPt!==hovered||newFo!==hoveredFormula||newUV!==hoveredUV||newOp!==hoveredOp||newCm!==hoveredCm){
+    hovered=newPt; hoveredFormula=newFo; hoveredUV=newUV; hoveredOp=newOp; hoveredCm=newCm;
+    if(newPt||newCm) tutEmit('point'); else if(newFo) tutEmit('formula');
+    if(newCm){
+      const{pt,name,css}=newCm, others=pt.entries.filter(e=>e!==name);
+      tip.innerHTML=`<div style="font:bold 11px 'Courier New',monospace;color:${css};margin-bottom:4px">${esc(name)}</div>`+
+        `<div style="font-size:9px;color:#667;margin-bottom:5px">${esc(dimStr(pt.L,pt.M,pt.T))}</div>`+
+        `<div style="font-size:9px;color:#99aacc;line-height:1.7">Commensurable with ${others.length}:<br>${others.map(e=>`• ${esc(e)}`).join('<br>')}</div>`+
+        `<div style="font-size:8px;color:#445;margin-top:4px">click to copy</div>`;
+    } else if(newPt){
       const c=newPt.col;
       const preview=(drawMode&&drawStart&&drawStart!==newPt)
         ?`<div style="color:#cce0ff;font-weight:bold;margin-bottom:5px;border-bottom:1px solid rgba(255,255,255,.1);padding-bottom:4px">${esc(vectorEquations(drawStart,newPt).primary)}</div>`:'';
-      tip.innerHTML=preview+`<div style="display:flex;align-items:center;gap:8px;margin-bottom:5px"><span style="display:inline-block;width:13px;height:13px;border-radius:3px;background:${c.css};flex-shrink:0"></span><span style="color:${c.css};font-weight:bold">L<sup>${newPt.L}</sup>·M<sup>${newPt.M}</sup>·T<sup>${newPt.T}</sup> <span style="font-weight:normal;color:#667;font-size:10px">(${newPt.entries.length})</span></span></div><div style="color:#334;font-size:8.5px;margin-bottom:4px">OKLAB L=${c.oL.toFixed(2)} a=${c.oa.toFixed(3)} b=${c.ob.toFixed(3)}</div><div style="color:#99aacc;font-size:10px;line-height:1.8">${newPt.entries.map(n=>`• ${n}`).join('<br>')}</div>`;
+      tip.innerHTML=preview+`<div style="display:flex;align-items:center;gap:8px;margin-bottom:5px"><span style="display:inline-block;width:13px;height:13px;border-radius:3px;background:${c.css};flex-shrink:0"></span><span style="color:${c.css};font-weight:bold">L<sup>${fracStr(newPt.L)}</sup>·M<sup>${fracStr(newPt.M)}</sup>·T<sup>${fracStr(newPt.T)}</sup> <span style="font-weight:normal;color:#667;font-size:10px">(${newPt.entries.length})</span></span></div>${newPt.entries.length>1?'<div style="color:#556;font-size:8.5px;margin-bottom:3px">commensurable · same dimension, addable</div>':''}<div style="color:#334;font-size:8.5px;margin-bottom:4px">OKLAB L=${c.oL.toFixed(2)} a=${c.oa.toFixed(3)} b=${c.ob.toFixed(3)}</div><div style="color:#99aacc;font-size:10px;line-height:1.8">${newPt.entries.map(n=>`• ${n}`).join('<br>')}</div>`;
     } else if(newFo){
       const d=newFo.def,sc=coordToColor(...d.from),ec=coordToColor(...d.to);
       const fp=PTS.find(p=>p.key===newFo.fromKey),tp=PTS.find(p=>p.key===newFo.toKey);
@@ -815,16 +1037,18 @@ function pick(e,force=false){
         `<div style="font-size:9px;color:#667;margin-bottom:4px">Δ = ${esc(eq.delta)}</div>`+
         `<div style="font-size:9px"><span style="color:${sc.css}">${esc(nm(newUV.from))}</span><span style="color:#334"> → </span><span style="color:${ec.css}">${esc(nm(newUV.to))}</span></div>`+
         `<div style="font-size:8px;color:#445;margin-top:4px">click to copy · open details</div>`;
+    } else if(newOp){
+      tip.innerHTML=newOp.tipHtml;
     }
   }
-  if(newPt||newFo||newUV){tip.style.display='block';tip.style.left=Math.min(src.clientX+14,W-244)+'px';tip.style.top=Math.max(4,src.clientY-60)+'px';}
+  if(newPt||newFo||newUV||newOp||newCm){tip.style.display='block';tip.style.left=Math.min(src.clientX+14,W-244)+'px';tip.style.top=Math.max(4,src.clientY-60)+'px';}
   else tip.style.display='none';
 }
 c3d.addEventListener('mousemove',pick);
 c3d.addEventListener('mouseenter',()=>{controls.autoRotate=false;});
-c3d.addEventListener('mouseleave',()=>{controls.autoRotate=autoRotOn;hovered=null;hoveredFormula=null;hoveredUV=null;lastMouse=null;tip.style.display='none';});
+c3d.addEventListener('mouseleave',()=>{controls.autoRotate=autoRotOn;hovered=null;hoveredFormula=null;hoveredUV=null;hoveredOp=null;hoveredCm=null;lastMouse=null;tip.style.display='none';});
 c3d.addEventListener('touchmove',e=>{if(e.touches.length===1)pick(e);},{passive:true});
-c3d.addEventListener('touchend',()=>{hovered=null;hoveredFormula=null;hoveredUV=null;tip.style.display='none';});
+c3d.addEventListener('touchend',()=>{hovered=null;hoveredFormula=null;hoveredUV=null;hoveredOp=null;hoveredCm=null;tip.style.display='none';});
 
 // ── Click (tap) handling — distinguished from orbit drags by pointer travel ──
 let downAt=null;
@@ -833,7 +1057,7 @@ c3d.addEventListener('pointerup',e=>{
   if(!e.isPrimary||!downAt) return;
   const moved=Math.hypot(e.clientX-downAt.x,e.clientY-downAt.y); downAt=null;
   if(moved>6) return;
-  const{pt,fo,uv}=hitAt(e.clientX,e.clientY);
+  const{pt,fo,uv,op,cm}=hitAt(e.clientX,e.clientY);
   if(drawMode){
     if(!pt){drawStart=null;updateDrawUI();return;}
     if(!drawStart||drawStart===pt){drawStart=drawStart===pt?null:pt;}
@@ -842,6 +1066,8 @@ c3d.addEventListener('pointerup',e=>{
     return;
   }
   if(uv){showCard(uv);copyText(uv.eq.primary);}
+  else if(op) copyText(op.eq);
+  else if(cm){copyText(cm.name);tutEmit('point');}
   else if(fo){copyText(fo.def.label);tutEmit('formula');}
   else if(pt){copyText(pt.entries.join(', '));tutEmit('point');}
 });
@@ -953,16 +1179,62 @@ function updFov(s){
   rb.addEventListener('mousedown',e=>e.stopPropagation());
   row.append(rotBtn,rb);
   const hint=document.createElement('div'); hint.style.cssText='font-size:8px;color:#1e2a40;margin-top:6px;line-height:1.8;';
-  hint.textContent='←→↑↓ orbit · scroll/pinch zoom · Space pause · R reset · V draw vector · / search · click a label to copy';
+  hint.textContent='←→↑↓ orbit · scroll/pinch zoom · Space pause · R reset · V draw vector · O cycle operators · / search · click a label to copy';
   div.append(row,hint);
   panel.appendChild(acc('VIEW',div,true));
+})();
+
+// Operators
+(()=>{
+  const div=document.createElement('div');
+  const segs=document.createElement('div'); segs.className='segs';
+  OPERATORS.forEach(op=>{
+    const btn=document.createElement('button'); btn.className='seg'; btn.textContent=op.label; btn.dataset.v=op.id; btn.title=op.desc;
+    btn.addEventListener('click',()=>setOperator(activeOp===op?null:op));
+    btn.addEventListener('mousedown',e=>e.stopPropagation());
+    segs.appendChild(btn); opBtns.push(btn);
+  });
+  const note=document.createElement('div');
+  note.style.cssText='margin-top:7px;font-size:8px;color:#2a3a55;line-height:1.6;';
+  note.textContent='A derivative or integral shifts every quantity by the same vector, so it draws as parallel arrows. ∇, ∇· and ∇× all shift by L⁻¹ — they differ in tensor rank, not dimension. √ and x² scale the vector instead, so their arrows point toward or away from the origin. O cycles operators.';
+  const nrow=document.createElement('div'); nrow.className='prow'; nrow.style.marginTop='6px';
+  const nl=document.createElement('span'); nl.className='pl'; nl.textContent='xⁿ   n =';
+  const nin=document.createElement('input'); nin.type='text'; nin.value='2/3'; nin.className='nin';
+  nin.title='Exponent for xⁿ: a fraction like 2/3 or -5/3, or a decimal';
+  nin.addEventListener('input',()=>{
+    const v=parseExp(nin.value); nin.classList.toggle('bad',v===null);
+    if(v===null) return;
+    POW_OP.scale=v;
+    if(activeOp===POW_OP) setOperator(POW_OP);
+  });
+  nin.addEventListener('keydown',e=>{if(e.key==='Enter')setOperator(POW_OP);});
+  nrow.append(nl,nin);
+  div.append(segs,nrow,note);
+  panel.appendChild(acc('OPERATORS',div,true));
+})();
+
+// Power laws
+(()=>{
+  const div=document.createElement('div');
+  POWER_LAWS.forEach(law=>{
+    const row=document.createElement('button'); row.type='button'; row.className='lawrow'; row.__law=law;
+    row.innerHTML=`<span class="lawl">${esc(law.label)}</span><span class="lawd">${esc(law.desc)}</span>`;
+    row.title='Show this law as a path through exponent space';
+    row.addEventListener('click',()=>setLaw(activeLaw===law?null:law));
+    div.appendChild(row); lawRows.push(row);
+  });
+  const note=document.createElement('div');
+  note.style.cssText='margin-top:7px;font-size:8px;color:#2a3a55;line-height:1.6;';
+  note.textContent='Each factor Xᵖ steps p times along X\'s ray. The path can pass through fractional points and still land on a whole-number one.';
+  div.appendChild(note);
+  panel.appendChild(acc('POWER LAWS',div,true));
 })();
 
 // Formulas — a single show/hide toggle (hidden by default)
 let formulaBtn;
 function setFormulas(on){
   showFormulas=on;
-  formulaObjs.forEach(({g})=>g.visible=on);
+  formulaObjs.forEach(({g})=>g.visible=on&&!overlayOn());
   if(formulaBtn){
     formulaBtn.textContent=on?'◉ Formula arrows':'○ Formula arrows';
     formulaBtn.classList.toggle('on',on);
@@ -1019,7 +1291,7 @@ function centreOn(x,y,z){camTween={t0:performance.now(),from:controls.target.clo
 function focusPoint(pt,name){
   hideCard(); focusPt=pt; centreOn(pt.L,pt.M,pt.T);
   const c=pt.col, syms=n=>(SYMBOLS[n]||[]).join(', ');
-  const rel=FORMULA_DEFS.filter(d=>d.from.join(',')===pt.key||d.to.join(',')===pt.key);
+  const rel=FORMULA_DEFS.filter(d=>keyOf(...d.from)===pt.key||keyOf(...d.to)===pt.key);
   vcard.innerHTML=`<div class="vhead"><span style="color:${c.css}">${esc(name||nm(pt))}</span><button class="vx" id="vcardX" title="Close">✕</button></div>`+
     `<div class="vsub">${esc(dimStr(pt.L,pt.M,pt.T))} · coordinate (${pt.L}, ${pt.M}, ${pt.T})</div>`+
     `<div class="vlbl">Quantities at this point</div>`+
@@ -1059,7 +1331,7 @@ formulaObjs.forEach(fo=>{
 [
   ['operation','Multiply quantities (×)','Adds exponents: move along a vector',['multiply','times','product','×','*','add exponents'],()=>{setDrawMode(true);flashEl(drawBtn);}],
   ['operation','Divide quantities (÷)','Subtracts exponents: the reverse vector',['divide','quotient','per','÷','/','subtract exponents'],()=>{setDrawMode(true);flashEl(drawBtn);}],
-  ['operation','Power of a quantity (x²)','Scales the exponent vector',['power','square','squared','cube','exponent','^'],()=>focusPoint(PT_BY_KEY.get('2,0,0'),'Area')],
+  ['operation','Power of a quantity (x²)','Scales the exponent vector',['power','square','squared','cube','exponent','^'],()=>focusPoint(PT_BY_KEY.get(keyOf(2,0,0)),'Area')],
   ['control','Draw vector','Connect two points to get the equation linking them (V)',['draw','vector','arrow','connect','equation','line'],()=>{setDrawMode(true);flashEl(drawBtn);}],
   ['control','Clear all vectors','Remove every drawn vector',['clear','delete','remove','vectors'],()=>showControl('VECTORS')],
   ['control','Formula arrows','Show/hide arrows for known formulas',['formula','formulas','arrows','show','hide','known'],()=>showControl('FORMULAS')],
@@ -1068,11 +1340,16 @@ formulaObjs.forEach(fo=>{
   ['control','Visibility','Dim or hide spheres and labels',['visibility','hide','dim','spheres','opacity','low','off'],()=>showControl('VISIBILITY')],
   ['control','Pause / rotate','Toggle auto-rotation (Space)',['pause','rotate','rotation','spin','auto','space'],()=>showControl('VIEW')],
   ['control','Reset view','Return the camera to its start (R)',['reset','home','camera','view','recenter'],()=>{showControl('VIEW');window.dispatchEvent(new KeyboardEvent('keydown',{key:'r'}));}],
-  ['control','Hover tooltip','Hover a sphere to see every quantity at that point; click to copy',['tooltip','hover','copy','clipboard','info'],()=>focusPoint(PT_BY_KEY.get('1,1,-2'),'Force')],
-  ['control','Dimensionless origin','(0,0,0): strain, angle, Mach & Reynolds numbers',['origin','dimensionless','zero','unitless','ratio'],()=>focusPoint(PT_BY_KEY.get('0,0,0'),'Strain')],
+  ['control','Hover tooltip','Hover a sphere to see every quantity at that point; click to copy',['tooltip','hover','copy','clipboard','info'],()=>focusPoint(PT_BY_KEY.get(keyOf(1,1,-2)),'Force')],
+  ['control','Dimensionless origin','(0,0,0): strain, angle, Mach & Reynolds numbers',['origin','dimensionless','zero','unitless','ratio'],()=>focusPoint(PT_BY_KEY.get(keyOf(0,0,0)),'Strain')],
 ].forEach(([kind,title,sub,keys,go])=>SEARCH_INDEX.push({kind,title,sub,keys,sym:[],go}));
+OPERATORS.forEach(op=>SEARCH_INDEX.push({kind:'operator',title:op.label,sub:op.desc,
+  keys:[op.label,op.desc,op.id,op.shift?(op.label.includes('∫')?'integral integrate':'derivative differentiate rate gradient'):'power root exponent'],sym:[op.label],
+  go:()=>{hideCard();showControl('OPERATORS');setOperator(op);}}));
+POWER_LAWS.forEach(law=>SEARCH_INDEX.push({kind:'formula',title:law.label,sub:'power law · '+law.desc,
+  keys:[law.label,law.desc,'power law',law.lands||''],sym:[],go:()=>{hideCard();showControl('POWER LAWS');setLaw(law);}}));
 
-const KIND_COL={quantity:'#8fb',formula:'#fc8',operation:'#f9c',control:'#9bf',tutorial:'#ff9',term:'#c9f'};
+const KIND_COL={operator:'#7ee',quantity:'#8fb',formula:'#fc8',operation:'#f9c',control:'#9bf',tutorial:'#ff9',term:'#c9f'};
 const norm=t=>String(t).toLowerCase().normalize('NFKD').replace(/[\u0300-\u036f]/g,'');
 function scoreEntry(en,q,qn){
   let best=0;
@@ -1262,7 +1539,7 @@ const TUTS=[
     {h:'Force sits at (1, 1, −2) because force = L¹·M¹·T⁻² (kg·m/s²). Every name listed at a point is [[same|dimensionally identical]] — Force, Weight, Drag and Thrust share one sphere.',
      btn:['Show Force',()=>focusPoint(PT_OF_NAME.get('Force'),'Force')]},
     {h:'The origin (0, 0, 0) holds the [[dimensionless|dimensionless]] numbers. The colours are positions too: [[colour|colour = position]].',
-     btn:['Show the origin',()=>focusPoint(PT_BY_KEY.get('0,0,0'),'Strain')]},
+     btn:['Show the origin',()=>focusPoint(PT_BY_KEY.get(keyOf(0,0,0)),'Strain')]},
   ]},
   {id:'vectors',title:'Drawing a vector',blurb:'Connect two points to get an equation',steps:[
     {h:'Two [[commensurable|commensurable]] points can be joined by a [[vector|vector]]. Turn on drawing first.',act:'Press ✎ Draw vector (or V).',
@@ -1270,7 +1547,7 @@ const TUTS=[
     {h:'Now click <b>Force</b>, then <b>Energy</b>.',act:'Draw from Force to Energy (any two points also work).',wait:'vector',
      btn:['Centre on Force',()=>{centreOn(1,1,-2);}]},
     {h:()=>{const v=lastVec(); if(!v) return 'Draw a vector to continue.';
-       const ok=v.from.key==='1,1,-2'&&v.to.key==='2,1,-2';
+       const ok=v.from.key===keyOf(1,1,-2)&&v.to.key===keyOf(2,1,-2);
        return (ok?'Its step is Δ = (1, 0, 0) — that is Length — so <b>Energy = Force × Length</b> (work = force × distance).'
          :`Its step is Δ = ${esc(v.eq.delta)}, so <b>${esc(v.eq.primary)}</b>.`)+' The rule: [[delta|subtract coordinates]], because [[mult|multiplying adds exponents]]. The card at the bottom lists the equation — click it to copy.';}},
   ]},
@@ -1384,6 +1661,7 @@ if(window.innerWidth>600) openPanel();
 const KEYS={};
 window.addEventListener('keydown',e=>{
   if(e.target.closest&&e.target.closest('input,select,textarea')) return;
+  if(e.target.closest&&e.target.closest('button')&&(e.key===' '||e.key==='Enter')) return;
   KEYS[e.key]=true;
   if(e.key==='/'){sq.focus();sq.select();e.preventDefault();return;}
   if(e.key===' '){autoRotOn=!autoRotOn;controls.autoRotate=autoRotOn;rotBtn.textContent=autoRotOn?'⏸ Pause':'▶ Rotate';rotBtn.style.color=autoRotOn?'#88aaff':'#aaaacc';e.preventDefault();}
@@ -1395,10 +1673,12 @@ window.addEventListener('keydown',e=>{
     const sv=Math.round(Math.pow((INIT_FOV-2)/88,1/1.3)*100);fovSlider.value=sv;updFov(sv);
   }
   if(e.key==='v'||e.key==='V') setDrawMode(!drawMode);
+  if(e.key==='o'||e.key==='O') cycleOperator();
   if(e.key==='Escape'){
     if(drawStart){drawStart=null;updateDrawUI();}
     else if(drawMode) setDrawMode(false);
     else if(ttStack.length) closeTT(0);
+    else if(overlayOn()) setOperator(null);
     else hideCard();
   }
   if(['ArrowUp','ArrowDown','ArrowLeft','ArrowRight'].includes(e.key)) e.preventDefault();
@@ -1415,6 +1695,7 @@ window.addEventListener('resize',()=>{
 });
 
 // ── Render loop ───────────────────────────────────────────────────────────────
+const _bw=new THREE.Vector3();
 const ROT=0.027;
 function animate(){
   requestAnimationFrame(animate);
@@ -1430,6 +1711,7 @@ function animate(){
   activeCamera = usingOrtho ? orthoCam : perspCam;
 
   if(lblEffect==='pill') PTS.forEach(pt=>{if(pt.ring.visible)pt.ring.quaternion.copy(activeCamera.quaternion);});
+  PTS.forEach(pt=>{if(pt.holder)pt.holder.quaternion.copy(activeCamera.quaternion);});
 
   const dpr=window.devicePixelRatio||1;
   lc.setTransform(dpr,0,0,dpr,0,0); lc.clearRect(0,0,W,H); lc.textAlign='center';
@@ -1447,14 +1729,17 @@ function animate(){
     const cT=coordToColor(0,0,Math.max(-4,Math.min(1,n)));let[tx,ty]=toSc(0,0,n);drawLbl(tx,ty+24,String(n),cT.r,cT.g,cT.b,false,true);
   });
   // Pre-compute hover sets once — shared by label pass and 3D highlight pass
-  const anyHov=!!(hovered||hoveredFormula||hoveredUV||focusPt||focusFo);
-  const activeFos=new Set(), activePts=new Set();
+  const anyHov=!!(hovered||hoveredFormula||hoveredUV||hoveredOp||hoveredCm||focusPt||focusFo);
+  const activeFos=new Set(), activePts=new Set(), activeOps=new Set();
   if(anyHov){
     if(hoveredFormula){
       activeFos.add(hoveredFormula);
       PTS.forEach(pt=>{if(pt.key===hoveredFormula.fromKey||pt.key===hoveredFormula.toKey)activePts.add(pt);});
     }
     if(hoveredUV){activePts.add(hoveredUV.from);activePts.add(hoveredUV.to);}
+    if(hoveredCm) activePts.add(hoveredCm.pt);
+    if(hoveredOp){(hoveredOp.law?opObjs:[hoveredOp]).forEach(o=>{activeOps.add(o);if(o.from)activePts.add(o.from);if(o.to)activePts.add(o.to);});}
+    if(hovered) opObjs.forEach(o=>{if(o.from===hovered||o.to===hovered){activeOps.add(o);activePts.add(o.from);if(o.to)activePts.add(o.to);}});
     if(focusPt) activePts.add(focusPt);
     if(focusFo){
       activeFos.add(focusFo);
@@ -1462,8 +1747,8 @@ function animate(){
     }
     if(hovered){
       activePts.add(hovered);
-      if(showFormulas) formulaObjs.forEach(fo=>{
-        if(fo.fromKey===hovered.key||fo.toKey===hovered.key){
+      formulaObjs.forEach(fo=>{
+        if(fo.g.visible&&(fo.fromKey===hovered.key||fo.toKey===hovered.key)){
           activeFos.add(fo);
           PTS.forEach(pt=>{if(pt.key===fo.fromKey||pt.key===fo.toKey)activePts.add(pt);});
         }
@@ -1471,27 +1756,51 @@ function animate(){
     }
   }
 
+  // A shown power law takes focus like a hover: its path and endpoints stay bright, the rest fades
+  if(activeLaw&&!anyHov) opObjs.forEach(o=>{if(o.ghost)return;activeOps.add(o);if(o.from)activePts.add(o.from);if(o.to)activePts.add(o.to);});
+  const dim=anyHov||!!activeLaw;
   if(labelsVis!=='hidden'){
     const baseAlpha=labelsVis==='low'?0.3:1;
     PTS.map(pt=>{const[sx,sy,z]=toSc(pt.L,pt.M,pt.T);return{pt,sx,sy,z};})
       .sort((a,b)=>b.z-a.z)
       .forEach(({pt,sx,sy})=>{
         const isActive=activePts.has(pt), isDirect=hovered===pt||focusPt===pt;
-        lc.globalAlpha=anyHov?(isActive?1:0.12):baseAlpha;
+        lc.globalAlpha=dim?(isActive?1:0.12):baseAlpha;
         const{r,g,b}=pt.col,isH=isDirect,n=pt.entries.length;
-        const boost=anyHov?(isDirect?4:isActive?2:0):0;
-        drawLbl(sx,sy,n>1?`${pt.entries[0]} +${n-1}`:pt.entries[0],r,g,b,isH,false,boost);
+        const boost=dim?(isDirect?4:isActive?2:0):0;
+        if(pt.beads&&(hovered===pt||hoveredCm&&hoveredCm.pt===pt)){
+          // Expanded: one label per commensurable member, pushed out radially from its bead
+          pt.beads.forEach(m=>{
+            const[bx,by]=toSc(...m.bead.getWorldPosition(_bw).toArray());
+            const dx=bx-sx, dy=by-sy, d=Math.hypot(dx,dy)||1, ux=dx/d, uy=dy/d;
+            const hot=hoveredCm===m, sz=lblSize+(hot?2.5:1);
+            lc.font=`${hot?'bold ':''}${sz}px ${lblFont}`;
+            lc.textAlign=ux>0.25?'left':ux<-0.25?'right':'center';
+            const tx=bx+ux*9, ty=by+uy*9+(uy>0.25?sz*.8:uy<-0.25?-2:sz*.35);
+            lc.strokeStyle='rgba(4,4,20,.97)';lc.lineWidth=Math.max(2,sz*.25);lc.lineJoin='round';
+            lc.strokeText(m.name,tx,ty); lc.fillStyle=m.css; lc.fillText(m.name,tx,ty);
+          });
+          lc.textAlign='center';
+          return;
+        }
+        const main=activeLaw&&lawLanding&&lawLanding.pt===pt?lawLanding.name:pt.entries[0];
+        drawLbl(sx,sy,n>1?`${main} +${n-1}`:main,r,g,b,isH,false,boost);
         if(n>1&&!isH){lc.font=`8px ${lblFont}`;lc.fillStyle=`rgba(${r},${g},${b},.55)`;lc.fillText(`×${n}`,sx,sy+(lblSize*.8));}
       });
     lc.globalAlpha=1;
   }
+  overlayLabels.forEach(({pos,text,col})=>{
+    const[sx,sy]=toSc(...pos);
+    lc.globalAlpha=1;
+    drawLbl(sx,sy,text,col.r,col.g,col.b,true,false,1.5);
+  });
   if(showFormulas){
     formulaObjs.forEach(fo=>{
       if(!fo.g.visible) return;
       const[sx,sy]=toSc(fo.mid.x,fo.mid.y,fo.mid.z);
       const foActive=activeFos.has(fo), foDirect=hoveredFormula===fo||focusFo===fo;
-      lc.globalAlpha=anyHov?(foActive?1:0.10):1;
-      const foBoost=anyHov?(foDirect?3:foActive?2:0):0;
+      lc.globalAlpha=dim?(foActive?1:0.10):1;
+      const foBoost=dim?(foDirect?3:foActive?2:0):0;
       lc.font=`bold ${Math.max(7,lblSize-1+foBoost)}px ${lblFont}`;
       lc.textAlign='center';
       lc.strokeStyle='rgba(4,4,20,.97)';
@@ -1506,7 +1815,7 @@ function animate(){
   userVecs.forEach(uv=>{
     const[sx,sy]=toSc(uv.mid.x,uv.mid.y,uv.mid.z);
     const isH=hoveredUV===uv||selectedUV===uv;
-    lc.globalAlpha=anyHov&&hoveredUV!==uv&&!activePts.has(uv.from)?0.25:1;
+    lc.globalAlpha=dim&&hoveredUV!==uv&&!activePts.has(uv.from)?0.25:1;
     const sz=lblSize+(isH?2:0.5);
     lc.font=`bold ${sz}px ${lblFont}`; lc.textAlign='center';
     const m=lc.measureText(uv.eq.short),p=5,y0=sy+sz+8;
@@ -1543,14 +1852,28 @@ function animate(){
   lc.shadowBlur=0;
 
   // ── 3D hover highlights ───────────────────────────────────────────────────────
+  opObjs.forEach(o=>{
+    if(o.ghost) return;
+    const op=dim?(activeOps.has(o)?1:0.08):o.baseOp;
+    if(o.shaftMat.opacity!==op){o.shaftMat.opacity=op;o.coneMat.opacity=op;}
+  });
+  PTS.forEach(pt=>{
+    if(!pt.beads) return;
+    const lowV=metricsVis==='low';
+    pt.beads.forEach(m=>{
+      const op=dim?(activePts.has(pt)?(hoveredCm===m?1:0.9):0.1):(lowV?0.25:0.9);
+      if(m.mat.opacity!==op) m.mat.opacity=op;
+      const sc=hoveredCm===m?1.6:1; m.bead.scale.setScalar(sc);
+    });
+  });
   userVecs.forEach(uv=>{
-    const op=anyHov?(hoveredUV===uv||activePts.has(uv.from)&&activePts.has(uv.to)?1:0.25):0.95;
+    const op=dim?(hoveredUV===uv||activePts.has(uv.from)&&activePts.has(uv.to)?1:0.25):0.95;
     if(uv.shaftMat.opacity!==op){uv.shaftMat.opacity=op;uv.coneMat.opacity=op;}
   });
   if(showFormulas){
     formulaObjs.forEach(fo=>{
       if(!fo.g.visible) return;
-      const op=anyHov?(activeFos.has(fo)?1.0:0.10):0.72;
+      const op=dim?(activeFos.has(fo)?1.0:0.10):0.72;
       if(fo.shaftMat.opacity!==op){fo.shaftMat.opacity=op;fo.shaftMat.needsUpdate=true;}
       if(fo.coneMat.opacity!==op){fo.coneMat.opacity=op;fo.coneMat.needsUpdate=true;}
     });
@@ -1559,7 +1882,7 @@ function animate(){
     const baseOp=metricsVis==='low'?0.18:1;
     PTS.forEach(pt=>{
       if(!pt.vis.visible) return;
-      const op=anyHov?(activePts.has(pt)?1.0:Math.min(baseOp,0.15)):baseOp;
+      const op=dim?(activePts.has(pt)?1.0:Math.min(baseOp,0.15)):baseOp;
       const tr=op<1;
       if(pt.vis.material.opacity!==op||pt.vis.material.transparent!==tr){pt.vis.material.opacity=op;pt.vis.material.transparent=tr;pt.vis.material.needsUpdate=true;}
     });
