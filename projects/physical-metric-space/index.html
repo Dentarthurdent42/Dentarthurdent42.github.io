@@ -16,8 +16,8 @@
 *{margin:0;padding:0;box-sizing:border-box}
 html,body{width:100%;height:100%;overflow:hidden;background:#06061a}
 #app{position:relative;width:100%;height:100%}
-#c3d{display:block;position:absolute;inset:0;touch-action:none}
-#clbl{position:absolute;inset:0;pointer-events:none}
+#c3d{display:block;position:absolute;top:0;left:0;touch-action:none}
+#clbl{position:absolute;top:0;left:0;pointer-events:none}
 #tip{position:absolute;z-index:50;display:none;padding:9px 13px;max-width:230px;
   background:rgba(4,4,18,.97);border:1px solid rgba(255,255,255,.13);border-radius:9px;
   font:12px/1.7 'Courier New',monospace;color:#dde;pointer-events:none;
@@ -25,9 +25,6 @@ html,body{width:100%;height:100%;overflow:hidden;background:#06061a}
 #tl{position:absolute;top:12px;left:12px;z-index:25;display:flex;flex-direction:column;align-items:flex-start;gap:8px;
   max-width:calc(100% - 58px);pointer-events:none}
 #tl>*{pointer-events:auto}
-#info{position:relative;max-width:100%;padding:6px 11px;
-  background:rgba(4,4,18,.88);border:1px solid rgba(255,255,255,.07);
-  border-radius:7px;pointer-events:none}
 #badge{flex-shrink:0;padding:0 6px;font:10px 'Courier New',monospace;color:#6380aa;pointer-events:none;white-space:nowrap}
 /* Bottom dock: every control lives in one glass bar; the panel rises above it */
 #dock{position:absolute;left:50%;transform:translateX(-50%);bottom:max(12px,env(safe-area-inset-bottom,0px));z-index:45;
@@ -204,9 +201,9 @@ body.panel-open #tl{max-height:calc(100% - min(46vh,440px) - 110px);overflow-y:a
 @media (max-width:600px){
   #dock{left:8px;right:8px;transform:none;width:auto;max-width:none}
   #drawBtn .lb,#tab .tl,#badge{display:none}
-  #panel{left:8px;right:8px;height:min(50vh,460px);grid-template-columns:1fr}
-  body.panel-open #vcard{bottom:calc(max(12px,env(safe-area-inset-bottom,0px)) + 70px + min(50vh,460px))}
-  body.panel-open #tl{max-height:calc(100% - min(50vh,460px) - 110px)}
+  #panel{left:8px;right:8px;height:min(42vh,400px);grid-template-columns:1fr}
+  body.panel-open #vcard{bottom:calc(max(12px,env(safe-area-inset-bottom,0px)) + 70px + min(42vh,400px))}
+  body.panel-open #tl{max-height:calc(100% - min(42vh,400px) - 110px)}
 }
 #toast{position:absolute;bottom:calc(max(12px,env(safe-area-inset-bottom,0px)) + 62px);left:50%;transform:translateX(-50%);z-index:60;
   max-width:calc(100% - 32px);padding:5px 12px;border-radius:6px;background:rgba(30,40,90,.95);
@@ -220,11 +217,6 @@ body.panel-open #tl{max-height:calc(100% - min(46vh,440px) - 110px);overflow-y:a
   <canvas id="clbl"></canvas>
   <div id="tip"></div>
   <div id="tl">
-  <div id="info">
-    <div style="font:bold 10px 'Courier New',monospace;color:#8899ff;letter-spacing:.04em">DIMENSIONAL ANALYSIS</div>
-    <div style="font:10px 'Courier New',monospace;color:#6b80a8;margin-top:2px">Each sphere is a physical quantity, placed by its powers of length, mass &amp; time</div>
-    <div id="newHint" style="font:10px 'Courier New',monospace;color:#8fa4d8;margin-top:2px">New here? Press <b style="color:#cce0ff">?</b> (bottom bar) for a short tour</div>
-  </div>
   <div id="drawHint"></div>
   <div id="opHint"></div>
   <div id="coach" role="dialog" aria-label="Tutorial"></div>
@@ -1055,7 +1047,7 @@ function showCard(uv){
   const row=(t,cls='veq')=>`<div class="${cls}" data-copy="${esc(t)}" title="Click to copy">${esc(t)}</div>`;
   vcard.innerHTML=
     `<div class="vhead"><span><span style="color:${sc.css}">${esc(nm(a))}</span> <span style="color:#7d7d92">→</span> <span style="color:${ec.css}">${esc(nm(b))}</span></span><button class="vx" id="vcardX" title="Close">✕</button></div>`+
-    `<div class="vsub">Δ = (${sgn(eq.dL)}, ${sgn(eq.dM)}, ${sgn(eq.dT)}) = ${esc(eq.delta)}</div>`+
+    `<div class="vsub">Δ = (${sgn(eq.dL)}, ${sgn(eq.dM)}, ${sgn(eq.dT)}, ${sgn(eq.dA)}) = ${esc(eq.delta)}</div>`+
     (eq.named.length?eq.named.map((n,i)=>row(n.eq,i?'veq alt':'veq')).join(''):'<div class="vsub">No named quantity spans this step.</div>')+
     row(eq.generic,'veq gen')+
     (eq.known.length?`<div class="vlbl">Known formulas</div>`+eq.known.map(k=>row(k,'veq known')).join(''):'')+
@@ -1149,7 +1141,7 @@ let hovered=null, hoveredFormula=null, hoveredUV=null, hoveredCm=null, lastMouse
 // Returns {pt, fo, uv, op} for whatever is under the given client coordinates (at most one is set).
 // While drawing, only points are pickable so arrows never block endpoint selection.
 function hitAt(cx,cy){
-  mouse.x=(cx/W)*2-1; mouse.y=-(cy/H)*2+1;
+  mouse.x=(cx/W)*2-1; mouse.y=-((cy-VT)/H)*2+1;
   ray.setFromCamera(mouse,activeCamera);
   const targets=drawMode?pickMeshes:[...(showFormulas&&!overlayOn()?formulaPickMeshes:[]),...opPickMeshes,...uvPickMeshes,...beadPickMeshes,...pickMeshes];
   const hits=ray.intersectObjects(targets).sort((a,b)=>a.distance-b.distance);
@@ -1768,7 +1760,7 @@ document.addEventListener('pointerdown',e=>{if(!e.target.closest('.tt,.term,#sea
 const lastVec=()=>userVecs[userVecs.length-1];
 const TUTS=[
   {id:'points',title:'What the points are',blurb:'Lattice points, coordinates, shared points',steps:[
-    {h:'Each sphere is a [[point|lattice point]]. Its position is its [[coord|coordinate]] (L, M, T): the [[exponent|exponents]] of the [[base|base dimensions]] in that quantity’s [[dimension|dimension]].',
+    {h:'Each sphere is a [[point|lattice point]]. Its position is its [[coord|coordinate]] (L, M, T, A): the [[exponent|exponents]] of the [[base|base dimensions]] in that quantity’s [[dimension|dimension]].',
      act:'Hover (or tap) any sphere.',wait:'point'},
     {h:'Force sits at (1, 1, −2) because force = L¹·M¹·T⁻² (kg·m/s²). Every name listed at a point is [[same|dimensionally identical]] — Force, Weight, Drag and Thrust share one sphere, and are all one kind.',
      btn:['Show Force',()=>focusPoint(PT_OF_NAME.get('Force'),'Force')]},
@@ -1822,8 +1814,7 @@ const store={get(k,d){try{const v=localStorage.getItem(k);return v===null?d:JSON
 const tutDone=new Set(store.get('pms.tutDone',[]));
 
 const helpBtn=document.getElementById('helpBtn'), tmenu=document.getElementById('tmenu'), coach=document.getElementById('coach');
-const newHint=document.getElementById('newHint');
-if(store.get('pms.helpSeen',false)){helpBtn.classList.remove('glow');newHint.style.display='none';}
+if(store.get('pms.helpSeen',false)) helpBtn.classList.remove('glow');
 function renderMenu(){
   tmenu.innerHTML=`<div class="tmh">Tutorials <span>${tutDone.size}/${TUTS.length} done</span></div>`+
     TUTS.map((t,i)=>`<button class="ti2${tutDone.has(t.id)?' done':''}" data-i="${i}"><span class="tck">${tutDone.has(t.id)?'✓':i+1}</span><span><b>${esc(t.title)}</b>${i===0&&!tutDone.has(t.id)?' <span class="tnew">start here</span>':''}<br><span class="tbl">${esc(t.blurb)}</span></span></button>`).join('')+
@@ -1834,7 +1825,7 @@ function toggleMenu(show){
   if(show){renderMenu();tmenu.style.display='block';}else tmenu.style.display='none';
 }
 helpBtn.addEventListener('click',()=>{
-  helpBtn.classList.remove('glow'); newHint.style.display='none'; store.set('pms.helpSeen',true); toggleMenu();
+  helpBtn.classList.remove('glow'); store.set('pms.helpSeen',true); toggleMenu();
 });
 tmenu.addEventListener('click',e=>{
   const b=e.target.closest('.ti2'); if(b){toggleMenu(false);startTut(+b.dataset.i);return;}
@@ -1896,8 +1887,8 @@ Object.entries(GLOSS).forEach(([k,g])=>SEARCH_INDEX.push({kind:'term',title:g.t,
 
 // ── Toggle ────────────────────────────────────────────────────────────────────
 let panelOpen=false;
-function openPanel(){panelOpen=true;document.body.classList.add('panel-open');panel.classList.remove('closed');tab.classList.add('open');tab.querySelector('.ti').textContent='✕';tab.querySelector('.tl').textContent='Close';}
-function closePanel(){panelOpen=false;document.body.classList.remove('panel-open');panel.classList.add('closed');tab.classList.remove('open');tab.querySelector('.ti').textContent='⚙';tab.querySelector('.tl').textContent='Controls';}
+function openPanel(){panelOpen=true;document.body.classList.add('panel-open');requestAnimationFrame(()=>typeof layoutView==='function'&&layoutView());panel.classList.remove('closed');tab.classList.add('open');tab.querySelector('.ti').textContent='✕';tab.querySelector('.tl').textContent='Close';}
+function closePanel(){panelOpen=false;document.body.classList.remove('panel-open');requestAnimationFrame(()=>typeof layoutView==='function'&&layoutView());panel.classList.add('closed');tab.classList.remove('open');tab.querySelector('.ti').textContent='⚙';tab.querySelector('.tl').textContent='Controls';}
 tab.addEventListener('click',()=>panelOpen?closePanel():openPanel());
 
 // ── Keyboard ──────────────────────────────────────────────────────────────────
@@ -1928,14 +1919,26 @@ window.addEventListener('keydown',e=>{
 });
 window.addEventListener('keyup',e=>{KEYS[e.key]=false;});
 
-window.addEventListener('resize',()=>{
-  W=window.innerWidth; H=window.innerHeight;
+// The 3D view never sits under the controls: it ends just above the dock, or above the
+// panel while that is open, so whatever a control changes stays in sight.
+// Likewise it starts below any hint or tutorial card shown at the top left.
+var VT=0;
+function layoutView(){
+  const dockEl=document.getElementById('dock'), tlEl=document.getElementById('tl');
+  const edge=panelOpen?panel.offsetTop:dockEl.offsetTop;
+  const tlH=tlEl.offsetHeight;
+  VT=tlH>0?Math.round(tlEl.offsetTop+tlH+8):0;
+  if(edge-8-VT<160) VT=Math.max(0,Math.round(edge-8-160));
+  c3d.style.top=VT+'px'; clbl.style.top=VT+'px';
+  W=window.innerWidth; H=Math.max(140,Math.round(edge-8-VT));
   renderer.setSize(W,H); perspCam.aspect=W/H; perspCam.updateProjectionMatrix();
-  // Update ortho aspect too
   const h=ORTHO_H, asp=W/H;
   orthoCam.left=-h*asp; orthoCam.right=h*asp; orthoCam.updateProjectionMatrix();
   syncLC();
-});
+}
+window.addEventListener('resize',layoutView);
+if(window.ResizeObserver) new ResizeObserver(()=>layoutView()).observe(document.getElementById('tl'));
+layoutView();
 
 // ── Render loop ───────────────────────────────────────────────────────────────
 const _bw=new THREE.Vector3();
@@ -1964,7 +1967,7 @@ function animate(){
   if(sliceMode()){
     const c=dimColor('A',VIEW.slice);
     lc.font=`bold ${lblSize+3}px ${lblFont}`; lc.textAlign='right'; lc.fillStyle=c.css;
-    lc.fillText(`slice A = ${VIEW.slice}`,W-16,28); lc.textAlign='center';
+    lc.fillText(`slice A = ${VIEW.slice}`,W-16,H-12); lc.textAlign='center';
   }
   // Pre-compute hover sets once — shared by label pass and 3D highlight pass
   const anyHov=!!(hovered||hoveredFormula||hoveredUV||hoveredOp||hoveredCm||focusPt||focusFo);
@@ -2070,7 +2073,7 @@ function animate(){
     lc.beginPath(); lc.arc(ax,ay,11,0,Math.PI*2); lc.stroke();
     let end=null;
     if(hovered&&hovered!==drawStart){const[bx,by]=toSc(hovered.pos.x,hovered.pos.y,hovered.pos.z);end=[bx,by];}
-    else if(lastMouse) end=[lastMouse.x,lastMouse.y];
+    else if(lastMouse) end=[lastMouse.x,lastMouse.y-VT];
     if(end){
       lc.setLineDash([6,5]); lc.strokeStyle=drawStart.col.css; lc.lineWidth=2;
       lc.beginPath(); lc.moveTo(ax,ay); lc.lineTo(end[0],end[1]); lc.stroke(); lc.setLineDash([]);
