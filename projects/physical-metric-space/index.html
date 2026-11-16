@@ -371,7 +371,7 @@ const fill=new THREE.DirectionalLight(0x8899ff,0.25); fill.position.set(-6,-4,-4
 // The projection is linear, so drawn vectors still add: multiplying quantities stays tip-to-tail.
 const DIMS=['L','M','T','A'];
 const DIM_NAME={L:'length',M:'mass',T:'time',A:'angle'};
-const VIEW_DEFAULT={vis:{L:true,M:true,T:true,A:true},mode:'oblique',lam:1,slice:1};
+const VIEW_DEFAULT={vis:{L:true,M:true,T:true,A:true},mode:'oblique',lam:1,slice:1,frac:false};
 let VIEW=JSON.parse(JSON.stringify(VIEW_DEFAULT));
 try{const sv=JSON.parse(localStorage.getItem('pms.view')||'null');if(sv&&sv.vis)VIEW={...VIEW,...sv,vis:{...VIEW.vis,...sv.vis}};}catch{}
 const saveView=()=>{try{localStorage.setItem('pms.view',JSON.stringify(VIEW));}catch{}};
@@ -460,9 +460,24 @@ function buildAxes(){
 }
 
 // ── Data ──────────────────────────────────────────────────────────────────────
-const RAW=[['Length',1,0,0],['Displacement',1,0,0],['Wavelength',1,0,0],['Arm / Lever',1,0,0],['Area',2,0,0],['Cross-section',2,0,0],['Volume',3,0,0],['Wavenumber',-1,0,0],['Curvature',-1,0,0],['Velocity',1,0,-1],['Speed of Light',1,0,-1],['Acceleration',1,0,-2],['Free-fall g',1,0,-2],['Jerk',1,0,-3],['Snap / Jounce',1,0,-4],['Vol. Flow Rate',3,0,-1],['Kinematic Viscosity',2,0,-1],['Diffusivity',2,0,-1],['Thermal Diffusivity',2,0,-1],['Spec. Ang. Mom.',2,0,-1],['Grav. Potential',2,0,-2],['Specific Energy',2,0,-2],['Absorbed Dose (Gy)',2,0,-2],['Dose Equivalent',2,0,-2],['Std. Grav. Param GM',3,0,-2],['Energy Spectrum E(k)',3,0,-2],['Sorptivity',1,0,-0.5],['Accel. Noise Density',1,0,-1.5],['Angle Random Walk',0,0,-0.5],['Strain',0,0,0],['Angle (rad)',0,0,0],['Solid Angle (sr)',0,0,0],['Mach Number',0,0,0],['Reynolds Number',0,0,0],['Coeff. of Restitution',0,0,0],['Time',0,0,1],['Period',0,0,1],['Half-life',0,0,1],['Frequency',0,0,-1],['Angular Velocity',0,0,-1],['Angular Frequency ω',0,0,-1],['Radioactivity (Bq)',0,0,-1],['Vorticity',0,0,-1],['Strain Rate',0,0,-1],['Angular Acceleration',0,0,-2],['Mass',0,1,0],['Linear Density',-1,1,0],['Surface Density',-2,1,0],['Volume Density',-3,1,0],['Moment of Inertia',2,1,0],['Specific Volume',3,-1,0],['Mass Flow Rate',0,1,-1],['Mech. Impedance',0,1,-1],['Mech. Admittance',0,-1,1],['Momentum',1,1,-1],['Impulse',1,1,-1],['Angular Momentum',2,1,-1],['Action',2,1,-1],['Reduced Planck ℏ',2,1,-1],['Angular Impulse',2,1,-1],['Force',1,1,-2],['Weight',1,1,-2],['Drag',1,1,-2],['Thrust',1,1,-2],['Tension',1,1,-2],['Lift',1,1,-2],['Energy',2,1,-2],['Work',2,1,-2],['Heat (Q)',2,1,-2],['Torque',2,1,-2],['Torsional Stiffness',2,1,-2],['Enthalpy',2,1,-2],['Helmholtz Energy',2,1,-2],['Power',2,1,-3],['Radiant Flux',2,1,-3],['Luminosity',2,1,-3],['Radiant Intensity (W/sr)',2,1,-3],['Radiance',0,1,-3],['Pressure',-1,1,-2],['Stress',-1,1,-2],["Young's Modulus",-1,1,-2],['Shear Modulus',-1,1,-2],['Bulk Modulus',-1,1,-2],['Energy Density',-1,1,-2],['Pressure Gradient',-2,1,-2],['Force Density',-2,1,-2],['Mass Flux (ρv)',-2,1,-1],['Yield Strength',-1,1,-2],['Surface Tension',0,1,-2],['Spring Constant',0,1,-2],['Stiffness',0,1,-2],['Dynamic Viscosity',-1,1,-1],['Intensity (W/m²)',0,1,-3],['Power Density',-1,1,-3],['Spec. Power (W/kg)',2,0,-3],['Dissipation Rate ε',2,0,-3],['Fracture Toughness',-0.5,1,-2],['Charge (CGS-Gaussian)',1.5,0.5,-1],['Irradiance',0,1,-3],['Grav. Constant G',3,-1,-2]];
+const RAW=[['Length',1,0,0],['Displacement',1,0,0],['Wavelength',1,0,0],['Arm / Lever',1,0,0],['Area',2,0,0],['Cross-section',2,0,0],['Volume',3,0,0],['Wavenumber',-1,0,0],['Curvature',-1,0,0],['Velocity',1,0,-1],['Speed of Light',1,0,-1],['Acceleration',1,0,-2],['Free-fall g',1,0,-2],['Jerk',1,0,-3],['Snap / Jounce',1,0,-4],['Vol. Flow Rate',3,0,-1],['Kinematic Viscosity',2,0,-1],['Diffusivity',2,0,-1],['Thermal Diffusivity',2,0,-1],['Spec. Ang. Mom.',2,0,-1],['Grav. Potential',2,0,-2],['Specific Energy',2,0,-2],['Absorbed Dose (Gy)',2,0,-2],['Dose Equivalent',2,0,-2],['Std. Grav. Param GM',3,0,-2],['Energy Spectrum E(k)',3,0,-2],['Sorptivity',1,0,-0.5],['Accel. Noise Density',1,0,-1.5],['Angle Random Walk',0,0,-0.5],['Strain',0,0,0],['Angle (rad)',0,0,0],['Solid Angle (sr)',0,0,0],['Mach Number',0,0,0],['Reynolds Number',0,0,0],['Coeff. of Restitution',0,0,0],['Time',0,0,1],['Period',0,0,1],['Half-life',0,0,1],['Frequency',0,0,-1],['Angular Velocity',0,0,-1],['Angular Frequency ω',0,0,-1],['Radioactivity (Bq)',0,0,-1],['Vorticity',0,0,-1],['Strain Rate',0,0,-1],['Angular Acceleration',0,0,-2],['Mass',0,1,0],['Linear Density',-1,1,0],['Surface Density',-2,1,0],['Volume Density',-3,1,0],['Moment of Inertia',2,1,0],['Specific Volume',3,-1,0],['Mass Flow Rate',0,1,-1],['Mech. Impedance',0,1,-1],['Mech. Admittance',0,-1,1],['Momentum',1,1,-1],['Impulse',1,1,-1],['Angular Momentum',2,1,-1],['Action',2,1,-1],['Reduced Planck ℏ',2,1,-1],['Angular Impulse',2,1,-1],['Force',1,1,-2],['Weight',1,1,-2],['Drag',1,1,-2],['Thrust',1,1,-2],['Tension',1,1,-2],['Lift',1,1,-2],['Energy',2,1,-2],['Work',2,1,-2],['Heat (Q)',2,1,-2],['Torque',2,1,-2],['Torsional Stiffness',2,1,-2],['Enthalpy',2,1,-2],['Helmholtz Energy',2,1,-2],['Power',2,1,-3],['Radiant Flux',2,1,-3],['Luminosity',2,1,-3],['Radiant Intensity (W/sr)',2,1,-3],['Radiance',0,1,-3],['Pressure',-1,1,-2],['Stress',-1,1,-2],["Young's Modulus",-1,1,-2],['Shear Modulus',-1,1,-2],['Bulk Modulus',-1,1,-2],['Energy Density',-1,1,-2],['Pressure Gradient',-2,1,-2],['Force Density',-2,1,-2],['Mass Flux (ρv)',-2,1,-1],['Yield Strength',-1,1,-2],['Surface Tension',0,1,-2],['Spring Constant',0,1,-2],['Stiffness',0,1,-2],['Dynamic Viscosity',-1,1,-1],['Intensity (W/m²)',0,1,-3],['Power Density',-1,1,-3],['Spec. Power (W/kg)',2,0,-3],['Dissipation Rate ε',2,0,-3],['Fracture Toughness',-0.5,1,-2],['Charge (Gaussian)',1.5,0.5,-1],['Irradiance',0,1,-3],['Grav. Constant G',3,-1,-2],
+  // More mechanics (integer exponents)
+  ['Crackle',1,0,-5],['Absement',1,0,1],['Areal Velocity',2,0,-1],['Circulation',2,0,-1],['Angular Jerk',0,0,-3],['Yank',1,1,-3],
+  ['Specific Impulse',0,0,1],['Spring Compliance',0,-1,2],['Damping Coefficient',0,1,-1],['Grav. Field Strength',1,0,-2],
+  ['Specific Weight',-2,1,-2],['Surface Energy',0,1,-2],['Radiant Exposure',0,1,-2],['Fluence',0,1,-2],['Heat Flux',0,1,-3],
+  ['Compressibility',1,-1,2],['Fluidity',1,-1,1],['Bulk Viscosity',-1,1,-1],['Strain Energy Density',-1,1,-2],
+  ['Flexural Rigidity',3,1,-2],['Second Moment of Area',4,0,0],['Section Modulus',3,0,0],['Permeability (porous media)',2,0,0],
+  ['Hydraulic Conductivity',1,0,-1],['Hubble Constant',0,0,-1],['Gravity Gradient',0,0,-2],['Specific Acoustic Impedance',-2,1,-1],
+  ['Acoustic Impedance',-4,1,-1],['Spectral Irradiance (per λ)',-1,1,-3],['Rotational Kinetic Energy',2,1,-2],['Accel. PSD',2,0,-3],
+  // Fractional exponents: per-√Hz noise densities and CGS-Gaussian electromagnetism
+  ['Velocity Random Walk',1,0,-0.5],['Displacement Noise Density',1,0,0.5],['Strain Noise Density',0,0,0.5],
+  ['Force Noise Density',1,1,-1.5],['Noise-Equivalent Power',2,1,-2.5],['Specific Detectivity D*',-1,-1,2.5],
+  ['Electric Field (Gaussian)',-0.5,0.5,-1],['Magnetic Field (Gaussian)',-0.5,0.5,-1],['Electric Potential (Gaussian)',0.5,0.5,-1],
+  ['Current (Gaussian)',1.5,0.5,-2],['Magnetic Flux (Gaussian)',1.5,0.5,-1],['Electric Dipole Moment (Gaussian)',2.5,0.5,-1],
+  ['Magnetic Moment (Gaussian)',2.5,0.5,-1],['Magnetic Field Noise (Gaussian)',-0.5,0.5,-0.5],['Voltage Noise Density (Gaussian)',0.5,0.5,-0.5],
+  ['Charge Noise Density (Gaussian)',1.5,0.5,-0.5],['Flux Noise (Gaussian)',1.5,0.5,-0.5],['Current Noise Density (Gaussian)',1.5,0.5,-1.5]];
 // Angle exponent of each quantity (all others are 0). rad = A, sr = A², cycle = 2π rad.
-const AEXP={'Angle (rad)':1,'Solid Angle (sr)':2,'Curvature':1,'Wavenumber':1,'Frequency':1,'Angular Velocity':1,'Angular Frequency ω':1,
+const AEXP={'Angular Jerk':1,'Angle (rad)':1,'Solid Angle (sr)':2,'Curvature':1,'Wavenumber':1,'Frequency':1,'Angular Velocity':1,'Angular Frequency ω':1,
   'Vorticity':1,'Angular Acceleration':1,'Angle Random Walk':1,'Spec. Ang. Mom.':-1,'Moment of Inertia':-2,'Angular Momentum':-1,
   'Reduced Planck ℏ':-1,'Angular Impulse':-1,'Torque':-1,'Torsional Stiffness':-2,'Radiant Intensity (W/sr)':-2,'Radiance':-2};
 RAW.forEach(r=>r[4]=AEXP[r[0]]||0);
@@ -481,9 +496,22 @@ RAW.forEach(([name,L,M,T,A])=>{
   GROUPS.get(k).entries.push(name);
 });
 const PTS=[...GROUPS.values()];
-PTS.forEach(pt=>{pt.key=keyOf(pt.L,pt.M,pt.T,pt.A);});
+PTS.forEach(pt=>{pt.key=keyOf(pt.L,pt.M,pt.T,pt.A);pt.frac=ptv(pt).some(v=>Math.abs(v-Math.round(v))>1e-9);});
+const isFracV=v=>v4(v).some(x=>Math.abs(x-Math.round(x))>1e-9);
 // Conventional variable symbols for each named quantity (used by search and the info card)
-const SYMBOLS={'Length':['l','L','x'],'Displacement':['x','Δx','s','d'],'Wavelength':['λ'],'Arm / Lever':['r'],'Area':['A'],'Cross-section':['A','σ'],'Volume':['V'],'Wavenumber':['k','ν̃'],'Curvature':['κ'],'Velocity':['v','u'],'Speed of Light':['c'],'Acceleration':['a'],'Free-fall g':['g'],'Jerk':['j'],'Snap / Jounce':['s'],'Vol. Flow Rate':['Q'],'Kinematic Viscosity':['ν'],'Diffusivity':['D'],'Thermal Diffusivity':['α'],'Spec. Ang. Mom.':['h'],'Grav. Potential':['Φ','V'],'Specific Energy':['ε','e'],'Absorbed Dose (Gy)':['D'],'Dose Equivalent':['H'],'Std. Grav. Param GM':['μ','GM'],'Strain':['ε'],'Angle (rad)':['θ','φ'],'Solid Angle (sr)':['Ω'],'Mach Number':['Ma','M'],'Reynolds Number':['Re'],'Coeff. of Restitution':['e'],'Time':['t'],'Period':['T'],'Half-life':['t½'],'Frequency':['f','ν'],'Angular Velocity':['ω'],'Angular Frequency ω':['ω'],'Radioactivity (Bq)':['A'],'Angular Acceleration':['α'],'Mass':['m','M'],'Linear Density':['λ','μ'],'Surface Density':['σ'],'Volume Density':['ρ'],'Moment of Inertia':['I'],'Specific Volume':['v'],'Mass Flow Rate':['ṁ'],'Mech. Impedance':['Z'],'Mech. Admittance':['Y'],'Momentum':['p'],'Impulse':['J'],'Angular Momentum':['L'],'Action':['S'],'Reduced Planck ℏ':['ℏ'],'Angular Impulse':['ΔL'],'Force':['F'],'Weight':['W'],'Drag':['F_D','D'],'Thrust':['T'],'Tension':['T'],'Lift':['L','F_L'],'Energy':['E'],'Work':['W'],'Heat (Q)':['Q'],'Torque':['τ'],'Torsional Stiffness':['κ'],'Enthalpy':['H'],'Helmholtz Energy':['F','A'],'Power':['P'],'Radiant Flux':['Φₑ'],'Luminosity':['L'],'Radiant Intensity (W/sr)':['Iₑ'],'Radiance':['Lₑ'],'Pressure':['P','p'],'Stress':['σ'],"Young's Modulus":['E'],'Shear Modulus':['G'],'Bulk Modulus':['K'],'Yield Strength':['σᵧ'],'Surface Tension':['γ'],'Spring Constant':['k'],'Stiffness':['k'],'Dynamic Viscosity':['μ','η'],'Intensity (W/m²)':['I'],'Power Density':['p'],'Spec. Power (W/kg)':['P/m'],'Irradiance':['Eₑ'],'Grav. Constant G':['G']};
+const SYMBOLS={'Length':['l','L','x'],'Displacement':['x','Δx','s','d'],'Wavelength':['λ'],'Arm / Lever':['r'],'Area':['A'],'Cross-section':['A','σ'],'Volume':['V'],'Wavenumber':['k','ν̃'],'Curvature':['κ'],'Velocity':['v','u'],'Speed of Light':['c'],'Acceleration':['a'],'Free-fall g':['g'],'Jerk':['j'],'Snap / Jounce':['s'],'Vol. Flow Rate':['Q'],'Kinematic Viscosity':['ν'],'Diffusivity':['D'],'Thermal Diffusivity':['α'],'Spec. Ang. Mom.':['h'],'Grav. Potential':['Φ','V'],'Specific Energy':['ε','e'],'Absorbed Dose (Gy)':['D'],'Dose Equivalent':['H'],'Std. Grav. Param GM':['μ','GM'],'Strain':['ε'],'Angle (rad)':['θ','φ'],'Solid Angle (sr)':['Ω'],'Mach Number':['Ma','M'],'Reynolds Number':['Re'],'Coeff. of Restitution':['e'],'Time':['t'],'Period':['T'],'Half-life':['t½'],'Frequency':['f','ν'],'Angular Velocity':['ω'],'Angular Frequency ω':['ω'],'Radioactivity (Bq)':['A'],'Angular Acceleration':['α'],'Mass':['m','M'],'Linear Density':['λ','μ'],'Surface Density':['σ'],'Volume Density':['ρ'],'Moment of Inertia':['I'],'Specific Volume':['v'],'Mass Flow Rate':['ṁ'],'Mech. Impedance':['Z'],'Mech. Admittance':['Y'],'Momentum':['p'],'Impulse':['J'],'Angular Momentum':['L'],'Action':['S'],'Reduced Planck ℏ':['ℏ'],'Angular Impulse':['ΔL'],'Force':['F'],'Weight':['W'],'Drag':['F_D','D'],'Thrust':['T'],'Tension':['T'],'Lift':['L','F_L'],'Energy':['E'],'Work':['W'],'Heat (Q)':['Q'],'Torque':['τ'],'Torsional Stiffness':['κ'],'Enthalpy':['H'],'Helmholtz Energy':['F','A'],'Power':['P'],'Radiant Flux':['Φₑ'],'Luminosity':['L'],'Radiant Intensity (W/sr)':['Iₑ'],'Radiance':['Lₑ'],'Pressure':['P','p'],'Stress':['σ'],"Young's Modulus":['E'],'Shear Modulus':['G'],'Bulk Modulus':['K'],'Yield Strength':['σᵧ'],'Surface Tension':['γ'],'Spring Constant':['k'],'Stiffness':['k'],'Dynamic Viscosity':['μ','η'],'Intensity (W/m²)':['I'],'Power Density':['p'],'Spec. Power (W/kg)':['P/m'],'Irradiance':['Eₑ'],'Grav. Constant G':['G'],
+  'Crackle':['c'],'Absement':['A'],'Areal Velocity':['dA/dt'],'Circulation':['Γ'],'Angular Jerk':['ζ'],'Yank':['Y'],'Specific Impulse':['I_sp'],
+  'Spring Compliance':['C'],'Damping Coefficient':['c','b'],'Grav. Field Strength':['g'],'Specific Weight':['γ'],'Surface Energy':['γ'],
+  'Radiant Exposure':['Hₑ'],'Fluence':['F'],'Heat Flux':['q'],'Compressibility':['β','κ'],'Fluidity':['φ'],'Bulk Viscosity':['ζ'],
+  'Strain Energy Density':['u'],'Flexural Rigidity':['D','EI'],'Second Moment of Area':['I'],'Section Modulus':['S'],
+  'Permeability (porous media)':['k'],'Hydraulic Conductivity':['K'],'Hubble Constant':['H₀'],'Gravity Gradient':['Γ'],
+  'Specific Acoustic Impedance':['z'],'Acoustic Impedance':['Z'],'Spectral Irradiance (per λ)':['E_λ'],'Rotational Kinetic Energy':['K'],
+  'Accel. PSD':['S_a'],'Velocity Random Walk':['VRW'],'Displacement Noise Density':['S_x'],'Strain Noise Density':['h'],
+  'Force Noise Density':['S_F'],'Noise-Equivalent Power':['NEP'],'Specific Detectivity D*':['D*'],'Electric Field (Gaussian)':['E'],
+  'Magnetic Field (Gaussian)':['B'],'Electric Potential (Gaussian)':['V','φ'],'Current (Gaussian)':['I'],'Magnetic Flux (Gaussian)':['Φ'],
+  'Electric Dipole Moment (Gaussian)':['p'],'Magnetic Moment (Gaussian)':['μ','m'],'Magnetic Field Noise (Gaussian)':['S_B'],
+  'Voltage Noise Density (Gaussian)':['S_V'],'Charge Noise Density (Gaussian)':['S_q'],'Flux Noise (Gaussian)':['S_Φ'],
+  'Current Noise Density (Gaussian)':['S_I']};
 const PT_OF_NAME=new Map();
 PTS.forEach(pt=>pt.entries.forEach(n=>PT_OF_NAME.set(n,pt)));
 
@@ -521,17 +549,19 @@ PTS.forEach(pt=>{
 // bead per kind on a ring, turned to face the camera every frame; a sphere with one kind gets none.
 const KIND_GROUPS=[
   ['Length','Displacement','Wavelength','Arm / Lever'],['Area','Cross-section'],
-  ['Velocity','Speed of Light'],['Acceleration','Free-fall g'],
+  ['Velocity','Speed of Light'],['Acceleration','Free-fall g','Grav. Field Strength'],
   ['Kinematic Viscosity','Diffusivity','Thermal Diffusivity'],
   ['Grav. Potential','Specific Energy','Absorbed Dose (Gy)'],
   ['Time','Period','Half-life'],['Angular Velocity','Angular Frequency ω','Frequency','Vorticity'],
   ['Momentum','Impulse'],['Angular Momentum','Angular Impulse','Reduced Planck ℏ'],
   ['Force','Weight','Drag','Thrust','Tension','Lift'],
-  ['Energy','Work','Heat (Q)','Enthalpy','Helmholtz Energy'],
+  ['Energy','Work','Heat (Q)','Enthalpy','Helmholtz Energy','Rotational Kinetic Energy'],
   ['Power','Radiant Flux','Luminosity'],
   ['Pressure','Stress',"Young's Modulus",'Shear Modulus','Bulk Modulus','Yield Strength'],
-  ['Pressure Gradient','Force Density'],['Spring Constant','Stiffness'],
-  ['Intensity (W/m²)','Irradiance'],['Spec. Power (W/kg)','Dissipation Rate ε'],
+  ['Pressure Gradient','Force Density','Specific Weight'],['Spring Constant','Stiffness'],
+  ['Intensity (W/m²)','Irradiance','Heat Flux'],['Surface Tension','Surface Energy'],['Radiant Exposure','Fluence'],
+  ['Mech. Impedance','Damping Coefficient'],['Dynamic Viscosity','Bulk Viscosity'],['Energy Density','Strain Energy Density'],
+  ['Areal Velocity','Circulation'],['Spec. Power (W/kg)','Dissipation Rate ε'],
 ];
 const KIND_OF=new Map();
 KIND_GROUPS.forEach(g=>g.forEach(n=>KIND_OF.set(n,g)));
@@ -574,12 +604,13 @@ function placePoints(){
   const groups=new Map();
   PTS.forEach(pt=>{
     pt.pos=proj(ptv(pt));
-    pt.ghost=sliceMode()&&Math.abs(pt.A-VIEW.slice)>1e-9;
+    pt.off=!VIEW.frac&&pt.frac;   // fractional exponents are hidden unless switched on
+    pt.ghost=!pt.off&&sliceMode()&&Math.abs(pt.A-VIEW.slice)>1e-9;
     pt.lead=false; pt.grp=null; pt.leadPt=pt;
     [pt.vis,pt.rim,pt.glow,pt.ring,pt.pick].forEach(o=>o.position.copy(pt.pos));
     const lp=pt.projLine.geometry.attributes.position;
     lp.setXYZ(0,pt.pos.x,0,pt.pos.z); lp.setXYZ(1,pt.pos.x,pt.pos.y,pt.pos.z); lp.needsUpdate=true;
-    if(pt.ghost) return;
+    if(pt.ghost||pt.off) return;
     const k=pt.pos.toArray().map(v=>Math.round(v*1000)).join(',');
     if(!groups.has(k)) groups.set(k,[]);
     groups.get(k).push(pt);
@@ -606,7 +637,7 @@ function placePoints(){
         new THREE.LineBasicMaterial({color:dimColor('A',pt.A).hex,transparent:true,opacity:0.7})));
     });
   }
-  document.getElementById('badge').textContent=`${RAW.length} metrics · ${PTS.length} 4-D points · ${PTS.filter(p=>p.lead).length} shown`;
+  document.getElementById('badge').textContent=`${PTS.filter(p=>!p.off).reduce((n,p)=>n+p.entries.length,0)} of ${RAW.length} metrics · ${PTS.filter(p=>p.lead).length} spheres`;
   applyMetricsVis();
 }
 
@@ -711,12 +742,13 @@ function makeArrow(from,to,{SR,CR,opacity,emissive=0}){
 let showFormulas=false;
 const formulaObjs=[], formulaPickMeshes=[];
 function buildFormulas(){
+  const FDEFS=FORMULA_DEFS.filter(d=>VIEW.frac||(!isFracV(d.from)&&!isFracV(d.to)));
   formulaObjs.forEach(fo=>{scene.remove(fo.g);fo.g.traverse(o=>{if(o.geometry)o.geometry.dispose();if(o.material)o.material.dispose();});});
   formulaObjs.length=0; formulaPickMeshes.length=0;
   const TAU=Math.PI*2;
   // Group by unordered endpoint pair — arrows between the same two points (in either direction) bundle together
   const segMap=new Map();
-  FORMULA_DEFS.forEach((def,idx)=>{
+  FDEFS.forEach((def,idx)=>{
     const a=keyOf(...def.from), b=keyOf(...def.to);
     const k=a<b?`${a}|${b}`:`${b}|${a}`;
     if(!segMap.has(k)) segMap.set(k,[]);
@@ -725,7 +757,7 @@ function buildFormulas(){
   // Precompute a canonical perpendicular frame per segment so all arrows in a bundle share the same offset axes
   const segFrames=new Map();
   segMap.forEach((indices,k)=>{
-    const d=FORMULA_DEFS[indices[0]];
+    const d=FDEFS[indices[0]];
     const a=keyOf(...d.from), b=keyOf(...d.to);
     const cf=a<b?d.from:d.to, ct=a<b?d.to:d.from;
     const cd=proj(ct).sub(proj(cf)).normalize();
@@ -735,7 +767,7 @@ function buildFormulas(){
     else q.setFromUnitVectors(up,cd);
     segFrames.set(k,{lx:new THREE.Vector3(1,0,0).applyQuaternion(q),lz:new THREE.Vector3(0,0,1).applyQuaternion(q)});
   });
-  FORMULA_DEFS.forEach((def,defIdx)=>{
+  FDEFS.forEach((def,defIdx)=>{
     const a=keyOf(...def.from), b=keyOf(...def.to);
     const segKey=a<b?`${a}|${b}`:`${b}|${a}`;
     const bundle=segMap.get(segKey);
@@ -773,7 +805,7 @@ const PT_BY_KEY=new Map(PTS.map(p=>[p.key,p]));
 // like 0.499 doesn't snap Area's image (0.998) onto Length.
 function ptAt(L,M,T,A=0){
   const p=PT_BY_KEY.get(keyOf(L,M,T,A));
-  return p&&Math.abs(p.L-L)<1e-6&&Math.abs(p.M-M)<1e-6&&Math.abs(p.T-T)<1e-6&&Math.abs(p.A-A)<1e-6?p:undefined;
+  return p&&!p.off&&Math.abs(p.L-L)<1e-6&&Math.abs(p.M-M)<1e-6&&Math.abs(p.T-T)<1e-6&&Math.abs(p.A-A)<1e-6?p:undefined;
 }
 const SUP={'-':'⁻','0':'⁰','1':'¹','2':'²','3':'³','4':'⁴','5':'⁵','6':'⁶','7':'⁷','8':'⁸','9':'⁹','/':'ᐟ','.':'·'};
 const supStr=n=>String(n).split('').map(c=>SUP[c]).join('');
@@ -926,7 +958,7 @@ function setOperator(op){
     const t=opApply(op,a);
     if(t.some(v=>Math.abs(v)>5)) return;
     const b=ptAt(...t)||null;
-    if(a.ghost) return;
+    if(a.ghost||a.off) return;
     const arrow=makeArrow(ptv(a),t,b?{SR:0.03,CR:0.075,opacity:0.9,emissive:0.1}:{SR:0.014,CR:0.04,opacity:0.2});
     if(!arrow) return;
     scene.add(arrow.g);
@@ -1010,7 +1042,7 @@ function applyView(){
   placePoints(); buildAxes(); buildFormulas(); applyNodeEffect();
   if(focusPt) focusPt=focusPt.leadPt;
   if(drawStart&&!drawStart.lead) drawStart=null;
-  const pairs=userVecs.map(u=>[u.from,u.to]);
+  const pairs=userVecs.map(u=>[u.from,u.to]).filter(([a,b])=>!a.off&&!b.off);
   [...userVecs].forEach(removeUserVector);
   pairs.forEach(([a,b])=>addUserVector(a,b,true));
   if(activeOp) setOperator(activeOp); else if(activeLaw) setLaw(activeLaw);
@@ -1296,6 +1328,7 @@ const dimUI={};
 function updateDimUI(){
   if(!dimUI.vis) return;
   dimUI.vis.forEach(b=>b.classList.toggle('on',!!VIEW.vis[b.dataset.v]));
+  dimUI.frac.forEach(b=>b.classList.toggle('on',String(!!VIEW.frac)===b.dataset.f));
   const four=DIMS.every(d=>VIEW.vis[d]);
   dimUI.mode.forEach(b=>{b.classList.toggle('on',b.dataset.v===VIEW.mode);b.disabled=!four;b.style.opacity=four?1:.45;});
   dimUI.lamRow.style.display=four&&VIEW.mode==='oblique'?'flex':'none';
@@ -1343,12 +1376,20 @@ function updateDimUI(){
   L.r.addEventListener('input',()=>{VIEW.lam=+L.r.value/100;applyView();});
   const S=mkRow(-2,2,1); dimUI.sliceRow=S.row; dimUI.slice=S.r; dimUI.sliceV=S.v;
   S.r.addEventListener('input',()=>{VIEW.slice=+S.r.value;applyView();});
+  const l3=document.createElement('div'); l3.className='pl'; l3.style.margin='9px 0 5px'; l3.textContent='Fractional exponents (√Hz noise, Gaussian units)';
+  const segF=document.createElement('div'); segF.className='segs';
+  dimUI.frac=[['Hidden',false],['Shown',true]].map(([t,v])=>{
+    const b=document.createElement('button'); b.className='seg'; b.textContent=t; b.dataset.f=String(v);
+    b.addEventListener('click',()=>{VIEW.frac=v;applyView();});
+    b.addEventListener('mousedown',e=>e.stopPropagation());
+    segF.appendChild(b); return b;
+  });
   dimUI.note=document.createElement('div');
   dimUI.note.style.cssText='margin-top:7px;font-size:8.5px;color:#7d7d97;line-height:1.6;';
   const reset=document.createElement('button'); reset.className='pbtn'; reset.textContent='SI view (hide angle)';
   reset.style.marginTop='7px'; reset.style.width='100%';
   reset.addEventListener('click',()=>{VIEW.vis={L:true,M:true,T:true,A:false};applyView();});
-  div.append(l1,segV,l2,segM,L.row,S.row,dimUI.note,reset);
+  div.append(l1,segV,l2,segM,L.row,S.row,l3,segF,dimUI.note,reset);
   panel.appendChild(acc('DIMENSIONS',div,true));
   updateDimUI();
 })();
@@ -1532,6 +1573,7 @@ function renderVecList(){
 let camTween=null;
 function centreOn(x,y,z){camTween={t0:performance.now(),from:controls.target.clone(),to:new THREE.Vector3(x,y,z)};}
 function focusPoint(pt,name){
+  if(pt.off){VIEW.frac=true;applyView();toast('Fractional exponents shown');}
   pt=pt.leadPt||pt; hideCard(); focusPt=pt; centreOn(pt.pos.x,pt.pos.y,pt.pos.z);
   const c=pt.col, syms=n=>(SYMBOLS[n]||[]).join(', ');
   const keys=new Set((pt.grp||[pt]).map(p=>p.key));
@@ -1587,6 +1629,7 @@ formulaObjs.forEach(fo=>{
   ['control','Hover tooltip','Hover a sphere to see every quantity at that point; click to copy',['tooltip','hover','copy','clipboard','info'],()=>focusPoint(PT_BY_KEY.get(keyOf(1,1,-2)),'Force')],
   ['control','Dimensions: unit vectors shown','Show or hide L, M, T or angle A',['dimension','dimensions','unit vector','axis','axes','hide','angle','radian','4d','four'],()=>showControl('DIMENSIONS')],
   ['control','4-D view: oblique, stalks, slices','How the fourth exponent (angle) is drawn',['4d','4-d','fourth','oblique','stalk','stalks','slice','slices','lambda','λ','projection'],()=>showControl('DIMENSIONS')],
+  ['control','Fractional exponents','Show quantities with half-integer exponents (√Hz noise densities, Gaussian units)',['fractional','fraction','half','sqrt','√','noise','gaussian','cgs','hz'],()=>{VIEW.frac=true;applyView();showControl('DIMENSIONS');}],
   ['control','SI view (angle hidden)','Treat rad as 1: angle quantities fold onto L·M·T',['si','radian','dimensionless','hide angle','rad'],()=>{VIEW.vis={L:true,M:true,T:true,A:false};applyView();showControl('DIMENSIONS');}],
   ['control','Dimensionless origin','(0,0,0,0): strain, Mach & Reynolds numbers',['origin','dimensionless','zero','unitless','ratio'],()=>focusPoint(PT_BY_KEY.get(keyOf(0,0,0)),'Strain')],
 ].forEach(([kind,title,sub,keys,go])=>SEARCH_INDEX.push({kind,title,sub,keys,sym:[],go}));
