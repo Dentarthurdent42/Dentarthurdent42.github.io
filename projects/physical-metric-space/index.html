@@ -80,6 +80,111 @@ select{width:100%;background:rgba(6,6,26,.99);border:1px solid rgba(255,255,255,
   color:#aaaacc;text-align:center;touch-action:manipulation;
   -webkit-tap-highlight-color:transparent;transition:background .12s}
 .pbtn:hover,.pbtn:active{background:rgba(255,255,255,.1)}
+.pbtn.on{background:rgba(80,110,220,.25);border-color:rgba(100,140,255,.45);color:#aaccff}
+#tools{position:absolute;top:58px;left:12px;z-index:25;display:flex;gap:6px;align-items:flex-start;
+  max-width:calc(100% - 58px)}
+#drawBtn{flex-shrink:0;padding:8px 12px;border-radius:7px;white-space:nowrap;
+  border:1px solid rgba(255,255,255,.1);background:rgba(4,4,18,.88);cursor:pointer;
+  font:11px 'Courier New',monospace;color:#aabbee;touch-action:manipulation;
+  -webkit-tap-highlight-color:transparent;transition:background .12s}
+#drawBtn:hover{background:rgba(16,16,48,.95)}
+#drawBtn.on{background:rgba(80,110,220,.3);border-color:rgba(100,140,255,.5);color:#cce0ff}
+#drawHint{position:absolute;top:12px;left:50%;transform:translateX(-50%);z-index:6;display:none;
+  max-width:calc(100% - 32px);padding:6px 12px;border-radius:7px;background:rgba(40,50,120,.85);
+  border:1px solid rgba(120,150,255,.35);font:11px 'Courier New',monospace;color:#dde6ff;
+  pointer-events:none;text-align:center}
+#vcard{position:absolute;left:12px;bottom:40px;z-index:20;display:none;width:330px;
+  max-width:calc(100% - 32px);max-height:50%;overflow-y:auto;padding:10px 12px;
+  background:rgba(4,4,18,.97);border:1px solid rgba(255,255,255,.14);border-radius:9px;
+  font:11px/1.5 'Courier New',monospace;color:#dde;box-shadow:0 6px 28px rgba(0,0,0,.8)}
+.vhead{display:flex;justify-content:space-between;align-items:center;gap:8px;font-weight:bold;font-size:12px}
+.vx{background:none;border:none;color:#667;cursor:pointer;font-size:13px;padding:2px 4px}
+.vx:hover{color:#ccd}
+.vsub{color:#667;font-size:10px;margin:3px 0 6px}
+.vlbl{color:#3d5280;font-size:9px;letter-spacing:.08em;text-transform:uppercase;margin:8px 0 2px}
+.veq{padding:4px 6px;margin:2px 0;border-radius:5px;cursor:copy;color:#eef;font-weight:bold;
+  background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.06)}
+.veq:hover{background:rgba(100,130,255,.18);border-color:rgba(120,150,255,.35)}
+.veq.alt{font-weight:normal;color:#bbc}
+.veq.gen{font-weight:normal;color:#99aacc}
+.veq.known{font-weight:normal;color:#8fb;font-size:10px}
+.vfoot{color:#334;font-size:8.5px;margin-top:6px}
+.vrow{display:flex;align-items:center;gap:6px;margin:4px 0}
+.vrow .veq{flex:1;font-size:9px;font-weight:normal;padding:3px 5px}
+#search{position:static;width:230px;min-width:0;flex:0 1 230px}
+#sq{width:100%;padding:8px 26px 8px 28px;border-radius:7px;border:1px solid rgba(255,255,255,.1);
+  background:rgba(4,4,18,.88);color:#dde6ff;font:12px 'Courier New',monospace;outline:none;
+  -webkit-appearance:none;appearance:none}
+#sq::-webkit-search-cancel-button{display:none}
+@media (pointer:coarse){#sq{font-size:16px;padding-top:6px;padding-bottom:6px}}
+#sq:focus{border-color:rgba(120,150,255,.5);background:rgba(8,10,34,.96)}
+#sq::placeholder{color:#556}
+.sqi{position:relative;float:left;width:0;left:9px;top:8px;font-size:11px;color:#556;pointer-events:none}
+#sqx{position:relative;float:right;margin-top:-30px;margin-right:2px;display:none;background:none;border:none;color:#667;
+  cursor:pointer;font-size:12px;padding:4px 6px}
+#sres{display:none;position:absolute;left:0;top:calc(100% + 4px);max-height:min(55vh,420px);overflow-y:auto;border-radius:8px;
+  background:rgba(4,4,18,.98);border:1px solid rgba(255,255,255,.14);box-shadow:0 6px 28px rgba(0,0,0,.8);
+  font:11px/1.4 'Courier New',monospace;color:#dde;width:min(340px,calc(100vw - 24px))}
+.sr{display:flex;align-items:flex-start;gap:7px;padding:7px 9px;cursor:pointer;border-bottom:1px solid rgba(255,255,255,.05)}
+.sr:last-child{border-bottom:none}
+.sr.act,.sr:hover{background:rgba(80,110,220,.2)}
+.srk{flex-shrink:0;font-size:8px;letter-spacing:.06em;text-transform:uppercase;padding:2px 4px;border-radius:3px;
+  margin-top:1px;min-width:52px;text-align:center;border:1px solid currentColor;opacity:.85}
+.srt{font-weight:bold;color:#eef}
+.srs{color:#778;font-size:9.5px;margin-top:1px}
+.sr mark{background:rgba(120,150,255,.35);color:inherit;border-radius:2px}
+.snone{padding:9px;color:#667;font-size:10px}
+.flash{animation:flash 1.4s ease-out 2}
+@keyframes flash{0%{box-shadow:0 0 0 0 rgba(140,170,255,.9)}100%{box-shadow:0 0 0 12px rgba(140,170,255,0)}}
+#helpBtn{flex-shrink:0;width:34px;height:34px;border-radius:50%;border:1px solid rgba(255,255,255,.14);
+  background:rgba(4,4,18,.88);color:#cce0ff;font:bold 15px 'Courier New',monospace;cursor:pointer;
+  touch-action:manipulation;-webkit-tap-highlight-color:transparent}
+#helpBtn:hover{background:rgba(16,16,48,.95)}
+#helpBtn.glow{border-color:rgba(160,190,255,.9);animation:helpGlow 1.6s ease-in-out infinite}
+@keyframes helpGlow{0%,100%{box-shadow:0 0 4px 1px rgba(120,160,255,.5)}50%{box-shadow:0 0 18px 6px rgba(140,180,255,.9);color:#fff}}
+#tmenu{display:none;position:absolute;left:0;top:calc(100% + 4px);z-index:30;width:min(300px,calc(100vw - 24px));
+  background:rgba(4,4,18,.98);border:1px solid rgba(255,255,255,.14);border-radius:9px;padding:6px;
+  box-shadow:0 6px 28px rgba(0,0,0,.8);font:11px/1.4 'Courier New',monospace;color:#dde}
+.tmh{display:flex;justify-content:space-between;padding:4px 6px 8px;color:#8899ff;font-weight:bold;letter-spacing:.05em;text-transform:uppercase;font-size:10px}
+.tmh span{color:#556;font-weight:normal}
+.ti2{display:flex;gap:8px;align-items:flex-start;width:100%;text-align:left;padding:7px 6px;border:none;border-radius:6px;
+  background:none;color:#dde;font:inherit;cursor:pointer}
+.ti2:hover{background:rgba(80,110,220,.2)}
+.tck{flex-shrink:0;width:20px;height:20px;border-radius:50%;display:flex;align-items:center;justify-content:center;
+  border:1px solid rgba(140,160,255,.4);color:#99a;font-size:10px}
+.ti2.done .tck{background:rgba(80,200,140,.25);border-color:#6d9;color:#8fb;font-weight:bold}
+.ti2.done b{color:#8fb}
+.tbl{color:#667;font-size:9.5px}
+.tnew{color:#ff9;font-size:9px}
+.treset{margin:4px 6px;background:none;border:none;color:#556;font:9px 'Courier New',monospace;cursor:pointer;text-decoration:underline}
+#coach{display:none;position:absolute;top:104px;left:12px;z-index:22;width:min(360px,calc(100vw - 58px));
+  background:rgba(6,8,30,.97);border:1px solid rgba(140,170,255,.35);border-radius:10px;padding:10px 12px;
+  box-shadow:0 6px 28px rgba(0,0,0,.8);font:12px/1.6 Georgia,serif;color:#c8cce0}
+.ch{display:flex;align-items:center;gap:8px;font:bold 11px 'Courier New',monospace;color:#8899ff;margin-bottom:6px}
+.ch>span:first-child{flex:1}
+.cdots{display:flex;gap:4px}.cdots i{width:6px;height:6px;border-radius:50%;background:#334}
+.cdots i.d{background:#6d9}.cdots i.c{background:#9bf}
+.cact{margin-top:8px;padding:5px 8px;border-radius:6px;background:rgba(255,230,120,.08);border:1px dashed rgba(255,230,120,.35);
+  color:#ffe9a0;font:11px 'Courier New',monospace}
+.cact.ok{background:rgba(80,200,140,.1);border:1px solid rgba(80,200,140,.4);color:#8fb}
+.cbtns{display:flex;gap:6px;margin-top:9px}
+.cbtns .pbtn{padding:7px 0;font-size:10.5px}
+.term{color:#9cf;border-bottom:1px dotted #9cf;cursor:help;white-space:nowrap}
+.term.open{background:rgba(120,160,255,.2);border-radius:3px}
+.tt{position:fixed;z-index:70;max-width:min(270px,calc(100vw - 16px));padding:9px 11px;border-radius:9px;
+  background:rgba(10,12,40,.99);border:1px solid rgba(140,170,255,.45);box-shadow:0 8px 30px rgba(0,0,0,.85);
+  font:11.5px/1.55 Georgia,serif;color:#c8cce0}
+.tt[data-lv="1"]{border-color:rgba(200,160,255,.5)}.tt[data-lv="2"],.tt[data-lv="3"]{border-color:rgba(140,230,190,.5)}
+.tth{display:flex;justify-content:space-between;gap:8px;font:bold 11px 'Courier New',monospace;color:#eef;margin-bottom:5px}
+.ttd{font-weight:normal;font-size:8.5px;color:#667;text-transform:uppercase;letter-spacing:.06em}
+.ttv{display:block;margin:2px 0 6px;max-width:100%;height:auto;font-family:'Courier New',monospace}
+.mout{min-height:50px;margin:4px 0 2px;font-family:'Courier New',monospace}
+.mout svg{max-width:100%;height:auto;font-family:'Courier New',monospace}
+.tt .prow .pl,.tt .prow .pv{font:10px 'Courier New',monospace;min-width:14px}
+#toast{position:absolute;bottom:14px;left:50%;transform:translateX(-50%);z-index:60;
+  max-width:calc(100% - 32px);padding:5px 12px;border-radius:6px;background:rgba(30,40,90,.95);
+  border:1px solid rgba(120,150,255,.35);font:11px 'Courier New',monospace;color:#dde6ff;
+  pointer-events:none;opacity:0;transition:opacity .2s;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 </style>
 </head>
 <body>
@@ -91,7 +196,7 @@ select{width:100%;background:rgba(6,6,26,.99);border:1px solid rgba(255,255,255,
     <div style="max-width:600px;font:'Courier New',monospace;color:#aab;line-height:1.75">
       <div style="font:bold 13px 'Courier New',monospace;color:#8899ff;letter-spacing:.08em;margin-bottom:18px;text-transform:uppercase">Dimensional Analysis · L M T Exponent Space</div>
       <p style="font:13px/1.8 Georgia,serif;color:#c8cce0;margin-bottom:14px">
-        Welcome, Behrooz. What you are about to explore is, in a precise sense, a <em>semantic embedding</em> — except the embedding space predates machine learning by two centuries, and the geometry is not learned but exact.
+        What you are about to explore is, in a precise sense, a <em>semantic embedding</em> — except the embedding space predates machine learning by two centuries, and the geometry is not learned but exact.
       </p>
       <p style="font:13px/1.8 Georgia,serif;color:#b0b4cc;margin-bottom:14px">
         Every physical quantity — force, energy, pressure, viscosity — can be expressed as a product of powers of three base dimensions: <strong style="color:#aaccff">Length (L)</strong>, <strong style="color:#aaccff">Mass (M)</strong>, and <strong style="color:#aaccff">Time (T)</strong>.
@@ -106,7 +211,7 @@ select{width:100%;background:rgba(6,6,26,.99);border:1px solid rgba(255,255,255,
         The origin — the single point at (0, 0, 0) — is the home of all dimensionless quantities: strain, Mach number, Reynolds number, angles.
       </p>
       <p style="font:13px/1.8 Georgia,serif;color:#b0b4cc;margin-bottom:20px">
-        Hover over any sphere for a tooltip. Use the controls panel (⚙ top right) to adjust projection, label style, and rotation. Keyboard: arrow keys orbit, space pauses, R resets.
+        Hover over any sphere for a tooltip; click it to copy its name. Turn on formula arrows in the controls panel to see familiar formulas, and with <strong style="color:#aaccff">✎ Draw vector</strong> you can connect any two points to see the equation that links them. Use the controls panel (⚙) to adjust projection, labels, and rotation. New here? Press the glowing <strong style="color:#aaccff">?</strong> for short tutorials. Search (/) finds any quantity, symbol, formula or control. Keyboard: arrow keys orbit, space pauses, R resets, V draws.
       </p>
       <button onclick="document.getElementById('preface').style.display='none'" style="background:rgba(80,110,220,.22);border:1px solid rgba(100,140,255,.4);border-radius:7px;color:#aaccff;font:12px 'Courier New',monospace;padding:10px 14px;cursor:pointer">Enter visualization</button>
     </div>
@@ -115,6 +220,21 @@ select{width:100%;background:rgba(6,6,26,.99);border:1px solid rgba(255,255,255,
     <div style="font:bold 10px 'Courier New',monospace;color:#8899ff;letter-spacing:.04em">DIMENSIONAL ANALYSIS</div>
     <div style="font:8.5px 'Courier New',monospace;color:#2c3f60;margin-top:2px">Physical metrics · L M T exponent space · OKLAB color</div>
   </div>
+  <div id="tools">
+    <button id="helpBtn" class="glow" title="Tutorials" aria-label="Tutorials">?</button>
+    <div id="tmenu" role="menu"></div>
+    <button id="drawBtn" title="Draw a vector between two points (V)">✎ Draw vector</button>
+    <div id="search">
+      <span class="sqi">⌕</span>
+      <input id="sq" type="search" placeholder="force, F, ÷, help…" autocomplete="off" spellcheck="false" aria-label="Search quantities, symbols, formulas and controls">
+      <button id="sqx" title="Clear search" aria-label="Clear search">✕</button>
+      <div id="sres" role="listbox"></div>
+    </div>
+  </div>
+  <div id="drawHint"></div>
+  <div id="coach" role="dialog" aria-label="Tutorial"></div>
+  <div id="vcard"></div>
+  <div id="toast"></div>
   <div id="badge"></div>
   <div id="panel" class="closed"></div>
   <div id="tab"><span class="ti">⚙</span><span class="tl">Controls</span></div>
@@ -123,6 +243,7 @@ select{width:100%;background:rgba(6,6,26,.99);border:1px solid rgba(255,255,255,
 import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 
+// ── OKLAB ─────────────────────────────────────────────────────────────────────
 function oklabToSRGB(L,a,b){
   const l_=L+0.3963377774*a+0.2158037573*b,m_=L-0.1055613458*a-0.0638541728*b,s_=L-0.0894841775*a-1.2914855480*b;
   const l=l_*l_*l_,m=m_*m_*m_,s=s_*s_*s_;
@@ -141,6 +262,7 @@ function coordToColor(dL,dM,dT){
   return{hex:(ri<<16)|(gi<<8)|bi,r:ri,g:gi,b:bi,css:`rgb(${ri},${gi},${bi})`,oL,oa,ob};
 }
 
+// ── DOM ───────────────────────────────────────────────────────────────────────
 const c3d=document.getElementById('c3d');
 const clbl=document.getElementById('clbl');
 const tip=document.getElementById('tip');
@@ -148,6 +270,7 @@ const panel=document.getElementById('panel');
 const tab=document.getElementById('tab');
 let W=window.innerWidth, H=window.innerHeight;
 
+// ── Scene ─────────────────────────────────────────────────────────────────────
 const scene=new THREE.Scene();
 scene.background=new THREE.Color(0x06061a);
 const INIT_POS=new THREE.Vector3(9,6,11), TARGET=new THREE.Vector3(0,0,0), INIT_FOV=50;
@@ -155,39 +278,47 @@ const INIT_POS=new THREE.Vector3(9,6,11), TARGET=new THREE.Vector3(0,0,0), INIT_
 const perspCam=new THREE.PerspectiveCamera(INIT_FOV,W/H,0.1,500);
 perspCam.position.copy(INIT_POS);
 
+// Ortho frustum sized from INIT values — always shows the full scene at zoom=1
 const ORTHO_H = INIT_POS.distanceTo(TARGET) * Math.tan(THREE.MathUtils.degToRad(INIT_FOV/2));
 const orthoCam=new THREE.OrthographicCamera(
   -ORTHO_H*W/H, ORTHO_H*W/H, ORTHO_H, -ORTHO_H, 0.1, 500);
 orthoCam.position.copy(INIT_POS); orthoCam.lookAt(TARGET);
 
 let usingOrtho=false, autoRotOn=true;
+// activeCamera tracks whichever camera is rendering + being used for labels/picking
 let activeCamera=perspCam;
 
 const renderer=new THREE.WebGLRenderer({canvas:c3d,antialias:true});
 renderer.setSize(W,H); renderer.setPixelRatio(Math.min(window.devicePixelRatio,2));
 
+// Controls starts on perspCam; we swap .object when entering/leaving ortho
 const controls=new OrbitControls(perspCam,c3d);
 controls.enableDamping=true; controls.dampingFactor=0.07;
 controls.autoRotate=true; controls.autoRotateSpeed=0.45;
 controls.minDistance=2; controls.maxDistance=60;
 controls.target.copy(TARGET); controls.update();
 
+// ── Camera switching ──────────────────────────────────────────────────────────
 function enterOrtho(){
   usingOrtho=true;
+  // Size the frustum from INIT so it always opens showing the whole scene
   const h=ORTHO_H, asp=W/H;
   orthoCam.left=-h*asp; orthoCam.right=h*asp; orthoCam.top=h; orthoCam.bottom=-h;
-  orthoCam.zoom=1;
+  orthoCam.zoom=1; // reset any prior zoom
+  // Copy current viewing direction from perspCam
   orthoCam.position.copy(perspCam.position);
   orthoCam.quaternion.copy(perspCam.quaternion);
   orthoCam.updateProjectionMatrix();
+  // Hand controls to orthoCam — OrbitControls handles ortho dolly via camera.zoom
   controls.object=orthoCam;
-  controls.minDistance=0; controls.maxDistance=Infinity;
+  controls.minDistance=0; controls.maxDistance=Infinity; // not used for ortho, but safe
   activeCamera=orthoCam;
   controls.update();
 }
 
 function exitOrtho(newFov){
-  const h=ORTHO_H/orthoCam.zoom;
+  // Reconstruct a perspective distance that matches the current ortho zoom level
+  const h=ORTHO_H/orthoCam.zoom; // visible half-height at focus plane
   const d=h/Math.tan(THREE.MathUtils.degToRad(newFov/2));
   const dir=orthoCam.position.clone().sub(controls.target).normalize();
   perspCam.position.copy(controls.target).addScaledVector(dir,d);
@@ -202,9 +333,11 @@ function exitOrtho(newFov){
 }
 
 function sliderToFOV(s){return 2+Math.pow(s/100,1.3)*88;}
+
 function applySlider(s){
-  if(s===0){ if(!usingOrtho) enterOrtho(); }
-  else {
+  if(s===0){
+    if(!usingOrtho) enterOrtho();
+  } else {
     const fov=sliderToFOV(s);
     if(usingOrtho) exitOrtho(fov);
     else{ perspCam.fov=fov; perspCam.updateProjectionMatrix(); }
@@ -215,6 +348,7 @@ scene.add(new THREE.AmbientLight(0xffffff,0.6));
 const sun=new THREE.DirectionalLight(0xffffff,0.85); sun.position.set(8,12,6); scene.add(sun);
 const fill=new THREE.DirectionalLight(0x8899ff,0.25); fill.position.set(-6,-4,-4); scene.add(fill);
 
+// ── Geometry ──────────────────────────────────────────────────────────────────
 function gradientTube(axis,from,to,steps=64,radius=0.030){
   const len=to-from, ctr=(from+to)/2;
   const geo=new THREE.CylinderGeometry(radius,radius,len,8,steps);
@@ -243,10 +377,26 @@ function axisCone(axis,pos){
 }
 const AX=5.2;
 ['L','M','T'].forEach(ax=>{gradientTube(ax,-AX,AX);axisCone(ax,AX);axisCone(ax,-AX);});
+const gMat=new THREE.LineBasicMaterial({color:0x0d0d22,transparent:true,opacity:0.8});
+for(let i=-5;i<=5;i++){
+  const aL=(a,b)=>scene.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints(
+    [new THREE.Vector3(...a),new THREE.Vector3(...b)]),gMat));
+  aL([i,0,-5],[i,0,5]); aL([-5,0,i],[5,0,i]);
+}
+const TN=[-4,-3,-2,-1,1,2,3,4];
+TN.forEach(n=>{
+  const mk=(p,col)=>scene.add(new THREE.Line(
+    new THREE.BufferGeometry().setFromPoints(p.map(v=>new THREE.Vector3(...v))),
+    new THREE.LineBasicMaterial({color:col,transparent:true,opacity:0.7})));
+  mk([[n,-.1,0],[n,.1,0]],coordToColor(n,0,0).hex);
+  mk([[0,n,-.1],[0,n,.1]],coordToColor(0,Math.max(-1,Math.min(1,n)),0).hex);
+  mk([[-.1,0,n],[.1,0,n]],coordToColor(0,0,Math.max(-4,Math.min(1,n))).hex);
+});
 scene.add(new THREE.Mesh(new THREE.SphereGeometry(0.07,12,12),
   new THREE.MeshPhongMaterial({color:coordToColor(0,0,0).hex})));
 
-const RAW=[['Length',1,0,0],['Displacement',1,0,0],['Wavelength',1,0,0],['Area',2,0,0],['Volume',3,0,0],['Time',0,0,1],['Frequency',0,0,-1],['Velocity',1,0,-1],['Acceleration',1,0,-2],['Mass',0,1,0],['Force',1,1,-2],['Energy',2,1,-2],['Power',2,1,-3],['Pressure',-1,1,-2],['Density',-3,1,0],['Momentum',1,1,-1],['Angular momentum',2,1,-1],['Viscosity',-1,1,-1],['Surface tension',0,1,-2],['Charge',0,0,1],['Potential',2,1,-3],['Capacitance',-2,-1,4],['Resistance',2,1,-3],['Conductance',-2,-1,3],['Magnetic flux',2,1,-2],['Dimensionless',0,0,0]];
+// ── Data ──────────────────────────────────────────────────────────────────────
+const RAW=[['Length',1,0,0],['Displacement',1,0,0],['Wavelength',1,0,0],['Arm / Lever',1,0,0],['Area',2,0,0],['Cross-section',2,0,0],['Volume',3,0,0],['Wavenumber',-1,0,0],['Curvature',-1,0,0],['Velocity',1,0,-1],['Speed of Light',1,0,-1],['Acceleration',1,0,-2],['Free-fall g',1,0,-2],['Jerk',1,0,-3],['Snap / Jounce',1,0,-4],['Vol. Flow Rate',3,0,-1],['Kinematic Viscosity',2,0,-1],['Diffusivity',2,0,-1],['Thermal Diffusivity',2,0,-1],['Spec. Ang. Mom.',2,0,-1],['Grav. Potential',2,0,-2],['Specific Energy',2,0,-2],['Absorbed Dose (Gy)',2,0,-2],['Dose Equivalent',2,0,-2],['Std. Grav. Param GM',3,0,-2],['Strain',0,0,0],['Angle (rad)',0,0,0],['Mach Number',0,0,0],['Reynolds Number',0,0,0],['Coeff. of Restitution',0,0,0],['Time',0,0,1],['Period',0,0,1],['Half-life',0,0,1],['Frequency',0,0,-1],['Angular Velocity',0,0,-1],['Angular Frequency ω',0,0,-1],['Radioactivity (Bq)',0,0,-1],['Angular Acceleration',0,0,-2],['Mass',0,1,0],['Linear Density',-1,1,0],['Surface Density',-2,1,0],['Volume Density',-3,1,0],['Moment of Inertia',2,1,0],['Specific Volume',3,-1,0],['Mass Flow Rate',0,1,-1],['Mech. Impedance',0,1,-1],['Mech. Admittance',0,-1,1],['Momentum',1,1,-1],['Impulse',1,1,-1],['Angular Momentum',2,1,-1],['Action (ℏ)',2,1,-1],['Angular Impulse',2,1,-1],['Force',1,1,-2],['Weight',1,1,-2],['Drag',1,1,-2],['Thrust',1,1,-2],['Tension',1,1,-2],['Lift',1,1,-2],['Energy',2,1,-2],['Work',2,1,-2],['Heat (Q)',2,1,-2],['Torque',2,1,-2],['Enthalpy',2,1,-2],['Helmholtz Energy',2,1,-2],['Power',2,1,-3],['Radiant Flux',2,1,-3],['Luminosity',2,1,-3],['Pressure',-1,1,-2],['Stress',-1,1,-2],["Young's Modulus",-1,1,-2],['Shear Modulus',-1,1,-2],['Bulk Modulus',-1,1,-2],['Yield Strength',-1,1,-2],['Surface Tension',0,1,-2],['Spring Constant',0,1,-2],['Stiffness',0,1,-2],['Dynamic Viscosity',-1,1,-1],['Intensity (W/m²)',0,1,-3],['Power Density',-1,1,-3],['Spec. Power (W/kg)',2,0,-3],['Irradiance',0,1,-3],['Grav. Constant G',3,-1,-2]];
 const GROUPS=new Map();
 RAW.forEach(([name,L,M,T])=>{
   const k=`${L},${M},${T}`;
@@ -254,6 +404,10 @@ RAW.forEach(([name,L,M,T])=>{
   GROUPS.get(k).entries.push(name);
 });
 const PTS=[...GROUPS.values()];
+// Conventional variable symbols for each named quantity (used by search and the info card)
+const SYMBOLS={'Length':['l','L','x'],'Displacement':['x','Δx','s','d'],'Wavelength':['λ'],'Arm / Lever':['r'],'Area':['A'],'Cross-section':['A','σ'],'Volume':['V'],'Wavenumber':['k','ν̃'],'Curvature':['κ'],'Velocity':['v','u'],'Speed of Light':['c'],'Acceleration':['a'],'Free-fall g':['g'],'Jerk':['j'],'Snap / Jounce':['s'],'Vol. Flow Rate':['Q'],'Kinematic Viscosity':['ν'],'Diffusivity':['D'],'Thermal Diffusivity':['α'],'Spec. Ang. Mom.':['h'],'Grav. Potential':['Φ','V'],'Specific Energy':['ε','e'],'Absorbed Dose (Gy)':['D'],'Dose Equivalent':['H'],'Std. Grav. Param GM':['μ','GM'],'Strain':['ε'],'Angle (rad)':['θ','φ'],'Mach Number':['Ma','M'],'Reynolds Number':['Re'],'Coeff. of Restitution':['e'],'Time':['t'],'Period':['T'],'Half-life':['t½'],'Frequency':['f','ν'],'Angular Velocity':['ω'],'Angular Frequency ω':['ω'],'Radioactivity (Bq)':['A'],'Angular Acceleration':['α'],'Mass':['m','M'],'Linear Density':['λ','μ'],'Surface Density':['σ'],'Volume Density':['ρ'],'Moment of Inertia':['I'],'Specific Volume':['v'],'Mass Flow Rate':['ṁ'],'Mech. Impedance':['Z'],'Mech. Admittance':['Y'],'Momentum':['p'],'Impulse':['J'],'Angular Momentum':['L'],'Action (ℏ)':['ℏ','S'],'Angular Impulse':['ΔL'],'Force':['F'],'Weight':['W'],'Drag':['F_D','D'],'Thrust':['T'],'Tension':['T'],'Lift':['L','F_L'],'Energy':['E'],'Work':['W'],'Heat (Q)':['Q'],'Torque':['τ'],'Enthalpy':['H'],'Helmholtz Energy':['F','A'],'Power':['P'],'Radiant Flux':['Φₑ'],'Luminosity':['L'],'Pressure':['P','p'],'Stress':['σ'],"Young's Modulus":['E'],'Shear Modulus':['G'],'Bulk Modulus':['K'],'Yield Strength':['σᵧ'],'Surface Tension':['γ'],'Spring Constant':['k'],'Stiffness':['k'],'Dynamic Viscosity':['μ','η'],'Intensity (W/m²)':['I'],'Power Density':['p'],'Spec. Power (W/kg)':['P/m'],'Irradiance':['Eₑ'],'Grav. Constant G':['G']};
+const PT_OF_NAME=new Map();
+PTS.forEach(pt=>pt.entries.forEach(n=>PT_OF_NAME.set(n,pt)));
 document.getElementById('badge').textContent=`${RAW.length} metrics · ${PTS.length} unique coordinates`;
 
 const pickMeshes=[];
@@ -263,13 +417,321 @@ PTS.forEach(pt=>{
   pt.lum=(0.299*col.r+0.587*col.g+0.114*col.b)/255;
   const vis=new THREE.Mesh(new THREE.SphereGeometry(r,20,20),
     new THREE.MeshPhongMaterial({color:col.hex,emissive:col.hex,emissiveIntensity:0.15,shininess:110}));
-  vis.position.set(pt.L,pt.M,pt.T); scene.add(vis);
+  vis.position.set(pt.L,pt.M,pt.T); scene.add(vis); pt.vis=vis;
+  let projLine=null;
+  if(pt.M!==0){projLine=new THREE.Line(
+    new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(pt.L,0,pt.T),new THREE.Vector3(pt.L,pt.M,pt.T)]),
+    new THREE.LineBasicMaterial({color:col.hex,transparent:true,opacity:0.2}));
+    scene.add(projLine);}
+  pt.projLine=projLine;
+  const rim=new THREE.Mesh(new THREE.SphereGeometry(r*1.28,14,14),
+    new THREE.MeshBasicMaterial({color:0x00000a,side:THREE.BackSide,transparent:true,opacity:0,depthWrite:false}));
+  rim.position.set(pt.L,pt.M,pt.T); rim.visible=false; scene.add(rim); pt.rim=rim;
+  const glow=new THREE.Mesh(new THREE.SphereGeometry(r*2.2,14,14),
+    new THREE.MeshBasicMaterial({color:col.hex,transparent:true,opacity:0,blending:THREE.AdditiveBlending,depthWrite:false}));
+  glow.position.set(pt.L,pt.M,pt.T); glow.visible=false; scene.add(glow); pt.glow=glow;
+  const ring=new THREE.Mesh(new THREE.TorusGeometry(r*1.5,r*0.18,8,28),
+    new THREE.MeshBasicMaterial({color:col.hex,transparent:true,opacity:0,depthWrite:false}));
+  ring.position.set(pt.L,pt.M,pt.T); ring.visible=false; scene.add(ring); pt.ring=ring;
   const pick=new THREE.Mesh(new THREE.SphereGeometry(r*1.3,8,8),
     new THREE.MeshBasicMaterial({transparent:true,opacity:0}));
   pick.position.set(pt.L,pt.M,pt.T); pick.userData=pt; scene.add(pick); pickMeshes.push(pick);
 });
 
+let metricsVis='full', labelsVis='full';
+function applyMetricsVis(){
+  PTS.forEach(pt=>{
+    const h=metricsVis==='hidden',l=metricsVis==='low';
+    pt.vis.visible=!h; pt.vis.material.opacity=l?0.18:1; pt.vis.material.transparent=l; pt.vis.material.needsUpdate=true;
+    if(pt.projLine){pt.projLine.visible=!h;pt.projLine.material.opacity=l?0.06:0.2;pt.projLine.material.needsUpdate=true;}
+  });
+}
+
+// ── Formula Arrows ────────────────────────────────────────────────────────────
+// Each formula A × B = C maps as: arrow from A's point to C's point in exponent space,
+// because multiplying quantities adds their dimensional exponents.
+const FORMULA_DEFS=[
+  // Kinematics
+  {label:'v = Δx/t',  from:[1,0,0],  to:[1,0,-1],  desc:'length ÷ time = velocity'},
+  {label:'a = Δv/t',  from:[1,0,-1], to:[1,0,-2],  desc:'velocity ÷ time = accel'},
+  {label:'j = Δa/t',  from:[1,0,-2], to:[1,0,-3],  desc:'accel ÷ time = jerk'},
+  {label:'ω = v/r',   from:[1,0,-1], to:[0,0,-1],  desc:'vel ÷ radius = ang. vel'},
+  {label:'α = a/r',   from:[1,0,-2], to:[0,0,-2],  desc:'accel ÷ radius = ang. accel'},
+  {label:'v = λf',    from:[0,0,-1], to:[1,0,-1],  desc:'freq × wavelength = velocity'},
+  // Forces
+  {label:'F = ma',    from:[1,0,-2], to:[1,1,-2],  desc:'accel × mass = force'},
+  {label:'F = dp/dt', from:[1,1,-1], to:[1,1,-2],  desc:'momentum ÷ time = force'},
+  {label:'F = kx',    from:[0,1,-2], to:[1,1,-2],  desc:'spring const × length = force'},
+  {label:'F = PA',    from:[-1,1,-2],to:[1,1,-2],  desc:'pressure × area = force'},
+  // Momentum & angular
+  {label:'p = mv',    from:[1,0,-1], to:[1,1,-1],  desc:'vel × mass = momentum'},
+  {label:'L = r×p',   from:[1,1,-1], to:[2,1,-1],  desc:'momentum × radius = ang. mom.'},
+  {label:'L = Iω',    from:[2,1,0],  to:[2,1,-1],  desc:'moment of inertia × ang. vel'},
+  // Energy
+  {label:'W = F·d',   from:[1,1,-2], to:[2,1,-2],  desc:'force × distance = energy'},
+  {label:'E = PV',    from:[-1,1,-2],to:[2,1,-2],  desc:'pressure × volume = energy'},
+  {label:'E = ½kx²', from:[0,1,-2], to:[2,1,-2],  desc:'spring const × length² = energy'},
+  {label:'E = mc²',   from:[0,1,0],  to:[2,1,-2],  desc:'mass × c² = energy'},
+  {label:'τ = dL/dt', from:[2,1,-1], to:[2,1,-2],  desc:'ang. mom. ÷ time = torque'},
+  // Power
+  {label:'P = W/t',   from:[2,1,-2], to:[2,1,-3],  desc:'energy ÷ time = power'},
+  {label:'P = Fv',    from:[1,1,-2], to:[2,1,-3],  desc:'force × velocity = power'},
+  {label:'I = P/A',   from:[2,1,-3], to:[0,1,-3],  desc:'power ÷ area = intensity'},
+  // Gravity
+  {label:'g=GM/r²',   from:[3,0,-2], to:[1,0,-2],  desc:'grav. param ÷ r² = accel'},
+  // Fluids & continuum
+  {label:'P = F/A',   from:[1,1,-2], to:[-1,1,-2], desc:'force ÷ area = pressure'},
+  {label:'Q = Av',    from:[1,0,-1], to:[3,0,-1],  desc:'vel × area = vol. flow rate'},
+  {label:'ν = μ/ρ',  from:[-1,1,-1],to:[2,0,-1],  desc:'dyn. visc ÷ density = kin. visc'},
+  // Oscillations
+  {label:'ω²=k/m',   from:[0,1,-2], to:[0,0,-2],  desc:'spring const ÷ mass = ang. freq²'},
+  // Specific quantities
+  {label:'ε = E/m',  from:[2,1,-2], to:[2,0,-2],  desc:'energy ÷ mass = specific energy'},
+  // Mass from density
+  {label:'ρV = m',    from:[-3,1,0], to:[0,1,0],   desc:'density × volume = mass'},
+  {label:'λl = m',    from:[-1,1,0], to:[0,1,0],   desc:'lin. density × length = mass'},
+  {label:'ṁt = m',   from:[0,1,-1], to:[0,1,0],   desc:'mass flow × time = mass'},
+];
+// Builds a gradient arrow from one exponent coordinate to another, oriented along +Y of its group.
+// Caller adds the group to the scene (after applying any bundle offset).
+function makeArrow(from,to,{SR,CR,opacity,emissive=0}){
+  const MARGIN=0.22, HEAD=0.25;
+  const s=new THREE.Vector3(...from), e=new THREE.Vector3(...to);
+  const dir=e.clone().sub(s), total=dir.length();
+  dir.normalize();
+  const shaftLen=total-MARGIN*2-HEAD;
+  if(shaftLen<=0.05) return null;
+  const sc=coordToColor(...from), ec=coordToColor(...to);
+  const shaftGeo=new THREE.CylinderGeometry(SR,SR,shaftLen,6,1);
+  const pa=shaftGeo.attributes.position, cb=new Float32Array(pa.count*3);
+  for(let j=0;j<pa.count;j++){
+    const t=Math.max(0,Math.min(1,pa.getY(j)/shaftLen+0.5));
+    cb[j*3]=(sc.r/255)*(1-t)+(ec.r/255)*t;
+    cb[j*3+1]=(sc.g/255)*(1-t)+(ec.g/255)*t;
+    cb[j*3+2]=(sc.b/255)*(1-t)+(ec.b/255)*t;
+  }
+  shaftGeo.setAttribute('color',new THREE.BufferAttribute(cb,3));
+  const shaftMat=new THREE.MeshPhongMaterial({vertexColors:true,emissive:0xffffff,emissiveIntensity:emissive,transparent:true,opacity,depthWrite:false});
+  const coneMat=new THREE.MeshPhongMaterial({color:ec.hex,emissive:ec.hex,emissiveIntensity:0.3+emissive,transparent:true,opacity,depthWrite:false,side:THREE.DoubleSide});
+  const g=new THREE.Group();
+  const shaft=new THREE.Mesh(shaftGeo,shaftMat); shaft.position.y=shaftLen/2; shaft.renderOrder=2; g.add(shaft);
+  const cone=new THREE.Mesh(new THREE.ConeGeometry(CR,HEAD,8),coneMat); cone.position.y=shaftLen+HEAD/2; cone.renderOrder=2; g.add(cone);
+  const pickLen=shaftLen+HEAD;
+  const pm=new THREE.Mesh(new THREE.CylinderGeometry(0.13,0.13,pickLen,6),
+    new THREE.MeshBasicMaterial({transparent:true,opacity:0,depthWrite:false}));
+  pm.position.y=pickLen/2; g.add(pm);
+  g.position.copy(s.clone().addScaledVector(dir,MARGIN));
+  const up=new THREE.Vector3(0,1,0);
+  if(Math.abs(dir.dot(up))>0.9999){if(dir.y<0)g.rotation.z=Math.PI;}
+  else g.quaternion.setFromUnitVectors(up,dir);
+  return{g,shaftMat,coneMat,pm,shaftLen,sc,ec};
+}
+let showFormulas=false;
+const formulaObjs=[], formulaPickMeshes=[];
+// Pre-cache point keys for fast lookup
+PTS.forEach(pt=>{pt.key=`${pt.L},${pt.M},${pt.T}`;});
+(()=>{
+  const TAU=Math.PI*2;
+  // Group by unordered endpoint pair — arrows between the same two points (in either direction) bundle together
+  const segMap=new Map();
+  FORMULA_DEFS.forEach((def,idx)=>{
+    const a=def.from.join(','), b=def.to.join(',');
+    const k=a<b?`${a}|${b}`:`${b}|${a}`;
+    if(!segMap.has(k)) segMap.set(k,[]);
+    segMap.get(k).push(idx);
+  });
+  // Precompute a canonical perpendicular frame per segment so all arrows in a bundle share the same offset axes
+  const segFrames=new Map();
+  segMap.forEach((indices,k)=>{
+    const d=FORMULA_DEFS[indices[0]];
+    const a=d.from.join(','), b=d.to.join(',');
+    const cf=a<b?d.from:d.to, ct=a<b?d.to:d.from;
+    const cd=new THREE.Vector3(...ct).sub(new THREE.Vector3(...cf)).normalize();
+    const up=new THREE.Vector3(0,1,0);
+    const q=new THREE.Quaternion();
+    if(Math.abs(cd.dot(up))>0.9999){if(cd.y<0) q.set(0,0,1,0);}
+    else q.setFromUnitVectors(up,cd);
+    segFrames.set(k,{lx:new THREE.Vector3(1,0,0).applyQuaternion(q),lz:new THREE.Vector3(0,0,1).applyQuaternion(q)});
+  });
+  FORMULA_DEFS.forEach((def,defIdx)=>{
+    const a=def.from.join(','), b=def.to.join(',');
+    const segKey=a<b?`${a}|${b}`:`${b}|${a}`;
+    const bundle=segMap.get(segKey);
+    const n=bundle.length, bi=bundle.indexOf(defIdx);
+    const SR=n===1?0.025:Math.max(0.010,0.025-n*0.003);
+    const CR=Math.max(0.035,0.065*(SR/0.025));
+    const bundleR=n===1?0:0.04+n*0.02;
+    const arrow=makeArrow(def.from,def.to,{SR,CR,opacity:0.72});
+    if(!arrow) return;
+    const{g,shaftMat,coneMat,pm,shaftLen,sc,ec}=arrow;
+    if(n>1){
+      const angle=bi*TAU/n;
+      const{lx,lz}=segFrames.get(segKey);
+      g.position.addScaledVector(lx,bundleR*Math.cos(angle));
+      g.position.addScaledVector(lz,bundleR*Math.sin(angle));
+    }
+    scene.add(g);
+    // World-space midpoint of shaft (including bundle offset) — used for label positioning
+    const mid=new THREE.Vector3(0,shaftLen/2,0).applyQuaternion(g.quaternion).add(g.position);
+    const midCol={r:Math.round((sc.r+ec.r)/2),g:Math.round((sc.g+ec.g)/2),b:Math.round((sc.b+ec.b)/2)};
+    const fromKey=def.from.join(','), toKey=def.to.join(',');
+    const fo={g,def,mid,midCol,shaftMat,coneMat,fromKey,toKey};
+    formulaObjs.push(fo);
+    pm.userData={__fo:fo}; formulaPickMeshes.push(pm);
+  });
+})();
+
+// ── User Vectors ──────────────────────────────────────────────────────────────
+// The user picks any two points A → B. The displacement Δ = B − A in exponent space is the
+// dimension you must multiply A by to get B, so [B] = [A] · L^ΔL M^ΔM T^ΔT. We then look for
+// named quantities with dimension Δ (multiply) or −Δ (divide) to phrase it as a physical equation.
+const PT_BY_KEY=new Map(PTS.map(p=>[p.key,p]));
+const SUP={'-':'⁻','0':'⁰','1':'¹','2':'²','3':'³','4':'⁴','5':'⁵','6':'⁶','7':'⁷','8':'⁸','9':'⁹'};
+const supStr=n=>String(n).split('').map(c=>SUP[c]).join('');
+function dimStr(L,M,T){
+  const parts=[];
+  [['L',L],['M',M],['T',T]].forEach(([s,e])=>{if(e)parts.push(e===1?s:s+supStr(e));});
+  return parts.join('·')||'1';
+}
+const esc=t=>String(t).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const nm=pt=>pt.entries[0];
+function vectorEquations(a,b){
+  const dL=b.L-a.L, dM=b.M-a.M, dT=b.T-a.T;
+  const delta=dimStr(dL,dM,dT);
+  const A=nm(a), B=nm(b);
+  const named=[];   // [{eq, short}]
+  const mul=PT_BY_KEY.get(`${dL},${dM},${dT}`), div=PT_BY_KEY.get(`${-dL},${-dM},${-dT}`);
+  if(mul) named.push({eq:`${B} = ${A} × ${nm(mul)}`,short:`× ${nm(mul)}`});
+  if(div) named.push({eq:`${B} = ${A} ÷ ${nm(div)}`,short:`÷ ${nm(div)}`});
+  // Prefer the factor with fewer negative exponents: "÷ Time" reads better than "× Frequency"
+  const negs=p=>[p.L,p.M,p.T].filter(e=>e<0).length;
+  if(mul&&div&&negs(div)<negs(mul)) named.reverse();
+  // No single named factor — try two named factors (P×Q or P÷Q)
+  if(!named.length){
+    const seen=new Set(), isZero=p=>!p.L&&!p.M&&!p.T;
+    for(const P of PTS){
+      if(isZero(P)) continue;
+      const Q=PT_BY_KEY.get(`${dL-P.L},${dM-P.M},${dT-P.T}`);
+      if(Q&&!isZero(Q)){const k=[P.key,Q.key].sort().join('|');
+        if(!seen.has(k)){seen.add(k);named.push({eq:`${B} = ${A} × ${nm(P)} × ${nm(Q)}`,short:`× ${nm(P)} × ${nm(Q)}`});}}
+      const R=PT_BY_KEY.get(`${P.L-dL},${P.M-dM},${P.T-dT}`);
+      if(R&&!isZero(R)&&R!==P) named.push({eq:`${B} = ${A} × ${nm(P)} ÷ ${nm(R)}`,short:`× ${nm(P)} ÷ ${nm(R)}`});
+      if(named.length>=4) break;
+    }
+  }
+  const generic=`[${B}] = [${A}] · ${delta}`;
+  const known=[];
+  FORMULA_DEFS.forEach(d=>{
+    const f=d.from.join(','), t=d.to.join(',');
+    if(f===a.key&&t===b.key) known.push(`${d.label}  (${d.desc})`);
+    else if(f===b.key&&t===a.key) known.push(`${d.label}  (inverse: ${d.desc})`);
+  });
+  return{dL,dM,dT,delta,named,generic,known,
+    primary:named.length?named[0].eq:generic,
+    short:named.length?named[0].short:`× ${delta}`};
+}
+
+const userVecs=[], uvPickMeshes=[];
+let drawMode=false, drawStart=null, selectedUV=null;
+function addUserVector(a,b){
+  const existing=userVecs.find(u=>u.from===a&&u.to===b);
+  if(existing){showCard(existing);return existing;}
+  const arrow=makeArrow([a.L,a.M,a.T],[b.L,b.M,b.T],{SR:0.036,CR:0.09,opacity:0.95,emissive:0.15});
+  if(!arrow) return null;
+  const{g,shaftMat,coneMat,pm,shaftLen,sc,ec}=arrow;
+  scene.add(g);
+  const mid=new THREE.Vector3(0,shaftLen/2,0).applyQuaternion(g.quaternion).add(g.position);
+  const midCol={r:Math.round((sc.r+ec.r)/2),g:Math.round((sc.g+ec.g)/2),b:Math.round((sc.b+ec.b)/2)};
+  const uv={from:a,to:b,g,shaftMat,coneMat,pm,mid,midCol,sc,ec,eq:vectorEquations(a,b)};
+  pm.userData={__uv:uv}; uvPickMeshes.push(pm); userVecs.push(uv);
+  showCard(uv); renderVecList(); tutEmit('vector');
+  return uv;
+}
+function removeUserVector(uv){
+  scene.remove(uv.g);
+  uv.g.traverse(o=>{if(o.geometry)o.geometry.dispose();if(o.material)o.material.dispose();});
+  userVecs.splice(userVecs.indexOf(uv),1);
+  uvPickMeshes.splice(uvPickMeshes.indexOf(uv.pm),1);
+  if(hoveredUV===uv) hoveredUV=null;
+  if(selectedUV===uv) hideCard();
+  renderVecList();
+}
+
+// ── Clipboard ─────────────────────────────────────────────────────────────────
+const toastEl=document.getElementById('toast');
+let toastTimer=0;
+function toast(msg){
+  toastEl.textContent=msg; toastEl.style.opacity='1';
+  clearTimeout(toastTimer); toastTimer=setTimeout(()=>{toastEl.style.opacity='0';},1600);
+}
+async function copyText(t){
+  try{await navigator.clipboard.writeText(t);}
+  catch{
+    const ta=document.createElement('textarea'); ta.value=t; ta.style.cssText='position:fixed;opacity:0;';
+    document.body.appendChild(ta); ta.select();
+    try{document.execCommand('copy');}catch{}
+    ta.remove();
+  }
+  toast(`Copied: ${t}`);
+}
+// Any element with data-copy copies its value on click
+document.addEventListener('click',e=>{
+  const el=e.target.closest('[data-copy]');
+  if(el) copyText(el.dataset.copy);
+});
+
+// ── Vector card ───────────────────────────────────────────────────────────────
+const vcard=document.getElementById('vcard');
+function showCard(uv){
+  selectedUV=uv;
+  const{from:a,to:b,eq,sc,ec}=uv;
+  const sgn=n=>n>0?`+${n}`:String(n);
+  const row=(t,cls='veq')=>`<div class="${cls}" data-copy="${esc(t)}" title="Click to copy">${esc(t)}</div>`;
+  vcard.innerHTML=
+    `<div class="vhead"><span><span style="color:${sc.css}">${esc(nm(a))}</span> <span style="color:#556">→</span> <span style="color:${ec.css}">${esc(nm(b))}</span></span><button class="vx" id="vcardX" title="Close">✕</button></div>`+
+    `<div class="vsub">Δ = (${sgn(eq.dL)}, ${sgn(eq.dM)}, ${sgn(eq.dT)}) = ${esc(eq.delta)}</div>`+
+    (eq.named.length?eq.named.map((n,i)=>row(n.eq,i?'veq alt':'veq')).join(''):'<div class="vsub">No named quantity spans this step.</div>')+
+    row(eq.generic,'veq gen')+
+    (eq.known.length?`<div class="vlbl">Known formulas</div>`+eq.known.map(k=>row(k,'veq known')).join(''):'')+
+    `<div class="vfoot">click an equation to copy</div>`;
+  vcard.style.display='block';
+  document.getElementById('vcardX').addEventListener('click',hideCard);
+}
+function hideCard(){selectedUV=null;focusPt=null;focusFo=null;vcard.style.display='none';}
+let focusPt=null, focusFo=null;
+
+// ── Draw mode ─────────────────────────────────────────────────────────────────
+const drawBtn=document.getElementById('drawBtn'), drawHint=document.getElementById('drawHint');
+let panelDrawBtn=null;
+function updateDrawUI(){
+  const txt=drawMode?'✕ Stop drawing':'✎ Draw vector';
+  drawBtn.textContent=txt; drawBtn.classList.toggle('on',drawMode);
+  if(panelDrawBtn){panelDrawBtn.textContent=txt;panelDrawBtn.classList.toggle('on',drawMode);}
+  c3d.style.cursor=drawMode?'crosshair':'';
+  drawHint.style.display=drawMode?'block':'none';
+  drawHint.textContent=!drawMode?'':drawStart?`From ${nm(drawStart)} — click the end point (Esc to cancel)`:'Click a start point';
+}
+function setDrawMode(on){drawMode=on;drawStart=null;updateDrawUI();}
+drawBtn.addEventListener('click',()=>setDrawMode(!drawMode));
+
+// ── Labels ────────────────────────────────────────────────────────────────────
 let lblSize=9.5, lblFont="'Courier New',monospace", lblEffect='halo';
+function applyNodeEffect(){
+  PTS.forEach(pt=>{
+    pt.rim.visible=false; pt.rim.material.opacity=0;
+    pt.glow.visible=false; pt.glow.material.opacity=0;
+    pt.ring.visible=false; pt.ring.material.opacity=0;
+    const c=pt.col;
+    if(lblEffect==='halo'){pt.rim.visible=true;pt.rim.material.color.setRGB(.01,.01,.03);pt.rim.material.opacity=.92;pt.rim.scale.setScalar(1);}
+    else if(lblEffect==='shadow'){pt.rim.visible=true;pt.rim.material.color.setRGB(0,0,.02);pt.rim.material.opacity=.6;pt.rim.scale.setScalar(1.15);}
+    else if(lblEffect==='outline'){pt.rim.visible=true;if(pt.lum>.55)pt.rim.material.color.setRGB(0,0,.02);else pt.rim.material.color.setRGB(.88,.88,.95);pt.rim.material.opacity=1;pt.rim.scale.setScalar(.95);}
+    else if(lblEffect==='glow'){pt.glow.visible=true;pt.glow.material.color.setHex(c.hex);pt.glow.material.opacity=.22;}
+    else if(lblEffect==='pill'){pt.ring.visible=true;pt.ring.material.color.setHex(c.hex);pt.ring.material.opacity=.7;pt.glow.visible=true;pt.glow.material.color.setHex(c.hex);pt.glow.material.opacity=.1;}
+    pt.rim.material.needsUpdate=true; pt.glow.material.needsUpdate=true; pt.ring.material.needsUpdate=true;
+  });
+}
+applyNodeEffect();
+
 const lc=clbl.getContext('2d');
 function syncLC(){
   const dpr=window.devicePixelRatio||1;
@@ -281,38 +743,112 @@ function toSc(x,y,z){
   const v=new THREE.Vector3(x,y,z).project(activeCamera);
   return[(v.x+1)/2*W,(-v.y+1)/2*H,v.z];
 }
-function drawLbl(sx,sy,text,r,g,b,isH){
-  const sz=isH?lblSize+2.5:lblSize;
-  lc.font=`${isH?'bold ':''}${sz}px ${lblFont}`;
+function rrect(ctx,x,y,w,h,r){ctx.beginPath();ctx.moveTo(x+r,y);ctx.lineTo(x+w-r,y);ctx.arcTo(x+w,y,x+w,y+r,r);ctx.lineTo(x+w,y+h-r);ctx.arcTo(x+w,y+h,x+w-r,y+h,r);ctx.lineTo(x+r,y+h);ctx.arcTo(x,y+h,x,y+h-r,r);ctx.lineTo(x,y+r);ctx.arcTo(x,y,x+r,y,r);ctx.closePath();}
+function cStroke(r,g,b){return(0.299*r+0.587*g+0.114*b)/255>.55?'rgba(0,0,8,.95)':'rgba(255,255,255,.85)';}
+function drawLbl(sx,sy,text,r,g,b,isH,isBadge=false,sizeBoost=0){
+  const sz=isBadge?Math.max(7,lblSize-1.5):(lblSize+sizeBoost);
+  lc.font=`${(isH&&!isBadge)?'bold ':''}${sz}px ${lblFont}`;
   lc.textAlign='center';
   const fill=`rgba(${r},${g},${b},${isH?1:.9})`;
   const y0=sy-(sz+5);
-  lc.strokeStyle='rgba(4,4,20,.97)';lc.lineWidth=Math.max(2,sz*.22);lc.lineJoin='round';
-  lc.strokeText(text,sx,y0);lc.fillStyle=fill;lc.fillText(text,sx,y0);
+  lc.shadowBlur=0; lc.shadowOffsetX=0; lc.shadowOffsetY=0;
+  if(lblEffect==='pill'){
+    const m=lc.measureText(text),p=4,ph=sz*1.35;
+    lc.fillStyle='rgba(4,4,20,.82)';rrect(lc,sx-m.width/2-p,y0-sz*.82,m.width+p*2,ph,4);lc.fill();
+    lc.strokeStyle=`rgba(${r},${g},${b},.35)`;lc.lineWidth=.75;lc.stroke();
+    lc.fillStyle=fill;lc.fillText(text,sx,y0);
+  } else if(lblEffect==='halo'){
+    lc.strokeStyle='rgba(4,4,20,.97)';lc.lineWidth=Math.max(2,sz*.22);lc.lineJoin='round';
+    lc.strokeText(text,sx,y0);lc.fillStyle=fill;lc.fillText(text,sx,y0);
+  } else if(lblEffect==='outline'){
+    lc.strokeStyle=cStroke(r,g,b);lc.lineWidth=Math.max(1.2,sz*.14);lc.lineJoin='round';
+    lc.strokeText(text,sx,y0);lc.fillStyle=fill;lc.fillText(text,sx,y0);
+  } else if(lblEffect==='shadow'){
+    lc.shadowColor='rgba(0,0,0,.98)';lc.shadowBlur=Math.max(3,sz*.55);lc.shadowOffsetX=1;lc.shadowOffsetY=1;
+    lc.fillStyle=fill;lc.fillText(text,sx,y0);
+    lc.shadowBlur=0;lc.shadowOffsetX=0;lc.shadowOffsetY=0;
+  } else if(lblEffect==='glow'){
+    lc.shadowColor=`rgba(${Math.max(0,255-r)},${Math.max(0,255-g)},${Math.max(0,255-b)},.8)`;
+    lc.shadowBlur=sz*.7;lc.fillStyle=fill;lc.fillText(text,sx,y0);lc.shadowBlur=0;
+  } else {
+    lc.fillStyle=fill;lc.fillText(text,sx,y0);
+  }
 }
 
+// ── Picking ───────────────────────────────────────────────────────────────────
 const ray=new THREE.Raycaster(), mouse=new THREE.Vector2();
-let hovered=null;
-function pick(e){
-  const src=e.touches?e.touches[0]:e;
-  mouse.x=(src.clientX/W)*2-1; mouse.y=-(src.clientY/H)*2+1;
+let hovered=null, hoveredFormula=null, hoveredUV=null, lastMouse=null;
+// Returns {pt, fo, uv} for whatever is under the given client coordinates (at most one is set).
+// While drawing, only points are pickable so arrows never block endpoint selection.
+function hitAt(cx,cy){
+  mouse.x=(cx/W)*2-1; mouse.y=-(cy/H)*2+1;
   ray.setFromCamera(mouse,activeCamera);
-  const hits=ray.intersectObjects(pickMeshes).sort((a,b)=>a.distance-b.distance);
-  const pt=hits.length?hits[0].object.userData:null;
-  if(pt!==hovered){
-    hovered=pt;
-    if(pt){const c=pt.col;tip.innerHTML=`<div style="display:flex;align-items:center;gap:8px;margin-bottom:5px"><span style="display:inline-block;width:13px;height:13px;border-radius:3px;background:${c.css}"></span><strong>${pt.entries[0]}</strong></div><div>L=${pt.L}, M=${pt.M}, T=${pt.T}</div><div style="margin-top:4px;color:#aab">${pt.entries.join(', ')}</div>`;}
+  const targets=drawMode?pickMeshes:[...(showFormulas?formulaPickMeshes:[]),...uvPickMeshes,...pickMeshes];
+  const hits=ray.intersectObjects(targets).sort((a,b)=>a.distance-b.distance);
+  const hit=hits.length?hits[0].object.userData:null;
+  return{fo:hit&&hit.__fo||null,uv:hit&&hit.__uv||null,pt:hit&&!hit.__fo&&!hit.__uv?hit:null};
+}
+function pick(e,force=false){
+  const src=e.touches?e.touches[0]:e;
+  lastMouse={x:src.clientX,y:src.clientY};
+  const{pt:newPt,fo:newFo,uv:newUV}=hitAt(src.clientX,src.clientY);
+  if(force||newPt!==hovered||newFo!==hoveredFormula||newUV!==hoveredUV){
+    hovered=newPt; hoveredFormula=newFo; hoveredUV=newUV;
+    if(newPt) tutEmit('point'); else if(newFo) tutEmit('formula');
+    if(newPt){
+      const c=newPt.col;
+      const preview=(drawMode&&drawStart&&drawStart!==newPt)
+        ?`<div style="color:#cce0ff;font-weight:bold;margin-bottom:5px;border-bottom:1px solid rgba(255,255,255,.1);padding-bottom:4px">${esc(vectorEquations(drawStart,newPt).primary)}</div>`:'';
+      tip.innerHTML=preview+`<div style="display:flex;align-items:center;gap:8px;margin-bottom:5px"><span style="display:inline-block;width:13px;height:13px;border-radius:3px;background:${c.css};flex-shrink:0"></span><span style="color:${c.css};font-weight:bold">L<sup>${newPt.L}</sup>·M<sup>${newPt.M}</sup>·T<sup>${newPt.T}</sup> <span style="font-weight:normal;color:#667;font-size:10px">(${newPt.entries.length})</span></span></div><div style="color:#334;font-size:8.5px;margin-bottom:4px">OKLAB L=${c.oL.toFixed(2)} a=${c.oa.toFixed(3)} b=${c.ob.toFixed(3)}</div><div style="color:#99aacc;font-size:10px;line-height:1.8">${newPt.entries.map(n=>`• ${n}`).join('<br>')}</div>`;
+    } else if(newFo){
+      const d=newFo.def,sc=coordToColor(...d.from),ec=coordToColor(...d.to);
+      const fp=PTS.find(p=>p.key===newFo.fromKey),tp=PTS.find(p=>p.key===newFo.toKey);
+      tip.innerHTML=`<div style="font:bold 11px 'Courier New',monospace;color:#eef;margin-bottom:4px">${d.label}</div>`+
+        `<div style="font-size:9px;color:#667;margin-bottom:6px">${d.desc}</div>`+
+        `<div style="display:flex;align-items:center;gap:5px;font-size:9px">`+
+        `<span style="color:${sc.css}">${fp?fp.entries[0]:'?'}</span>`+
+        `<span style="color:#334"> → </span>`+
+        `<span style="color:${ec.css}">${tp?tp.entries[0]:'?'}</span></div>`;
+    } else if(newUV){
+      const{eq,sc,ec}=newUV;
+      tip.innerHTML=`<div style="font:bold 11px 'Courier New',monospace;color:#eef;margin-bottom:4px">${esc(eq.primary)}</div>`+
+        `<div style="font-size:9px;color:#667;margin-bottom:4px">Δ = ${esc(eq.delta)}</div>`+
+        `<div style="font-size:9px"><span style="color:${sc.css}">${esc(nm(newUV.from))}</span><span style="color:#334"> → </span><span style="color:${ec.css}">${esc(nm(newUV.to))}</span></div>`+
+        `<div style="font-size:8px;color:#445;margin-top:4px">click to copy · open details</div>`;
+    }
   }
-  if(pt){tip.style.display='block';tip.style.left=Math.min(src.clientX+14,W-244)+'px';tip.style.top=Math.max(4,src.clientY-60)+'px';}
+  if(newPt||newFo||newUV){tip.style.display='block';tip.style.left=Math.min(src.clientX+14,W-244)+'px';tip.style.top=Math.max(4,src.clientY-60)+'px';}
   else tip.style.display='none';
 }
 c3d.addEventListener('mousemove',pick);
 c3d.addEventListener('mouseenter',()=>{controls.autoRotate=false;});
-c3d.addEventListener('mouseleave',()=>{controls.autoRotate=autoRotOn;hovered=null;tip.style.display='none';});
+c3d.addEventListener('mouseleave',()=>{controls.autoRotate=autoRotOn;hovered=null;hoveredFormula=null;hoveredUV=null;lastMouse=null;tip.style.display='none';});
 c3d.addEventListener('touchmove',e=>{if(e.touches.length===1)pick(e);},{passive:true});
-c3d.addEventListener('touchend',()=>{hovered=null;tip.style.display='none';});
+c3d.addEventListener('touchend',()=>{hovered=null;hoveredFormula=null;hoveredUV=null;tip.style.display='none';});
 
+// ── Click (tap) handling — distinguished from orbit drags by pointer travel ──
+let downAt=null;
+c3d.addEventListener('pointerdown',e=>{if(e.isPrimary)downAt={x:e.clientX,y:e.clientY};});
+c3d.addEventListener('pointerup',e=>{
+  if(!e.isPrimary||!downAt) return;
+  const moved=Math.hypot(e.clientX-downAt.x,e.clientY-downAt.y); downAt=null;
+  if(moved>6) return;
+  const{pt,fo,uv}=hitAt(e.clientX,e.clientY);
+  if(drawMode){
+    if(!pt){drawStart=null;updateDrawUI();return;}
+    if(!drawStart||drawStart===pt){drawStart=drawStart===pt?null:pt;}
+    else{addUserVector(drawStart,pt);drawStart=null;}
+    updateDrawUI(); pick(e,true);
+    return;
+  }
+  if(uv){showCard(uv);copyText(uv.eq.primary);}
+  else if(fo){copyText(fo.def.label);tutEmit('formula');}
+  else if(pt){copyText(pt.entries.join(', '));tutEmit('point');}
+});
+
+// ── Panel ─────────────────────────────────────────────────────────────────────
 let rotBtn, fovSlider, fovValLbl;
+const SECTIONS={};
 function acc(title,content,open=true){
   const sec=document.createElement('div'); sec.className='psec';
   const head=document.createElement('div'); head.className='ph';
@@ -320,14 +856,19 @@ function acc(title,content,open=true){
   const body=document.createElement('div'); body.className='pb'; body.style.maxHeight=open?'600px':'0px';
   body.appendChild(content);
   head.addEventListener('click',()=>{const arr=head.querySelector('.ph-arr'),op=arr.classList.contains('open');arr.classList.toggle('open',!op);body.style.maxHeight=op?'0px':'600px';});
-  sec.append(head,body); return sec;
+  sec.append(head,body);
+  SECTIONS[title]={sec,open(){head.querySelector('.ph-arr').classList.add('open');body.style.maxHeight='600px';}};
+  return sec;
 }
+
+
 function updFov(s){
   if(!fovValLbl) return;
   if(s===0){fovValLbl.textContent='Orthographic';fovValLbl.style.color='#aaccff';}
   else{const f=sliderToFOV(s),fl=Math.round(18/Math.tan(THREE.MathUtils.degToRad(f/2)));fovValLbl.textContent=`${Math.round(f)}° · ~${fl}mm`;fovValLbl.style.color='#8899cc';}
 }
 
+// Projection
 (()=>{
   const div=document.createElement('div');
   fovValLbl=document.createElement('span'); fovValLbl.style.cssText='font-size:9px;display:block;margin-bottom:5px;';
@@ -335,39 +876,516 @@ function updFov(s){
   const row=document.createElement('div'); row.className='prow';
   const l1=document.createElement('span'); l1.className='pl'; l1.textContent='Ortho';
   fovSlider=document.createElement('input'); fovSlider.type='range'; fovSlider.min=0; fovSlider.max=100; fovSlider.value=fovIV;
+  fovSlider.style.background=`linear-gradient(to right,${coordToColor(0,0,0).css},${coordToColor(2,0,-2).css})`;
   fovSlider.addEventListener('input',()=>{const s=parseInt(fovSlider.value);applySlider(s);updFov(s);});
+  fovSlider.addEventListener('mousedown',e=>e.stopPropagation());
   const l2=document.createElement('span'); l2.className='pl'; l2.textContent='Wide';
   row.append(l1,fovSlider,l2); div.append(fovValLbl,row); updFov(fovIV);
   panel.appendChild(acc('PROJECTION',div,true));
 })();
 
+// Labels
+(()=>{
+  const div=document.createElement('div');
+  const sr=document.createElement('div'); sr.className='prow';
+  const sl=document.createElement('span'); sl.className='pl'; sl.textContent='Size';
+  const ss=document.createElement('input'); ss.type='range'; ss.min=6; ss.max=20; ss.value=lblSize;
+  const sv2=document.createElement('span'); sv2.className='pv'; sv2.textContent=`${lblSize}px`;
+  ss.addEventListener('input',()=>{lblSize=parseFloat(ss.value);sv2.textContent=`${lblSize}px`;});
+  ss.addEventListener('mousedown',e=>e.stopPropagation());
+  sr.append(sl,ss,sv2); div.appendChild(sr);
+  const fr=document.createElement('div'); fr.style.cssText='margin:5px 0;display:flex;flex-direction:column;gap:3px;';
+  const fl=document.createElement('div'); fl.className='pl'; fl.textContent='Typeface';
+  const fsel=document.createElement('select');
+  [["Courier New","'Courier New',monospace"],['System UI','system-ui,sans-serif'],['Arial','Arial,sans-serif'],['Georgia','Georgia,serif'],['Optima','Optima,Candara,sans-serif'],["Times New Roman","'Times New Roman',serif"],['Palatino','Palatino,serif'],['Menlo',"Menlo,Monaco,monospace"],['System Mono','ui-monospace,monospace']].forEach(([l,f])=>{const o=document.createElement('option');o.value=f;o.textContent=l;if(f===lblFont)o.selected=true;fsel.appendChild(o);});
+  fsel.addEventListener('change',()=>{lblFont=fsel.value;});fsel.addEventListener('mousedown',e=>e.stopPropagation());
+  fr.append(fl,fsel); div.appendChild(fr);
+  const xl=document.createElement('div'); xl.className='pl'; xl.style.cssText='margin:6px 0 5px;'; xl.textContent='Legibility effect';
+  const xs=document.createElement('div'); xs.className='segs';
+  [['None','none'],['Shadow','shadow'],['Halo','halo'],['Outline','outline'],['Pill','pill'],['Glow','glow']].forEach(([l,v])=>{
+    const btn=document.createElement('button'); btn.className='seg'+(v===lblEffect?' on':''); btn.textContent=l; btn.dataset.v=v;
+    btn.addEventListener('click',()=>{lblEffect=v;tutEmit('labelfx');xs.querySelectorAll('.seg').forEach(b=>b.classList.toggle('on',b.dataset.v===v));applyNodeEffect();});
+    btn.addEventListener('mousedown',e=>e.stopPropagation());
+    xs.appendChild(btn);
+  });
+  div.append(xl,xs);
+  panel.appendChild(acc('LABELS',div,true));
+})();
+
+// Visibility
+(()=>{
+  const div=document.createElement('div');
+  function mkVRow(label,getV,setV){
+    const row=document.createElement('div'); row.className='prow'; row.style.marginBottom='4px';
+    const lbl=document.createElement('span'); lbl.className='pl'; lbl.style.minWidth='40px'; lbl.textContent=label;
+    const segs=document.createElement('div'); segs.className='segs'; segs.style.flex='1';
+    [['Full','full'],['Low','low'],['Off','hidden']].forEach(([l,v])=>{
+      const btn=document.createElement('button'); btn.className='seg'+(v===getV()?' on':''); btn.textContent=l; btn.dataset.v=v;
+      btn.addEventListener('click',()=>{setV(v);segs.querySelectorAll('.seg').forEach(b=>b.classList.toggle('on',b.dataset.v===v));});
+      btn.addEventListener('mousedown',e=>e.stopPropagation());
+      segs.appendChild(btn);
+    });
+    row.append(lbl,segs); return row;
+  }
+  div.appendChild(mkVRow('Spheres',()=>metricsVis,v=>{metricsVis=v;applyMetricsVis();}));
+  div.appendChild(mkVRow('Labels',()=>labelsVis,v=>{labelsVis=v;}));
+  panel.appendChild(acc('VISIBILITY',div,true));
+})();
+
+// View
 (()=>{
   const div=document.createElement('div');
   const row=document.createElement('div'); row.className='prow';
   rotBtn=document.createElement('button'); rotBtn.className='pbtn'; rotBtn.textContent='⏸ Pause'; rotBtn.style.color='#88aaff';
   rotBtn.addEventListener('click',()=>{autoRotOn=!autoRotOn;controls.autoRotate=autoRotOn;rotBtn.textContent=autoRotOn?'⏸ Pause':'▶ Rotate';rotBtn.style.color=autoRotOn?'#88aaff':'#aaaacc';});
+  rotBtn.addEventListener('mousedown',e=>e.stopPropagation());
   const rb=document.createElement('button'); rb.className='pbtn'; rb.textContent='↺ Reset';
   rb.addEventListener('click',()=>{
-    if(usingOrtho){ controls.object=perspCam; controls.minDistance=2; controls.maxDistance=60; usingOrtho=false; activeCamera=perspCam; }
+    if(usingOrtho){
+      controls.object=perspCam; controls.minDistance=2; controls.maxDistance=60;
+      usingOrtho=false; activeCamera=perspCam;
+    }
     perspCam.fov=INIT_FOV; perspCam.position.copy(INIT_POS); perspCam.updateProjectionMatrix();
     orthoCam.zoom=1; orthoCam.updateProjectionMatrix();
     controls.target.copy(TARGET); controls.update();
     const sv=Math.round(Math.pow((INIT_FOV-2)/88,1/1.3)*100); fovSlider.value=sv; updFov(sv);
   });
+  rb.addEventListener('mousedown',e=>e.stopPropagation());
   row.append(rotBtn,rb);
-  div.append(row);
+  const hint=document.createElement('div'); hint.style.cssText='font-size:8px;color:#1e2a40;margin-top:6px;line-height:1.8;';
+  hint.textContent='←→↑↓ orbit · scroll/pinch zoom · Space pause · R reset · V draw vector · / search · click a label to copy';
+  div.append(row,hint);
   panel.appendChild(acc('VIEW',div,true));
 })();
 
+// Formulas — a single show/hide toggle (hidden by default)
+let formulaBtn;
+function setFormulas(on){
+  showFormulas=on;
+  formulaObjs.forEach(({g})=>g.visible=on);
+  if(formulaBtn){
+    formulaBtn.textContent=on?'◉ Formula arrows':'○ Formula arrows';
+    formulaBtn.classList.toggle('on',on);
+  }
+}
+(()=>{
+  const div=document.createElement('div');
+  const tr=document.createElement('div'); tr.className='prow';
+  formulaBtn=document.createElement('button'); formulaBtn.className='pbtn';
+  formulaBtn.title='Show arrows for well-known formulas (F = ma, E = mc², …)';
+  formulaBtn.addEventListener('click',()=>setFormulas(!showFormulas));
+  formulaBtn.addEventListener('mousedown',e=>e.stopPropagation());
+  tr.appendChild(formulaBtn); div.appendChild(tr);
+  panel.appendChild(acc('FORMULAS',div,true));
+  setFormulas(showFormulas);
+})();
+
+// Vectors
+const vecList=document.createElement('div');
+function renderVecList(){
+  vecList.innerHTML='';
+  if(!userVecs.length){
+    vecList.innerHTML='<div style="font-size:8.5px;color:#2a3a55;line-height:1.6;margin-top:6px">Turn on drawing, then click any two points. The arrow\'s exponent difference is the factor that turns one quantity into the other.</div>';
+    return;
+  }
+  userVecs.forEach(uv=>{
+    const row=document.createElement('div'); row.className='vrow';
+    const eq=document.createElement('div'); eq.className='veq'; eq.textContent=uv.eq.primary;
+    eq.dataset.copy=uv.eq.primary; eq.title='Click to copy';
+    eq.style.color=`rgb(${uv.midCol.r},${uv.midCol.g},${uv.midCol.b})`;
+    eq.addEventListener('click',()=>showCard(uv));
+    const x=document.createElement('button'); x.className='vx'; x.textContent='✕'; x.title='Delete vector';
+    x.addEventListener('click',()=>removeUserVector(uv));
+    row.append(eq,x); vecList.appendChild(row);
+  });
+}
+(()=>{
+  const div=document.createElement('div');
+  const row=document.createElement('div'); row.className='prow';
+  panelDrawBtn=document.createElement('button'); panelDrawBtn.className='pbtn';
+  panelDrawBtn.addEventListener('click',()=>setDrawMode(!drawMode));
+  const clr=document.createElement('button'); clr.className='pbtn'; clr.textContent='Clear all';
+  clr.addEventListener('click',()=>[...userVecs].forEach(removeUserVector));
+  row.append(panelDrawBtn,clr); div.append(row,vecList);
+  panel.appendChild(acc('VECTORS',div,true));
+  updateDrawUI(); renderVecList();
+})();
+
+// ── Search ────────────────────────────────────────────────────────────────────
+// One flat index of everything worth finding. Each entry: {kind, title, sub, keys[], sym[], go()}.
+// Tutorials (and anything else) can push more entries later via SEARCH_INDEX.push(...).
+let camTween=null;
+function centreOn(x,y,z){camTween={t0:performance.now(),from:controls.target.clone(),to:new THREE.Vector3(x,y,z)};}
+function focusPoint(pt,name){
+  hideCard(); focusPt=pt; centreOn(pt.L,pt.M,pt.T);
+  const c=pt.col, syms=n=>(SYMBOLS[n]||[]).join(', ');
+  const rel=FORMULA_DEFS.filter(d=>d.from.join(',')===pt.key||d.to.join(',')===pt.key);
+  vcard.innerHTML=`<div class="vhead"><span style="color:${c.css}">${esc(name||nm(pt))}</span><button class="vx" id="vcardX" title="Close">✕</button></div>`+
+    `<div class="vsub">${esc(dimStr(pt.L,pt.M,pt.T))} · coordinate (${pt.L}, ${pt.M}, ${pt.T})</div>`+
+    `<div class="vlbl">Quantities at this point</div>`+
+    pt.entries.map(n=>`<div class="veq alt" data-copy="${esc(n)}" title="Click to copy">${esc(n)}${syms(n)?` <span style="color:#778">· ${esc(syms(n))}</span>`:''}</div>`).join('')+
+    (rel.length?`<div class="vlbl">Formulas touching it</div>`+rel.map(d=>`<div class="veq known" data-copy="${esc(d.label)}">${esc(d.label)}  (${esc(d.desc)})</div>`).join(''):'');
+  vcard.style.display='block';
+  document.getElementById('vcardX').addEventListener('click',hideCard);
+}
+function focusFormula(fo){
+  hideCard(); setFormulas(true); focusFo=fo; centreOn(fo.mid.x,fo.mid.y,fo.mid.z);
+  const d=fo.def, fp=PT_BY_KEY.get(fo.fromKey), tp=PT_BY_KEY.get(fo.toKey);
+  vcard.innerHTML=`<div class="vhead"><span>${esc(d.label)}</span><button class="vx" id="vcardX" title="Close">✕</button></div>`+
+    `<div class="vsub">${esc(d.desc)}</div>`+
+    `<div class="veq alt"><span style="color:${fp.col.css}">${esc(nm(fp))}</span> → <span style="color:${tp.col.css}">${esc(nm(tp))}</span></div>`+
+    `<div class="vfoot">Formula arrows are now on — toggle them in ⚙ Controls › Formulas</div>`;
+  vcard.style.display='block';
+  document.getElementById('vcardX').addEventListener('click',hideCard);
+}
+function flashEl(el){if(!el)return;el.classList.remove('flash');void el.offsetWidth;el.classList.add('flash');}
+function showControl(section){
+  openPanel(); const S=SECTIONS[section]; if(!S) return;
+  S.open(); S.sec.scrollIntoView({block:'nearest',behavior:'smooth'}); flashEl(S.sec);
+}
+const SEARCH_INDEX=[];
+// Quantities: one entry per name
+RAW.forEach(([name])=>{
+  const pt=PT_OF_NAME.get(name);
+  SEARCH_INDEX.push({kind:'quantity',title:name,sub:`${dimStr(pt.L,pt.M,pt.T)}${(SYMBOLS[name]||[]).length?' · '+SYMBOLS[name].join(', '):''}`,
+    keys:[name],sym:SYMBOLS[name]||[],go:()=>focusPoint(pt,name)});
+});
+// Formulas / operations
+formulaObjs.forEach(fo=>{
+  const d=fo.def;
+  SEARCH_INDEX.push({kind:'formula',title:d.label,sub:d.desc,keys:[d.label,d.desc,d.desc.includes('×')?'multiply times product':'',d.desc.includes('÷')?'divide divided quotient per':''],sym:[],go:()=>focusFormula(fo)});
+});
+// Operations and controls (features + their tooltips)
+[
+  ['operation','Multiply quantities (×)','Adds exponents: move along a vector',['multiply','times','product','×','*','add exponents'],()=>{setDrawMode(true);flashEl(drawBtn);}],
+  ['operation','Divide quantities (÷)','Subtracts exponents: the reverse vector',['divide','quotient','per','÷','/','subtract exponents'],()=>{setDrawMode(true);flashEl(drawBtn);}],
+  ['operation','Power of a quantity (x²)','Scales the exponent vector',['power','square','squared','cube','exponent','^'],()=>focusPoint(PT_BY_KEY.get('2,0,0'),'Area')],
+  ['control','Draw vector','Connect two points to get the equation linking them (V)',['draw','vector','arrow','connect','equation','line'],()=>{setDrawMode(true);flashEl(drawBtn);}],
+  ['control','Clear all vectors','Remove every drawn vector',['clear','delete','remove','vectors'],()=>showControl('VECTORS')],
+  ['control','Formula arrows','Show/hide arrows for known formulas',['formula','formulas','arrows','show','hide','known'],()=>showControl('FORMULAS')],
+  ['control','Projection / field of view','Orthographic ↔ wide-angle perspective',['projection','orthographic','ortho','perspective','fov','field of view','zoom','lens'],()=>showControl('PROJECTION')],
+  ['control','Label size & typeface','Font size, typeface and legibility effect',['label','labels','size','font','typeface','halo','outline','shadow','pill','glow','legibility'],()=>showControl('LABELS')],
+  ['control','Visibility','Dim or hide spheres and labels',['visibility','hide','dim','spheres','opacity','low','off'],()=>showControl('VISIBILITY')],
+  ['control','Pause / rotate','Toggle auto-rotation (Space)',['pause','rotate','rotation','spin','auto','space'],()=>showControl('VIEW')],
+  ['control','Reset view','Return the camera to its start (R)',['reset','home','camera','view','recenter'],()=>{showControl('VIEW');window.dispatchEvent(new KeyboardEvent('keydown',{key:'r'}));}],
+  ['control','Hover tooltip','Hover a sphere to see every quantity at that point; click to copy',['tooltip','hover','copy','clipboard','info'],()=>focusPoint(PT_BY_KEY.get('1,1,-2'),'Force')],
+  ['control','Dimensionless origin','(0,0,0): strain, angle, Mach & Reynolds numbers',['origin','dimensionless','zero','unitless','ratio'],()=>focusPoint(PT_BY_KEY.get('0,0,0'),'Strain')],
+].forEach(([kind,title,sub,keys,go])=>SEARCH_INDEX.push({kind,title,sub,keys,sym:[],go}));
+
+const KIND_COL={quantity:'#8fb',formula:'#fc8',operation:'#f9c',control:'#9bf',tutorial:'#ff9',term:'#c9f'};
+const norm=t=>String(t).toLowerCase().normalize('NFKD').replace(/[\u0300-\u036f]/g,'');
+function scoreEntry(en,q,qn){
+  let best=0;
+  // Symbols are case-sensitive: "F" is force, "f" is frequency
+  for(const s of en.sym){ if(s===q) best=Math.max(best,100); else if(norm(s)===qn) best=Math.max(best,70); }
+  const t=norm(en.title);
+  if(t===qn) best=Math.max(best,95);
+  else if(t.startsWith(qn)) best=Math.max(best,85);
+  else if(new RegExp('\\b'+qn.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')).test(t)) best=Math.max(best,75);
+  else if(qn.length>1&&t.includes(qn)) best=Math.max(best,60);
+  for(const k of en.keys){ const kn=norm(k); if(!kn) continue;
+    if(kn===qn) best=Math.max(best,65); else if(qn.length>1&&kn.includes(qn)) best=Math.max(best,45); }
+  if(norm(en.sub).includes(qn)&&qn.length>1) best=Math.max(best,30);
+  return best;
+}
+function hl(text,qn){
+  const t=String(text), i=qn.length>0?norm(t).indexOf(qn):-1;
+  if(i<0) return esc(t);
+  return esc(t.slice(0,i))+'<mark>'+esc(t.slice(i,i+qn.length))+'</mark>'+esc(t.slice(i+qn.length));
+}
+const sq=document.getElementById('sq'), sres=document.getElementById('sres'), sqx=document.getElementById('sqx');
+let sHits=[], sAct=0;
+function runSearch(){
+  const q=sq.value.trim(), qn=norm(q);
+  sqx.style.display=q?'block':'none';
+  if(!q){sres.style.display='none';sHits=[];return;}
+  sHits=SEARCH_INDEX.map(en=>({en,sc:scoreEntry(en,q,qn)})).filter(h=>h.sc>0)
+    .sort((a,b)=>b.sc-a.sc||a.en.title.length-b.en.title.length).slice(0,14);
+  sAct=0;
+  sres.innerHTML=sHits.length?sHits.map((h,i)=>{
+    const en=h.en,col=KIND_COL[en.kind]||'#aab', symHit=en.sym.find(s=>s===q||norm(s)===qn);
+    return `<div class="sr${i===sAct?' act':''}" data-i="${i}" role="option"><span class="srk" style="color:${col}">${en.kind}</span>`+
+      `<div><div class="srt">${hl(en.title,qn)}${symHit?` <span style="color:${col}">(${esc(symHit)})</span>`:''}</div><div class="srs">${qn.length>1?hl(en.sub,qn):esc(en.sub)}</div></div></div>`;
+  }).join(''):`<div class="snone">No matches for “${esc(q)}”</div>`;
+  sres.style.display='block';
+}
+function pickHit(i){
+  const h=sHits[i]; if(!h) return;
+  sres.style.display='none'; sq.blur(); h.en.go(); tutEmit('search');
+}
+function markAct(){sres.querySelectorAll('.sr').forEach((el,i)=>el.classList.toggle('act',i===sAct));
+  const a=sres.querySelector('.sr.act'); if(a) a.scrollIntoView({block:'nearest'});}
+sq.addEventListener('input',runSearch);
+sq.addEventListener('focus',()=>{if(sq.value.trim())runSearch();});
+sq.addEventListener('keydown',e=>{
+  if(e.key==='ArrowDown'){sAct=Math.min(sHits.length-1,sAct+1);markAct();e.preventDefault();}
+  else if(e.key==='ArrowUp'){sAct=Math.max(0,sAct-1);markAct();e.preventDefault();}
+  else if(e.key==='Enter'){pickHit(sAct);e.preventDefault();}
+  else if(e.key==='Escape'){sq.value='';runSearch();sq.blur();}
+  e.stopPropagation();
+});
+sres.addEventListener('pointerdown',e=>e.preventDefault()); // keep focus so the click lands
+sres.addEventListener('click',e=>{const r=e.target.closest('.sr');if(r)pickHit(+r.dataset.i);});
+sqx.addEventListener('click',()=>{sq.value='';runSearch();hideCard();sq.focus();});
+document.addEventListener('pointerdown',e=>{if(!e.target.closest('#search'))sres.style.display='none';});
+
+// ── Tutorials & glossary ──────────────────────────────────────────────────────
+// Glossary text uses [[key|shown text]] to link to another entry, so tooltips nest:
+// a high-level term opens a card whose own terms open simpler cards, and so on.
+const tutBus=new Map();
+function tutEmit(ev){(tutBus.get(ev)||[]).slice().forEach(f=>f());}
+function tutOn(ev,f){if(!tutBus.has(ev))tutBus.set(ev,[]);tutBus.get(ev).push(f);return()=>{const a=tutBus.get(ev);a.splice(a.indexOf(f),1);};}
+
+const SVG=(w,h,body)=>`<svg class="ttv" viewBox="0 0 ${w} ${h}" width="${w}" height="${h}" aria-hidden="true">${body}</svg>`;
+const LC='#ff6fae', MC='#e8e8ff', TC='#f5b400';
+const GLOSS={
+  point:{t:'Lattice point',h:'A spot where every [[coord|coordinate]] is an [[integer|integer]]. Each sphere sits on one and stands for one [[dimension|dimension]].',
+    v:SVG(150,60,[...Array(5)].map((_,i)=>[...Array(3)].map((_,j)=>`<circle cx="${15+i*30}" cy="${12+j*18}" r="${i===3&&j===1?6:2.5}" fill="${i===3&&j===1?'#9bf':'#556'}"/>`).join('')).join('')+'<text x="110" y="52" fill="#9bf" font-size="9">(3, 1)</text>')},
+  dimension:{t:'Dimension',h:'<i>What kind</i> of thing a quantity is, written as [[base|base dimensions]] raised to [[exponent|exponents]]. Force is L¹·M¹·T⁻² — i.e. kg·m/s².',
+    v:SVG(170,68,`<text x="0" y="12" fill="#889" font-size="9">Force</text>`+[['L',1,LC],['M',1,MC],['T',-2,TC]].map(([s,e,c],i)=>`<text x="${8+i*55}" y="52" fill="${c}" font-size="11" font-weight="bold">${s}</text><rect x="${22+i*55}" y="${e>0?34-e*10:34}" width="14" height="${Math.abs(e)*10}" fill="${c}" opacity=".8"/><text x="${22+i*55}" y="${e>0?30-e*10:34+Math.abs(e)*10+9}" fill="${c}" font-size="9">${e>0?'+'+e:e}</text>`).join('')+'<line x1="0" x2="170" y1="34" y2="34" stroke="#445"/>')},
+  base:{t:'Base dimensions',h:'Three building blocks, each with an [[unit|SI unit]]: <b style="color:'+LC+'">L</b> length (metre), <b style="color:'+MC+'">M</b> mass (kilogram), <b style="color:'+TC+'">T</b> time (second). Every mechanical quantity is built from them.',
+    v:SVG(180,44,`<g stroke="${LC}" fill="none" stroke-width="2"><line x1="6" y1="28" x2="50" y2="28"/>${[0,1,2,3,4].map(i=>`<line x1="${6+i*11}" y1="28" x2="${6+i*11}" y2="${i%2?23:20}"/>`).join('')}</g><text x="22" y="42" fill="${LC}" font-size="9">L</text>`+
+      `<path d="M74 30 L80 14 L96 14 L102 30 Z" fill="${MC}" opacity=".85"/><circle cx="88" cy="11" r="3" fill="none" stroke="${MC}"/><text x="85" y="42" fill="${MC}" font-size="9">M</text>`+
+      `<circle cx="150" cy="22" r="13" fill="none" stroke="${TC}" stroke-width="2"/><line x1="150" y1="22" x2="150" y2="13" stroke="${TC}" stroke-width="2"/><line x1="150" y1="22" x2="157" y2="25" stroke="${TC}" stroke-width="2"/><text x="147" y="42" fill="${TC}" font-size="9">T</text>`)},
+  exponent:{t:'Exponent',h:'How many times a base dimension is multiplied in. Negative means divided by: T⁻¹ is “per second”. It must be an [[integer|integer]] here. Try it:',
+    m:'exp'},
+  integer:{t:'Integer',h:'A whole number — no fractions or decimals.',
+    v:SVG(180,30,[-3,-2,-1,0,1,2,3].map((n,i)=>`<line x1="${15+i*25}" x2="${15+i*25}" y1="8" y2="16" stroke="#9bf"/><text x="${15+i*25}" y="27" fill="#9bf" font-size="9" text-anchor="middle">${n}</text>`).join('')+'<line x1="5" x2="175" y1="12" y2="12" stroke="#556"/><text x="52" y="8" fill="#f77" font-size="9">½ ✗</text>')},
+  coord:{t:'Coordinate',h:'The three [[exponent|exponents]] (L, M, T) used as a position: step L along the pink axis, M up, T along the yellow axis.',
+    v:SVG(150,80,`<line x1="40" y1="60" x2="140" y2="60" stroke="${LC}" stroke-width="2"/><line x1="40" y1="60" x2="40" y2="4" stroke="${MC}" stroke-width="2"/><line x1="40" y1="60" x2="6" y2="78" stroke="${TC}" stroke-width="2"/><path d="M40 60 L80 60 L80 40 L66 47" stroke="#9bf" fill="none" stroke-dasharray="3 2"/><circle cx="66" cy="47" r="4" fill="#9bf"/><text x="72" y="36" fill="#9bf" font-size="9">(2, 1, −1)</text><text x="128" y="74" fill="${LC}" font-size="9">L</text><text x="44" y="10" fill="${MC}" font-size="9">M</text><text x="12" y="70" fill="${TC}" font-size="9">T</text>`)},
+  unit:{t:'SI unit',h:'The agreed measuring stick. Dimensions ignore its size: a kilometre and a millimetre are both just L.',
+    v:SVG(170,30,`<rect x="2" y="6" width="150" height="6" fill="${LC}" opacity=".7"/><text x="2" y="26" fill="#aab" font-size="9">1 km</text><rect x="2" y="16" width="2" height="6" fill="${LC}"/><text x="60" y="26" fill="#aab" font-size="9">1 mm → both L</text>`)},
+  same:{t:'Dimensionally identical',h:'Same point ⇒ same [[exponent|exponents]], so they can be added or compared. Energy and torque are both L²·M·T⁻², even though torque is not energy.',
+    v:SVG(170,44,`<text x="0" y="12" fill="#aab" font-size="9">Energy</text><text x="0" y="38" fill="#aab" font-size="9">Torque</text><path d="M40 9 L110 22 M40 35 L110 22" stroke="#667" fill="none"/><circle cx="118" cy="22" r="7" fill="#c9a2ff"/><text x="130" y="26" fill="#c9a2ff" font-size="9">(2,1,−2)</text>`)},
+  dimensionless:{t:'Dimensionless',h:'All [[exponent|exponents]] are 0 — the origin. A pure number, usually a ratio: strain = Δlength ÷ length, so the Ls cancel.',
+    v:SVG(150,40,`<text x="0" y="16" fill="${LC}" font-size="11">m</text><line x1="0" x2="14" y1="20" y2="20" stroke="#aab"/><text x="0" y="34" fill="${LC}" font-size="11">m</text><text x="22" y="25" fill="#aab" font-size="11">= L¹⁻¹ = L⁰ = 1</text>`)},
+  commensurable:{t:'Commensurable',h:'Strictly, quantities of the same [[dimension|dimension]] are commensurable: they can be measured against each other. Two different points become comparable once you know the [[delta|step]] between them — here, a named quantity.',
+    v:SVG(170,40,`<circle cx="15" cy="22" r="6" fill="#c9a2ff"/><text x="2" y="38" fill="#aab" font-size="8">Force</text><path d="M24 22 L140 22" stroke="#9bf" stroke-width="2"/><path d="M140 17 L150 22 L140 27Z" fill="#9bf"/><circle cx="158" cy="22" r="6" fill="#d9a2ff"/><text x="132" y="38" fill="#aab" font-size="8">Energy</text><text x="62" y="16" fill="${LC}" font-size="9">× Length</text>`)},
+  vector:{t:'Vector',h:'An arrow from A to B. Its components are B − A: the [[delta|exponent difference]]. Moving along it means [[mult|multiplying]] by that dimension.',
+    v:SVG(160,50,`<circle cx="14" cy="38" r="5" fill="#9bf"/><path d="M18 35 L124 12" stroke="#ccd" stroke-width="2"/><path d="M118 8 L132 10 L122 19Z" fill="#ccd"/><circle cx="138" cy="9" r="5" fill="#fc8"/><text x="4" y="50" fill="#9bf" font-size="9">A</text><text x="144" y="22" fill="#fc8" font-size="9">B</text><text x="50" y="40" fill="#aab" font-size="9">Δ = B − A</text>`)},
+  delta:{t:'Exponent difference (Δ)',h:'Subtract coordinates. Energy (2,1,−2) − Force (1,1,−2) = (1,0,0) = L, so Energy = Force × Length. That works because [[mult|multiplying adds exponents]].',
+    v:SVG(180,48,`<text x="0" y="12" fill="#d9a2ff" font-size="10">(2, 1, −2)</text><text x="0" y="26" fill="#c9a2ff" font-size="10">− (1, 1, −2)</text><line x1="0" x2="80" y1="31" y2="31" stroke="#667"/><text x="0" y="44" fill="${LC}" font-size="10">= (1, 0, 0) → L</text>`)},
+  mult:{t:'Multiplying adds exponents',h:'L² × L³ = L⁵ because (L·L)·(L·L·L) has five Ls. Dividing subtracts them. Try it:',m:'mult'},
+  formula:{t:'Formula arrow',h:'A known law drawn as a [[vector|vector]]. F = ma is the arrow from acceleration to force; its step is mass.',
+    v:SVG(170,40,`<circle cx="12" cy="20" r="6" fill="#f9a"/><text x="0" y="38" fill="#aab" font-size="8">a</text><path d="M20 20 L140 20" stroke="#fc8" stroke-width="2"/><path d="M140 15 L150 20 L140 25Z" fill="#fc8"/><circle cx="158" cy="20" r="6" fill="#c9a2ff"/><text x="155" y="38" fill="#aab" font-size="8">F</text><text x="70" y="14" fill="${MC}" font-size="9">× m</text>`)},
+  symbol:{t:'Symbol',h:'The letter physicists write for a quantity. Case matters: F is force, f is frequency, T is a period, t is time.'},
+  projection:{t:'Projection',h:'How 3-D is flattened onto the screen: [[ortho|orthographic]] (parallel) or [[persp|perspective]] (converging).',
+    v:SVG(180,56,`<g stroke="#9bf" fill="none"><rect x="6" y="10" width="30" height="30"/><rect x="18" y="4" width="30" height="30"/><path d="M6 10 L18 4 M36 10 L48 4 M6 40 L18 34 M36 40 L48 34"/></g><text x="4" y="54" fill="#9bf" font-size="8">ortho</text><g stroke="#fc8" fill="none"><rect x="104" y="10" width="34" height="34"/><rect x="118" y="18" width="18" height="18"/><path d="M104 10 L118 18 M138 10 L136 18 M104 44 L118 36 M138 44 L136 36"/></g><text x="104" y="54" fill="#fc8" font-size="8">perspective</text>`)},
+  ortho:{t:'Orthographic',h:'Parallel rays: far things are not drawn smaller, so grid lines stay parallel — best for reading exact coordinates.',
+    v:SVG(120,36,`<g stroke="#9bf">${[0,1,2,3].map(i=>`<line x1="${10+i*25}" y1="4" x2="${10+i*25}" y2="32"/>`).join('')}</g>`)},
+  persp:{t:'Perspective',h:'Rays meet at your eye, so far things shrink. A wider [[fov|field of view]] exaggerates depth.',
+    v:SVG(120,36,`<g stroke="#fc8">${[0,1,2,3].map(i=>`<line x1="${10+i*33}" y1="34" x2="${50+i*7}" y2="2"/>`).join('')}</g>`)},
+  fov:{t:'Field of view',h:'The angle the camera sees. Small = telephoto (flat), large = wide-angle (deep).',
+    v:SVG(150,44,`<path d="M6 22 L70 10 L70 34Z" fill="#9bf" opacity=".35"/><text x="20" y="44" fill="#9bf" font-size="8">narrow</text><path d="M86 22 L146 0 L146 44Z" fill="#fc8" opacity=".35"/><text x="104" y="44" fill="#fc8" font-size="8">wide</text>`)},
+  colour:{t:'Colour = position',h:'Each point is coloured from its [[coord|coordinate]] in [[oklab|OKLAB]]: the L exponent sets green↔pink, T sets blue↔yellow, M sets darker↔lighter. Nearby points look alike.',
+    v:SVG(170,52,[['L',-3,3,c=>coordToColor(c,0,0)],['T',-4,1,c=>coordToColor(0,0,c)],['M',-1,1,c=>coordToColor(0,c,0)]].map(([s,a,b,f],i)=>`<defs><linearGradient id="g${s}"><stop offset="0" stop-color="${f(a).css}"/><stop offset="1" stop-color="${f(b).css}"/></linearGradient></defs><text x="0" y="${12+i*17}" fill="#aab" font-size="9">${s}</text><rect x="14" y="${4+i*17}" width="150" height="10" rx="3" fill="url(#g${s})"/>`).join(''))},
+  oklab:{t:'OKLAB',h:'A colour space designed so equal numeric steps look like equal colour changes — it is [[perceptual|perceptually uniform]].'},
+  perceptual:{t:'Perceptually uniform',h:'A step of the same size looks equally big anywhere in the space — unlike RGB, where some steps are barely visible and others jump.',
+    v:SVG(170,30,[0,1,2,3,4,5,6].map(i=>{const c=oklabToSRGB(.7,.12*Math.cos(i),.12*Math.sin(i)).map(x=>Math.round(Math.max(0,Math.min(1,x))*255));return`<rect x="${i*24}" y="4" width="22" height="22" rx="3" fill="rgb(${c})"/>`;}).join(''))},
+};
+// Glossary html already contains trusted markup; only expand [[links]] there.
+const glossHTML=t=>String(t).replace(/\[\[(\w+)\|([^\]]+)\]\]/g,(_,k,txt)=>`<span class="term" data-t="${k}" tabindex="0" role="button">${txt}</span>`);
+
+// Manipulatives inside tooltips
+const MANIP={
+  exp(el){
+    el.insertAdjacentHTML('beforeend',`<div class="mout"></div><div class="prow"><span class="pl">n</span><input type="range" min="-3" max="3" value="2" aria-label="Exponent"><span class="pv"></span></div>`);
+    const out=el.querySelector('.mout'), r=el.querySelector('input'), pv=el.querySelector('.pv');
+    const words={'-3':'per cubic metre','-2':'per square metre','-1':'per metre','0':'a pure number','1':'a length','2':'an area','3':'a volume'};
+    const shape=n=>n===0?'<circle cx="40" cy="30" r="4" fill="#9bf"/>':n===1?`<line x1="10" y1="40" x2="70" y2="40" stroke="${LC}" stroke-width="3"/>`:
+      n===2?`<rect x="20" y="10" width="40" height="40" fill="${LC}" opacity=".55" stroke="${LC}"/>`:
+      `<path d="M15 22 L45 22 L45 52 L15 52Z" fill="${LC}" opacity=".55" stroke="${LC}"/><path d="M15 22 L30 10 L60 10 L45 22Z M45 22 L60 10 L60 40 L45 52Z" fill="${LC}" opacity=".35" stroke="${LC}"/>`;
+    const draw=()=>{const n=+r.value; pv.textContent=n;
+      out.innerHTML=`<svg viewBox="0 0 230 60" width="230" height="60">${n<0?`<text x="0" y="36" fill="#aab" font-size="16">1 /</text><g transform="translate(30,0)">${shape(-n)}</g>`:shape(n)}<text x="${n<0?118:96}" y="26" fill="${LC}" font-size="14" font-weight="bold">L${n===1?'':supStr(n)}</text><text x="${n<0?118:96}" y="44" fill="#aab" font-size="9">${words[n]}</text></svg>`;};
+    r.addEventListener('input',draw); draw();
+  },
+  mult(el){
+    el.insertAdjacentHTML('beforeend',`<div class="mout"></div><div class="prow"><span class="pl">a</span><input type="range" min="-2" max="3" value="2" aria-label="First exponent"><span class="pv"></span></div><div class="prow"><span class="pl">b</span><input type="range" min="-2" max="3" value="1" aria-label="Second exponent"><span class="pv"></span></div>`);
+    const out=el.querySelector('.mout'), [ra,rb]=el.querySelectorAll('input'), [pa,pb]=el.querySelectorAll('.pv');
+    const blocks=(n,c,x0)=>[...Array(Math.abs(n))].map((_,i)=>`<rect x="${x0+i*13}" y="34" width="11" height="11" rx="2" fill="${n<0?'none':c}" stroke="${c}" stroke-dasharray="${n<0?'2 2':''}"/>`).join('');
+    const draw=()=>{const a=+ra.value,b=+rb.value,s=a+b; pa.textContent=a; pb.textContent=b;
+      const L=n=>n===1?'L':'L'+supStr(n);
+      out.innerHTML=`<svg viewBox="0 0 220 50" width="220" height="50"><text x="0" y="20" font-size="14" font-weight="bold"><tspan fill="#9bf">${L(a)}</tspan><tspan fill="#aab"> × </tspan><tspan fill="#fc8">${L(b)}</tspan><tspan fill="#aab"> = </tspan><tspan fill="${LC}">${L(s)}</tspan></text>${blocks(a,'#9bf',0)}${blocks(b,'#fc8',Math.abs(a)*13+6)}<text x="${(Math.abs(a)+Math.abs(b))*13+12}" y="44" fill="${LC}" font-size="10">→ ${a}+${b<0?'('+b+')':b} = ${s}</text></svg>`;};
+    ra.addEventListener('input',draw); rb.addEventListener('input',draw); draw();
+  },
+};
+
+// Nested tooltip stack
+const ttStack=[];
+function closeTT(from=0){while(ttStack.length>from){const t=ttStack.pop();t.el.remove();if(t.src)t.src.classList.remove('open');}}
+function openTT(key,anchor,src){
+  const g=GLOSS[key]; if(!g) return;
+  const parent=src&&src.closest('.tt'), lv=parent?+parent.dataset.lv+1:0;
+  if(ttStack[lv]&&ttStack[lv].key===key&&ttStack[lv].src===src){closeTT(lv);return;}
+  closeTT(lv);
+  const el=document.createElement('div'); el.className='tt'; el.dataset.lv=lv; el.setAttribute('role','tooltip');
+  const depth=['overview','detail','basics','basics'][Math.min(lv,3)];
+  el.innerHTML=`<div class="tth"><span>${esc(g.t)}</span><span class="ttd">${depth}</span></div>${g.v||''}<div class="ttb">${glossHTML(g.h)}</div>`;
+  if(g.m) MANIP[g.m](el);
+  document.body.appendChild(el);
+  const r=anchor.getBoundingClientRect(), w=el.offsetWidth, h=el.offsetHeight, vw=window.innerWidth, vh=window.innerHeight;
+  let x=Math.min(Math.max(8,r.left+r.width/2-w/2+lv*10),vw-w-8);
+  let y=r.bottom+6; if(y+h>vh-8) y=Math.max(8,r.top-h-6);
+  // A nested card goes below (or above) its whole parent card so the parent stays readable
+  if(parent){const pr=parent.getBoundingClientRect();
+    if(pr.bottom+6+h<=vh-8) y=pr.bottom+6; else if(pr.top-h-6>=8) y=pr.top-h-6;}
+  el.style.left=x+'px'; el.style.top=y+'px';
+  if(src) src.classList.add('open');
+  ttStack[lv]={el,key,src};
+}
+let ttHoverTimer=0;
+document.addEventListener('click',e=>{
+  const t=e.target.closest('.term');
+  if(t){openTT(t.dataset.t,t,t);e.preventDefault();e.stopPropagation();return;}
+});
+document.addEventListener('keydown',e=>{
+  const t=e.target.closest&&e.target.closest('.term');
+  if(t&&(e.key==='Enter'||e.key===' ')){openTT(t.dataset.t,t,t);e.preventDefault();e.stopPropagation();}
+},true);
+if(matchMedia('(hover:hover)').matches){
+  document.addEventListener('mouseover',e=>{
+    const t=e.target.closest('.term');
+    clearTimeout(ttHoverTimer);
+    if(t&&!t.classList.contains('open')) ttHoverTimer=setTimeout(()=>{if(!t.classList.contains('open'))openTT(t.dataset.t,t,t);},180);
+  });
+}
+document.addEventListener('pointerdown',e=>{if(!e.target.closest('.tt,.term,#search'))closeTT(0);});
+
+// ── Tutorial definitions ──
+// step: {h: text with [[terms]], act?: what to do (shown while waiting), wait?: event name or ()=>bool,
+//        enter?: fn run on entering, btn?: [label, fn]}
+const lastVec=()=>userVecs[userVecs.length-1];
+const TUTS=[
+  {id:'points',title:'What the points are',blurb:'Lattice points, coordinates, shared points',steps:[
+    {h:'Each sphere is a [[point|lattice point]]. Its position is its [[coord|coordinate]] (L, M, T): the [[exponent|exponents]] of the [[base|base dimensions]] in that quantity’s [[dimension|dimension]].',
+     act:'Hover (or tap) any sphere.',wait:'point'},
+    {h:'Force sits at (1, 1, −2) because force = L¹·M¹·T⁻² (kg·m/s²). Every name listed at a point is [[same|dimensionally identical]] — Force, Weight, Drag and Thrust share one sphere.',
+     btn:['Show Force',()=>focusPoint(PT_OF_NAME.get('Force'),'Force')]},
+    {h:'The origin (0, 0, 0) holds the [[dimensionless|dimensionless]] numbers. The colours are positions too: [[colour|colour = position]].',
+     btn:['Show the origin',()=>focusPoint(PT_BY_KEY.get('0,0,0'),'Strain')]},
+  ]},
+  {id:'vectors',title:'Drawing a vector',blurb:'Connect two points to get an equation',steps:[
+    {h:'Two [[commensurable|commensurable]] points can be joined by a [[vector|vector]]. Turn on drawing first.',act:'Press ✎ Draw vector (or V).',
+     wait:()=>drawMode,enter:()=>flashEl(drawBtn)},
+    {h:'Now click <b>Force</b>, then <b>Energy</b>.',act:'Draw from Force to Energy (any two points also work).',wait:'vector',
+     btn:['Centre on Force',()=>{centreOn(1,1,-2);}]},
+    {h:()=>{const v=lastVec(); if(!v) return 'Draw a vector to continue.';
+       const ok=v.from.key==='1,1,-2'&&v.to.key==='2,1,-2';
+       return (ok?'Its step is Δ = (1, 0, 0) — that is Length — so <b>Energy = Force × Length</b> (work = force × distance).'
+         :`Its step is Δ = ${esc(v.eq.delta)}, so <b>${esc(v.eq.primary)}</b>.`)+' The rule: [[delta|subtract coordinates]], because [[mult|multiplying adds exponents]]. The card at the bottom lists the equation — click it to copy.';}},
+  ]},
+  {id:'formulas',title:'Formula arrows',blurb:'Known laws as arrows',steps:[
+    {h:'Well-known laws are pre-drawn as [[formula|formula arrows]]. They start hidden.',act:'Open ⚙ Controls › Formulas and turn on Formula arrows.',
+     wait:()=>showFormulas,enter:()=>showControl('FORMULAS')},
+    {h:'Each arrow carries its law as a label.',act:'Hover (or tap) any arrow.',wait:'formula'},
+    {h:'F = ma runs from Acceleration to Force; its step is Mass. It is the same rule as your own [[vector|vectors]].',
+     btn:['Show F = ma',()=>{const fo=formulaObjs.find(f=>f.def.label==='F = ma');if(fo)focusFormula(fo);}]},
+  ]},
+  {id:'search',title:'Search',blurb:'Names, symbols, formulas, controls',steps:[
+    {h:'The search box finds quantities, their [[symbol|symbols]], formulas, operations, controls and these glossary terms.',
+     act:'Search for something — try “F”, “viscosity” or “÷” — and pick a result.',wait:'search',enter:()=>{flashEl(document.getElementById('search'));}},
+    {h:'Symbols are case-sensitive: F finds force, f finds frequency. Press / to jump to search at any time.'},
+  ]},
+  {id:'projection',title:'Projection',blurb:'Orthographic vs perspective',steps:[
+    {h:'The Projection slider changes the [[projection|projection]].',act:'Drag the slider all the way left to Ortho.',wait:()=>usingOrtho,enter:()=>showControl('PROJECTION')},
+    {h:'This is [[ortho|orthographic]]: grid lines stay parallel, so coordinates are easy to read. Slide right for [[persp|perspective]] with a wider [[fov|field of view]].'},
+  ]},
+  {id:'labels',title:'Labels & view',blurb:'Legibility, visibility, rotation',steps:[
+    {h:'Labels can be restyled for legibility.',act:'Pick a legibility effect under Labels.',wait:'labelfx',enter:()=>showControl('LABELS')},
+    {h:'Under Visibility you can dim spheres or labels. Space pauses rotation, R resets the view, arrow keys orbit.',enter:()=>showControl('VISIBILITY')},
+  ]},
+];
+
+// Persistence (best effort — the page works without storage)
+const store={get(k,d){try{const v=localStorage.getItem(k);return v===null?d:JSON.parse(v);}catch{return d;}},
+  set(k,v){try{localStorage.setItem(k,JSON.stringify(v));}catch{}}};
+const tutDone=new Set(store.get('pms.tutDone',[]));
+
+const helpBtn=document.getElementById('helpBtn'), tmenu=document.getElementById('tmenu'), coach=document.getElementById('coach');
+if(!store.get('pms.helpSeen',false)) helpBtn.classList.add('glow');
+function renderMenu(){
+  tmenu.innerHTML=`<div class="tmh">Tutorials <span>${tutDone.size}/${TUTS.length} done</span></div>`+
+    TUTS.map((t,i)=>`<button class="ti2${tutDone.has(t.id)?' done':''}" data-i="${i}"><span class="tck">${tutDone.has(t.id)?'✓':i+1}</span><span><b>${esc(t.title)}</b>${i===0&&!tutDone.has(t.id)?' <span class="tnew">start here</span>':''}<br><span class="tbl">${esc(t.blurb)}</span></span></button>`).join('')+
+    (tutDone.size?`<button class="treset">Reset progress</button>`:'');
+}
+function toggleMenu(show){
+  show=show??tmenu.style.display!=='block';
+  if(show){renderMenu();tmenu.style.display='block';}else tmenu.style.display='none';
+}
+helpBtn.addEventListener('click',()=>{
+  helpBtn.classList.remove('glow'); store.set('pms.helpSeen',true); toggleMenu();
+});
+tmenu.addEventListener('click',e=>{
+  const b=e.target.closest('.ti2'); if(b){toggleMenu(false);startTut(+b.dataset.i);return;}
+  if(e.target.closest('.treset')){tutDone.clear();store.set('pms.tutDone',[]);renderMenu();}
+});
+document.addEventListener('pointerdown',e=>{if(!e.target.closest('#tmenu,#helpBtn'))tmenu.style.display='none';});
+
+let tut=null; // {i, step, off, poll}
+function stepWaitDone(st){return !st.wait||(typeof st.wait==='function'&&st.wait());}
+function renderCoach(){
+  if(!tut){coach.style.display='none';return;}
+  const T=TUTS[tut.i], st=T.steps[tut.step], last=tut.step===T.steps.length-1;
+  const h=typeof st.h==='function'?st.h():st.h;
+  const waiting=!tut.met&&!!st.wait;
+  coach.innerHTML=`<div class="ch"><span>${tutDone.has(T.id)?'✓ ':''}${esc(T.title)}</span><span class="cdots">${T.steps.map((_,i)=>`<i class="${i<tut.step?'d':i===tut.step?'c':''}"></i>`).join('')}</span><button class="vx" id="cX" title="Close tutorial" aria-label="Close tutorial">✕</button></div>`+
+    `<div class="cb">${glossHTML(h)}</div>`+
+    (st.act?`<div class="cact${waiting?'':' ok'}">${waiting?'▸':'✓'} ${esc(st.act)}</div>`:'')+
+    `<div class="cbtns">${tut.step>0?'<button class="pbtn" id="cBack">‹ Back</button>':''}`+
+    (st.btn?`<button class="pbtn" id="cDo">${esc(st.btn[0])}</button>`:'')+
+    (last?`<button class="pbtn on" id="cNext">${tut.i<TUTS.length-1?'Finish ✓ · next ›':'Finish ✓'}</button>`
+         :`<button class="pbtn${waiting?'':' on'}" id="cNext">${waiting?'Skip ›':'Next ›'}</button>`)+`</div>`;
+  coach.style.display='block';
+  coach.querySelector('#cX').onclick=endTut;
+  const bk=coach.querySelector('#cBack'); if(bk) bk.onclick=()=>goStep(tut.step-1);
+  const dd=coach.querySelector('#cDo'); if(dd) dd.onclick=st.btn[1];
+  coach.querySelector('#cNext').onclick=()=>{
+    if(!last) return goStep(tut.step+1);
+    finishTut();
+  };
+}
+function goStep(n){
+  if(!tut) return;
+  if(tut.off) tut.off(); tut.off=null; closeTT(0);
+  tut.step=n; const st=TUTS[tut.i].steps[n];
+  tut.met=stepWaitDone(st)&&typeof st.wait!=='string';
+  if(typeof st.wait==='string') tut.off=tutOn(st.wait,()=>{if(!tut.met){tut.met=true;renderCoach();}});
+  if(st.enter) st.enter();
+  renderCoach();
+}
+function startTut(i){endTut();tut={i,step:0,met:false,off:null};goStep(0);}
+function finishTut(){
+  const T=TUTS[tut.i]; tutDone.add(T.id); store.set('pms.tutDone',[...tutDone]);
+  toast(`Tutorial complete ✓ ${T.title}`);
+  const next=TUTS.findIndex((t,j)=>j>tut.i&&!tutDone.has(t.id));
+  endTut();
+  if(next>=0) startTut(next);
+}
+function endTut(){if(tut&&tut.off)tut.off();tut=null;closeTT(0);renderCoach();}
+// Poll function-style waits (state changes come from many places)
+setInterval(()=>{
+  if(!tut) return; const st=TUTS[tut.i].steps[tut.step];
+  if(typeof st.wait==='function'&&!tut.met&&st.wait()){tut.met=true;renderCoach();}
+},250);
+
+// Make tutorials and glossary terms findable from search
+TUTS.forEach((t,i)=>SEARCH_INDEX.push({kind:'tutorial',title:t.title,sub:t.blurb+(tutDone.has(t.id)?' · ✓ done':''),keys:['tutorial','help','guide','learn',t.blurb],sym:[],go:()=>startTut(i)}));
+Object.entries(GLOSS).forEach(([k,g])=>SEARCH_INDEX.push({kind:'term',title:g.t,sub:g.h.replace(/\[\[\w+\|([^\]]+)\]\]/g,'$1').replace(/<[^>]+>/g,'').slice(0,80)+'…',keys:[k,g.h.replace(/<[^>]+>/g,'')],sym:[],
+  go:()=>openTT(k,document.getElementById('sq'),null)}));
+
+// ── Toggle ────────────────────────────────────────────────────────────────────
 let panelOpen=false;
 function openPanel(){panelOpen=true;panel.classList.remove('closed');tab.classList.add('open');tab.querySelector('.ti').textContent='✕';tab.querySelector('.tl').textContent='Close';}
 function closePanel(){panelOpen=false;panel.classList.add('closed');tab.classList.remove('open');tab.querySelector('.ti').textContent='⚙';tab.querySelector('.tl').textContent='Controls';}
 tab.addEventListener('click',()=>panelOpen?closePanel():openPanel());
 if(window.innerWidth>600) openPanel();
 
+// ── Keyboard ──────────────────────────────────────────────────────────────────
 const KEYS={};
 window.addEventListener('keydown',e=>{
+  if(e.target.closest&&e.target.closest('input,select,textarea')) return;
   KEYS[e.key]=true;
+  if(e.key==='/'){sq.focus();sq.select();e.preventDefault();return;}
   if(e.key===' '){autoRotOn=!autoRotOn;controls.autoRotate=autoRotOn;rotBtn.textContent=autoRotOn?'⏸ Pause':'▶ Rotate';rotBtn.style.color=autoRotOn?'#88aaff':'#aaaacc';e.preventDefault();}
   if(e.key==='r'||e.key==='R'){
     if(usingOrtho){controls.object=perspCam;controls.minDistance=2;controls.maxDistance=60;usingOrtho=false;activeCamera=perspCam;}
@@ -376,6 +1394,13 @@ window.addEventListener('keydown',e=>{
     controls.target.copy(TARGET);controls.update();
     const sv=Math.round(Math.pow((INIT_FOV-2)/88,1/1.3)*100);fovSlider.value=sv;updFov(sv);
   }
+  if(e.key==='v'||e.key==='V') setDrawMode(!drawMode);
+  if(e.key==='Escape'){
+    if(drawStart){drawStart=null;updateDrawUI();}
+    else if(drawMode) setDrawMode(false);
+    else if(ttStack.length) closeTT(0);
+    else hideCard();
+  }
   if(['ArrowUp','ArrowDown','ArrowLeft','ArrowRight'].includes(e.key)) e.preventDefault();
 });
 window.addEventListener('keyup',e=>{KEYS[e.key]=false;});
@@ -383,11 +1408,13 @@ window.addEventListener('keyup',e=>{KEYS[e.key]=false;});
 window.addEventListener('resize',()=>{
   W=window.innerWidth; H=window.innerHeight;
   renderer.setSize(W,H); perspCam.aspect=W/H; perspCam.updateProjectionMatrix();
+  // Update ortho aspect too
   const h=ORTHO_H, asp=W/H;
   orthoCam.left=-h*asp; orthoCam.right=h*asp; orthoCam.updateProjectionMatrix();
   syncLC();
 });
 
+// ── Render loop ───────────────────────────────────────────────────────────────
 const ROT=0.027;
 function animate(){
   requestAnimationFrame(animate);
@@ -398,15 +1425,146 @@ function animate(){
   if(KEYS['+']||KEYS['=']) controls.dollyIn(1.04);
   if(KEYS['-']||KEYS['_']) controls.dollyOut(1.04);
   controls.update();
+
+  // No manual ortho sync needed — controls.object handles it directly
   activeCamera = usingOrtho ? orthoCam : perspCam;
+
+  if(lblEffect==='pill') PTS.forEach(pt=>{if(pt.ring.visible)pt.ring.quaternion.copy(activeCamera.quaternion);});
+
   const dpr=window.devicePixelRatio||1;
   lc.setTransform(dpr,0,0,dpr,0,0); lc.clearRect(0,0,W,H); lc.textAlign='center';
-  PTS.map(pt=>{const[sx,sy,z]=toSc(pt.L,pt.M,pt.T);return{pt,sx,sy,z};})
-    .sort((a,b)=>b.z-a.z)
-    .forEach(({pt,sx,sy})=>{
-      const{r,g,b}=pt.col,isH=hovered===pt,n=pt.entries.length;
-      drawLbl(sx,sy,n>1?`${pt.entries[0]} +${n-1}`:pt.entries[0],r,g,b,isH);
+
+  [[AX+.5,0,0,'L →',3,0,0],[-(AX+.5),0,0,'← −L',-3,0,0],
+   [0,AX+.5,0,'M ↑',0,1,0],[0,-(AX+.5),0,'↓ −M',0,-1,0],
+   [0,0,AX+.5,'T →',0,0,1],[0,0,-(AX+.5),'← −T',0,0,-4]
+  ].forEach(([x,y,z,lbl,...cd])=>{
+    const col=coordToColor(...cd),[sx,sy]=toSc(x,y,z);
+    drawLbl(sx,sy+16,lbl,col.r,col.g,col.b,false,false);
+  });
+  TN.forEach(n=>{
+    const cL=coordToColor(n,0,0);let[lx,ly]=toSc(n,0,0);drawLbl(lx,ly+24,String(n),cL.r,cL.g,cL.b,false,true);
+    const cM=coordToColor(0,Math.max(-1,Math.min(1,n)),0);let[mx,my]=toSc(0,n,0);drawLbl(mx+13,my+8,String(n),cM.r,cM.g,cM.b,false,true);
+    const cT=coordToColor(0,0,Math.max(-4,Math.min(1,n)));let[tx,ty]=toSc(0,0,n);drawLbl(tx,ty+24,String(n),cT.r,cT.g,cT.b,false,true);
+  });
+  // Pre-compute hover sets once — shared by label pass and 3D highlight pass
+  const anyHov=!!(hovered||hoveredFormula||hoveredUV||focusPt||focusFo);
+  const activeFos=new Set(), activePts=new Set();
+  if(anyHov){
+    if(hoveredFormula){
+      activeFos.add(hoveredFormula);
+      PTS.forEach(pt=>{if(pt.key===hoveredFormula.fromKey||pt.key===hoveredFormula.toKey)activePts.add(pt);});
+    }
+    if(hoveredUV){activePts.add(hoveredUV.from);activePts.add(hoveredUV.to);}
+    if(focusPt) activePts.add(focusPt);
+    if(focusFo){
+      activeFos.add(focusFo);
+      PTS.forEach(pt=>{if(pt.key===focusFo.fromKey||pt.key===focusFo.toKey)activePts.add(pt);});
+    }
+    if(hovered){
+      activePts.add(hovered);
+      if(showFormulas) formulaObjs.forEach(fo=>{
+        if(fo.fromKey===hovered.key||fo.toKey===hovered.key){
+          activeFos.add(fo);
+          PTS.forEach(pt=>{if(pt.key===fo.fromKey||pt.key===fo.toKey)activePts.add(pt);});
+        }
+      });
+    }
+  }
+
+  if(labelsVis!=='hidden'){
+    const baseAlpha=labelsVis==='low'?0.3:1;
+    PTS.map(pt=>{const[sx,sy,z]=toSc(pt.L,pt.M,pt.T);return{pt,sx,sy,z};})
+      .sort((a,b)=>b.z-a.z)
+      .forEach(({pt,sx,sy})=>{
+        const isActive=activePts.has(pt), isDirect=hovered===pt||focusPt===pt;
+        lc.globalAlpha=anyHov?(isActive?1:0.12):baseAlpha;
+        const{r,g,b}=pt.col,isH=isDirect,n=pt.entries.length;
+        const boost=anyHov?(isDirect?4:isActive?2:0):0;
+        drawLbl(sx,sy,n>1?`${pt.entries[0]} +${n-1}`:pt.entries[0],r,g,b,isH,false,boost);
+        if(n>1&&!isH){lc.font=`8px ${lblFont}`;lc.fillStyle=`rgba(${r},${g},${b},.55)`;lc.fillText(`×${n}`,sx,sy+(lblSize*.8));}
+      });
+    lc.globalAlpha=1;
+  }
+  if(showFormulas){
+    formulaObjs.forEach(fo=>{
+      if(!fo.g.visible) return;
+      const[sx,sy]=toSc(fo.mid.x,fo.mid.y,fo.mid.z);
+      const foActive=activeFos.has(fo), foDirect=hoveredFormula===fo||focusFo===fo;
+      lc.globalAlpha=anyHov?(foActive?1:0.10):1;
+      const foBoost=anyHov?(foDirect?3:foActive?2:0):0;
+      lc.font=`bold ${Math.max(7,lblSize-1+foBoost)}px ${lblFont}`;
+      lc.textAlign='center';
+      lc.strokeStyle='rgba(4,4,20,.97)';
+      lc.lineWidth=2.8;
+      lc.lineJoin='round';
+      lc.strokeText(fo.def.label,sx,sy-6);
+      lc.fillStyle=`rgb(${fo.midCol.r},${fo.midCol.g},${fo.midCol.b})`;
+      lc.fillText(fo.def.label,sx,sy-6);
     });
+    lc.globalAlpha=1;
+  }
+  userVecs.forEach(uv=>{
+    const[sx,sy]=toSc(uv.mid.x,uv.mid.y,uv.mid.z);
+    const isH=hoveredUV===uv||selectedUV===uv;
+    lc.globalAlpha=anyHov&&hoveredUV!==uv&&!activePts.has(uv.from)?0.25:1;
+    const sz=lblSize+(isH?2:0.5);
+    lc.font=`bold ${sz}px ${lblFont}`; lc.textAlign='center';
+    const m=lc.measureText(uv.eq.short),p=5,y0=sy+sz+8;
+    lc.fillStyle='rgba(8,10,34,.92)'; rrect(lc,sx-m.width/2-p,y0-sz*.85,m.width+p*2,sz*1.45,5); lc.fill();
+    lc.strokeStyle=isH?'rgba(220,230,255,.9)':'rgba(220,230,255,.45)'; lc.lineWidth=isH?1.4:.9; lc.stroke();
+    lc.fillStyle=`rgb(${uv.midCol.r},${uv.midCol.g},${uv.midCol.b})`; lc.fillText(uv.eq.short,sx,y0);
+  });
+  lc.globalAlpha=1;
+  // Rubber-band preview from the chosen start point to the cursor (snaps to a hovered point)
+  if(drawMode&&drawStart){
+    const[ax,ay]=toSc(drawStart.L,drawStart.M,drawStart.T);
+    lc.strokeStyle='rgba(220,230,255,.95)'; lc.lineWidth=2;
+    lc.beginPath(); lc.arc(ax,ay,11,0,Math.PI*2); lc.stroke();
+    let end=null;
+    if(hovered&&hovered!==drawStart){const[bx,by]=toSc(hovered.L,hovered.M,hovered.T);end=[bx,by];}
+    else if(lastMouse) end=[lastMouse.x,lastMouse.y];
+    if(end){
+      lc.setLineDash([6,5]); lc.strokeStyle=drawStart.col.css; lc.lineWidth=2;
+      lc.beginPath(); lc.moveTo(ax,ay); lc.lineTo(end[0],end[1]); lc.stroke(); lc.setLineDash([]);
+    }
+  }
+  // Pulsing ring around a point picked from search
+  if(focusPt){
+    const[fx,fy]=toSc(focusPt.L,focusPt.M,focusPt.T), ph=(performance.now()%1400)/1400;
+    lc.strokeStyle=`rgba(200,215,255,${1-ph})`; lc.lineWidth=2;
+    lc.beginPath(); lc.arc(fx,fy,10+ph*18,0,Math.PI*2); lc.stroke();
+  }
+  // Smoothly re-centre the orbit on a searched-for point
+  if(camTween){
+    const t=Math.min(1,(performance.now()-camTween.t0)/650), e=t*t*(3-2*t);
+    controls.target.lerpVectors(camTween.from,camTween.to,e);
+    if(t>=1) camTween=null;
+  }
+  lc.shadowBlur=0;
+
+  // ── 3D hover highlights ───────────────────────────────────────────────────────
+  userVecs.forEach(uv=>{
+    const op=anyHov?(hoveredUV===uv||activePts.has(uv.from)&&activePts.has(uv.to)?1:0.25):0.95;
+    if(uv.shaftMat.opacity!==op){uv.shaftMat.opacity=op;uv.coneMat.opacity=op;}
+  });
+  if(showFormulas){
+    formulaObjs.forEach(fo=>{
+      if(!fo.g.visible) return;
+      const op=anyHov?(activeFos.has(fo)?1.0:0.10):0.72;
+      if(fo.shaftMat.opacity!==op){fo.shaftMat.opacity=op;fo.shaftMat.needsUpdate=true;}
+      if(fo.coneMat.opacity!==op){fo.coneMat.opacity=op;fo.coneMat.needsUpdate=true;}
+    });
+  }
+  if(metricsVis!=='hidden'){
+    const baseOp=metricsVis==='low'?0.18:1;
+    PTS.forEach(pt=>{
+      if(!pt.vis.visible) return;
+      const op=anyHov?(activePts.has(pt)?1.0:Math.min(baseOp,0.15)):baseOp;
+      const tr=op<1;
+      if(pt.vis.material.opacity!==op||pt.vis.material.transparent!==tr){pt.vis.material.opacity=op;pt.vis.material.transparent=tr;pt.vis.material.needsUpdate=true;}
+    });
+  }
+
   renderer.render(scene,activeCamera);
 }
 animate();

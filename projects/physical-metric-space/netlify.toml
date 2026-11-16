@@ -1,0 +1,5 @@
+# Static site — no build step; serve the repo root as-is.
+# Deploy previews are created automatically for every pull request once the
+# repo is linked in Netlify. The visualization is index.html at the site root.
+[build]
+  publish = "."
