@@ -1105,7 +1105,26 @@ function toSc(x,y,z){
 }
 function rrect(ctx,x,y,w,h,r){ctx.beginPath();ctx.moveTo(x+r,y);ctx.lineTo(x+w-r,y);ctx.arcTo(x+w,y,x+w,y+r,r);ctx.lineTo(x+w,y+h-r);ctx.arcTo(x+w,y+h,x+w-r,y+h,r);ctx.lineTo(x+r,y+h);ctx.arcTo(x,y+h,x,y+h-r,r);ctx.lineTo(x,y+r);ctx.arcTo(x,y,x+r,y,r);ctx.closePath();}
 function cStroke(r,g,b){return(0.299*r+0.587*g+0.114*b)/255>.55?'rgba(0,0,8,.95)':'rgba(255,255,255,.85)';}
+// Text needs more lightness than a sphere does: keep a colour's hue and as much chroma as fits,
+// but raise its OKLab lightness to at least 0.78 so labels of dark (low-mass) points stay readable.
+const LIFT_CACHE=new Map();
+function liftRGB(r,g,b){
+  const k=(r<<16)|(g<<8)|b; if(LIFT_CACHE.has(k)) return LIFT_CACHE.get(k);
+  const lin=c=>{c/=255;return c<=0.04045?c/12.92:Math.pow((c+0.055)/1.055,2.4);};
+  const R=lin(r),G=lin(g),B=lin(b);
+  const l=Math.cbrt(0.4122214708*R+0.5363325363*G+0.0514459929*B);
+  const m=Math.cbrt(0.2119034982*R+0.6806995451*G+0.1073969566*B);
+  const q=Math.cbrt(0.0883024619*R+0.2817188376*G+0.6299787005*B);
+  const L=0.2104542553*l+0.7936177850*m-0.0040720468*q;
+  const A=1.9779984951*l-2.4285922050*m+0.4505937099*q;
+  const Bb=0.0259040371*l+0.7827717662*m-0.8086757660*q;
+  let out=[r,g,b];
+  if(L<0.78){const c=oklabToSRGBMapped(0.78,A,Bb);out=c.map(v=>Math.round(Math.max(0,Math.min(1,v))*255));}
+  LIFT_CACHE.set(k,out); return out;
+}
+const liftCss=(r,g,b,a=1)=>{const[x,y,z]=liftRGB(r,g,b);return `rgba(${x},${y},${z},${a})`;};
 function drawLbl(sx,sy,text,r,g,b,isH,isBadge=false,sizeBoost=0){
+  [r,g,b]=liftRGB(r,g,b);
   const sz=isBadge?Math.max(7,lblSize-1.5):(lblSize+sizeBoost);
   lc.font=`${(isH&&!isBadge)?'bold ':''}${sz}px ${lblFont}`;
   lc.textAlign='center';
@@ -2020,14 +2039,14 @@ function animate(){
             lc.textAlign=ux>0.25?'left':ux<-0.25?'right':'center';
             const tx=bx+ux*9, ty=by+uy*9+(uy>0.25?sz*.8:uy<-0.25?-2:sz*.35);
             lc.strokeStyle='rgba(4,4,20,.97)';lc.lineWidth=Math.max(2,sz*.25);lc.lineJoin='round';
-            lc.strokeText(m.label,tx,ty); lc.fillStyle=m.css; lc.fillText(m.label,tx,ty);
+            lc.strokeText(m.label,tx,ty); {const c=new THREE.Color(m.css); lc.fillStyle=liftCss(Math.round(c.r*255),Math.round(c.g*255),Math.round(c.b*255));} lc.fillText(m.label,tx,ty);
           });
           lc.textAlign='center';
           return;
         }
         const main=activeLaw&&lawLanding&&lawLanding.pt.leadPt===pt?lawLanding.name:pt.entries[0];
         drawLbl(sx,sy,n>1?`${main} +${n-1}`:main,r,g,b,isH,false,boost);
-        if(n>1&&!isH){lc.font=`8px ${lblFont}`;lc.fillStyle=`rgba(${r},${g},${b},.55)`;lc.fillText(`×${n}`,sx,sy+(lblSize*.8));}
+        if(n>1&&!isH){lc.font=`8px ${lblFont}`;lc.fillStyle=liftCss(r,g,b,.7);lc.fillText(`×${n}`,sx,sy+(lblSize*.8));}
       });
     lc.globalAlpha=1;
   }
@@ -2049,7 +2068,7 @@ function animate(){
       lc.lineWidth=2.8;
       lc.lineJoin='round';
       lc.strokeText(fo.def.label,sx,sy-6);
-      lc.fillStyle=`rgb(${fo.midCol.r},${fo.midCol.g},${fo.midCol.b})`;
+      lc.fillStyle=liftCss(fo.midCol.r,fo.midCol.g,fo.midCol.b);
       lc.fillText(fo.def.label,sx,sy-6);
     });
     lc.globalAlpha=1;
@@ -2063,7 +2082,7 @@ function animate(){
     const m=lc.measureText(uv.eq.short),p=5,y0=sy+sz+8;
     lc.fillStyle='rgba(8,10,34,.92)'; rrect(lc,sx-m.width/2-p,y0-sz*.85,m.width+p*2,sz*1.45,5); lc.fill();
     lc.strokeStyle=isH?'rgba(220,230,255,.9)':'rgba(220,230,255,.45)'; lc.lineWidth=isH?1.4:.9; lc.stroke();
-    lc.fillStyle=`rgb(${uv.midCol.r},${uv.midCol.g},${uv.midCol.b})`; lc.fillText(uv.eq.short,sx,y0);
+    lc.fillStyle=liftCss(uv.midCol.r,uv.midCol.g,uv.midCol.b); lc.fillText(uv.eq.short,sx,y0);
   });
   lc.globalAlpha=1;
   // Rubber-band preview from the chosen start point to the cursor (snaps to a hovered point)
