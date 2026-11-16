@@ -283,7 +283,7 @@ const orthoCam=new THREE.OrthographicCamera(
   -ORTHO_H*W/H, ORTHO_H*W/H, ORTHO_H, -ORTHO_H, 0.1, 500);
 orthoCam.position.copy(INIT_POS); orthoCam.lookAt(TARGET);
 
-let usingOrtho=false, autoRotOn=true;
+let usingOrtho=false, autoRotOn=false;
 // activeCamera tracks whichever camera is rendering + being used for labels/picking
 let activeCamera=perspCam;
 
@@ -293,7 +293,7 @@ renderer.setSize(W,H); renderer.setPixelRatio(Math.min(window.devicePixelRatio,2
 // Controls starts on perspCam; we swap .object when entering/leaving ortho
 const controls=new OrbitControls(perspCam,c3d);
 controls.enableDamping=true; controls.dampingFactor=0.07;
-controls.autoRotate=true; controls.autoRotateSpeed=0.45;
+controls.autoRotate=autoRotOn; controls.autoRotateSpeed=0.45;
 controls.minDistance=2; controls.maxDistance=60;
 controls.target.copy(TARGET); controls.update();
 
@@ -1169,7 +1169,7 @@ function updFov(s){
 (()=>{
   const div=document.createElement('div');
   const row=document.createElement('div'); row.className='prow';
-  rotBtn=document.createElement('button'); rotBtn.className='pbtn'; rotBtn.textContent='⏸ Pause'; rotBtn.style.color='#88aaff';
+  rotBtn=document.createElement('button'); rotBtn.className='pbtn'; rotBtn.textContent='▶ Rotate'; rotBtn.style.color='#aaaacc';
   rotBtn.addEventListener('click',()=>{autoRotOn=!autoRotOn;controls.autoRotate=autoRotOn;rotBtn.textContent=autoRotOn?'⏸ Pause':'▶ Rotate';rotBtn.style.color=autoRotOn?'#88aaff':'#aaaacc';});
   rotBtn.addEventListener('mousedown',e=>e.stopPropagation());
   const rb=document.createElement('button'); rb.className='pbtn'; rb.textContent='↺ Reset';
@@ -1186,7 +1186,7 @@ function updFov(s){
   rb.addEventListener('mousedown',e=>e.stopPropagation());
   row.append(rotBtn,rb);
   const hint=document.createElement('div'); hint.style.cssText='font-size:8px;color:#6380b6;margin-top:6px;line-height:1.8;';
-  hint.textContent='←→↑↓ orbit · scroll/pinch zoom · Space pause · R reset · V draw vector · O cycle operators · / search · click a label to copy';
+  hint.textContent='←→↑↓ orbit · scroll/pinch zoom · Space rotate · R reset · V draw vector · O cycle operators · / search · click a label to copy';
   div.append(row,hint);
   panel.appendChild(acc('VIEW',div,true));
 })();
@@ -1345,7 +1345,7 @@ formulaObjs.forEach(fo=>{
   ['control','Projection / field of view','Orthographic ↔ wide-angle perspective',['projection','orthographic','ortho','perspective','fov','field of view','zoom','lens'],()=>showControl('PROJECTION')],
   ['control','Label size & typeface','Font size, typeface and legibility effect',['label','labels','size','font','typeface','halo','outline','shadow','pill','glow','legibility'],()=>showControl('LABELS')],
   ['control','Visibility','Dim or hide spheres and labels',['visibility','hide','dim','spheres','opacity','low','off'],()=>showControl('VISIBILITY')],
-  ['control','Pause / rotate','Toggle auto-rotation (Space)',['pause','rotate','rotation','spin','auto','space'],()=>showControl('VIEW')],
+  ['control','Pause / rotate','Start or stop auto-rotation (Space)',['pause','rotate','rotation','spin','auto','space'],()=>showControl('VIEW')],
   ['control','Reset view','Return the camera to its start (R)',['reset','home','camera','view','recenter'],()=>{showControl('VIEW');window.dispatchEvent(new KeyboardEvent('keydown',{key:'r'}));}],
   ['control','Hover tooltip','Hover a sphere to see every quantity at that point; click to copy',['tooltip','hover','copy','clipboard','info'],()=>focusPoint(PT_BY_KEY.get(keyOf(1,1,-2)),'Force')],
   ['control','Dimensionless origin','(0,0,0): strain, angle, Mach & Reynolds numbers',['origin','dimensionless','zero','unitless','ratio'],()=>focusPoint(PT_BY_KEY.get(keyOf(0,0,0)),'Strain')],
@@ -1579,7 +1579,7 @@ const TUTS=[
   ]},
   {id:'labels',title:'Labels & view',blurb:'Legibility, visibility, rotation',steps:[
     {h:'Labels can be restyled for legibility.',act:'Pick a legibility effect under Labels.',wait:'labelfx',enter:()=>showControl('LABELS')},
-    {h:'Under Visibility you can dim spheres or labels. Space pauses rotation, R resets the view, arrow keys orbit.',enter:()=>showControl('VISIBILITY')},
+    {h:'Under Visibility you can dim spheres or labels. Space starts or stops rotation, R resets the view, arrow keys orbit.',enter:()=>showControl('VISIBILITY')},
   ]},
 ];
 
