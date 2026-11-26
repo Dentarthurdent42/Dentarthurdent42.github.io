@@ -234,11 +234,13 @@ body.panel-open #tl{max-height:calc(100% - min(46vh,440px) - 110px);overflow-y:a
 :root[data-theme=light] .tt{background:rgba(255,255,255,.99);border-color:rgba(50,80,200,.35);color:#334;box-shadow:0 8px 28px rgba(30,40,90,.22)}
 :root[data-theme=light] .tt[data-lv="1"]{border-color:rgba(130,70,210,.45)}
 :root[data-theme=light] .tt[data-lv="2"],:root[data-theme=light] .tt[data-lv="3"]{border-color:rgba(20,140,90,.45)}
-:root[data-theme=light] #dock{background:rgba(255,255,255,.72);border-color:rgba(50,70,160,.2);box-shadow:0 10px 32px rgba(30,40,90,.18)}
-:root[data-theme=light] #panel{background:rgba(250,251,255,.9);border-color:rgba(50,70,160,.18);color:#445;box-shadow:0 12px 40px rgba(30,40,90,.2)}
+/* Solid, unblurred glass in light mode: Safari can sample a WebGL canvas behind backdrop-filter as black */
+:root[data-theme=light] #dock,:root[data-theme=light] #panel{-webkit-backdrop-filter:none;backdrop-filter:none}
+:root[data-theme=light] #dock{background:#f8f9fd;border-color:rgba(50,70,160,.2);box-shadow:0 10px 32px rgba(30,40,90,.18)}
+:root[data-theme=light] #panel{background:#f8f9fd;border-color:rgba(50,70,160,.18);color:#445;box-shadow:0 12px 40px rgba(30,40,90,.2)}
 :root[data-theme=light] #badge{color:#5a6c94}
 :root[data-theme=light] #tab,:root[data-theme=light] #drawBtn,:root[data-theme=light] #helpBtn,:root[data-theme=light] #themeBtn,:root[data-theme=light] #shareBtn,
-:root[data-theme=light] .seg,:root[data-theme=light] .pbtn{background:rgba(30,40,90,.04);border-color:rgba(30,40,90,.16);color:#3a4a7a}
+:root[data-theme=light] .seg,:root[data-theme=light] .pbtn{background:#eef1f8;border-color:rgba(30,40,90,.16);color:#3a4a7a}
 :root[data-theme=light] #tab:hover,:root[data-theme=light] #drawBtn:hover,:root[data-theme=light] #helpBtn:hover,:root[data-theme=light] #themeBtn:hover,:root[data-theme=light] #shareBtn:hover,
 :root[data-theme=light] .seg:hover,:root[data-theme=light] .pbtn:hover{background:rgba(30,40,90,.1);color:#223}
 :root[data-theme=light] #tab.open,:root[data-theme=light] #drawBtn.on,:root[data-theme=light] .seg.on,:root[data-theme=light] .pbtn.on{background:rgba(60,90,220,.14);border-color:rgba(60,90,220,.45);color:#1f4fbf}
@@ -256,9 +258,9 @@ body.panel-open #tl{max-height:calc(100% - min(46vh,440px) - 110px);overflow-y:a
 :root[data-theme=light] input[type=range]::-moz-range-thumb{background:#4a5fe0;border-color:#fff}
 :root[data-theme=light] select,:root[data-theme=light] input.nin{background:#fff;border-color:rgba(30,40,90,.2);color:#223}
 :root[data-theme=light] input.nin{color:#8a5200}
-:root[data-theme=light] #sq{background:rgba(255,255,255,.6);border-color:rgba(30,40,90,.18);color:#223}
+:root[data-theme=light] #sq{background:#fff;border-color:rgba(30,40,90,.18);color:#223}
 :root[data-theme=light] #sq:focus{background:#fff;border-color:rgba(60,90,220,.5)}
-:root[data-theme=light] #sq::placeholder,:root[data-theme=light] .sqi,:root[data-theme=light] #sqx{color:#6a6a80}
+:root[data-theme=light] #sq::placeholder,:root[data-theme=light] .sqi,:root[data-theme=light] #sqx{color:#55556a}
 :root[data-theme=light] #drawHint{background:rgba(225,232,255,.95);border-color:rgba(60,90,220,.4);color:#1f2f6a}
 :root[data-theme=light] #toast{background:rgba(255,255,255,.96);border-color:rgba(60,90,220,.35);color:#1f2f6a}
 :root[data-theme=light] #opHint{border-color:rgba(190,120,20,.4)}
@@ -1288,7 +1290,7 @@ function liftRGB(r,g,b){
   const A=1.9779984951*l-2.4285922050*m+0.4505937099*q;
   const Bb=0.0259040371*l+0.7827717662*m-0.8086757660*q;
   let out=[r,g,b];
-  const tgt=isLight()?(L>0.5?0.5:null):(L<0.78?0.78:null);
+  const tgt=isLight()?(L>0.42?0.42:null):(L<0.78?0.78:null);
   if(tgt!==null){const c=oklabToSRGBMapped(tgt,A,Bb);out=c.map(v=>Math.round(Math.max(0,Math.min(1,v))*255));}
   LIFT_CACHE.set(k,out); return out;
 }
@@ -1296,9 +1298,9 @@ const liftCss=(r,g,b,a=1)=>{const[x,y,z]=liftRGB(r,g,b);return `rgba(${x},${y},$
 function drawLbl(sx,sy,text,r,g,b,isH,isBadge=false,sizeBoost=0){
   [r,g,b]=liftRGB(r,g,b);
   const sz=isBadge?Math.max(7,lblSize-1.5):(lblSize+sizeBoost);
-  lc.font=`${(isH&&!isBadge)?'bold ':''}${sz}px ${lblFont}`;
+  lc.font=`${(isH&&!isBadge)||isLight()?'bold ':''}${sz}px ${lblFont}`;
   lc.textAlign='center';
-  const fill=`rgba(${r},${g},${b},${isH?1:.9})`;
+  const fill=`rgba(${r},${g},${b},${isH||isLight()?1:.9})`;
   const y0=sy-(sz+5);
   lc.shadowBlur=0; lc.shadowOffsetX=0; lc.shadowOffsetY=0;
   if(lblEffect==='pill'){
