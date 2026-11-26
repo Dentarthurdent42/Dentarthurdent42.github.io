@@ -4,6 +4,10 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Dimensional Analysis · L M T</title>
+<script>/* Theme before first paint: saved choice, else the device setting */
+(function(){var t;try{t=localStorage.getItem('theme')}catch(e){}
+if(t!=='light'&&t!=='dark')t=matchMedia('(prefers-color-scheme: light)').matches?'light':'dark';
+document.documentElement.dataset.theme=t;})();</script>
 <script type="importmap">
 {
   "imports": {
@@ -209,6 +213,96 @@ body.panel-open #tl{max-height:calc(100% - min(46vh,440px) - 110px);overflow-y:a
   max-width:calc(100% - 32px);padding:5px 12px;border-radius:6px;background:rgba(30,40,90,.95);
   border:1px solid rgba(120,150,255,.35);font:11px 'Courier New',monospace;color:#dde6ff;
   pointer-events:none;opacity:0;transition:opacity .2s;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+:root{--acc:#aaccff;--pv:#8899cc;color-scheme:dark}
+#themeBtn{flex-shrink:0;width:36px;height:36px;border-radius:50%;border:1px solid rgba(255,255,255,.14);
+  background:rgba(255,255,255,.04);color:#cce0ff;font:15px/1 'Courier New',monospace;cursor:pointer;
+  touch-action:manipulation;-webkit-tap-highlight-color:transparent}
+#themeBtn:hover{background:rgba(255,255,255,.1)}
+/* ── Light theme: same layout, inverted surfaces, darker inks ── */
+:root[data-theme=light]{--acc:#1f4fbf;--pv:#4a5a8a;color-scheme:light}
+:root[data-theme=light],:root[data-theme=light] body{background:#e4e8f2}
+:root[data-theme=light] body{color:#334}
+:root[data-theme=light] #tip,:root[data-theme=light] #vcard,:root[data-theme=light] #sres,:root[data-theme=light] #tmenu,
+:root[data-theme=light] #opHint{background:rgba(255,255,255,.97);border-color:rgba(30,40,90,.16);color:#223;box-shadow:0 6px 24px rgba(30,40,90,.18)}
+:root[data-theme=light] #coach{background:rgba(255,255,255,.97);border-color:rgba(50,80,200,.3);color:#334;box-shadow:0 6px 24px rgba(30,40,90,.18)}
+:root[data-theme=light] .tt{background:rgba(255,255,255,.99);border-color:rgba(50,80,200,.35);color:#334;box-shadow:0 8px 28px rgba(30,40,90,.22)}
+:root[data-theme=light] .tt[data-lv="1"]{border-color:rgba(130,70,210,.45)}
+:root[data-theme=light] .tt[data-lv="2"],:root[data-theme=light] .tt[data-lv="3"]{border-color:rgba(20,140,90,.45)}
+:root[data-theme=light] #dock{background:rgba(255,255,255,.72);border-color:rgba(50,70,160,.2);box-shadow:0 10px 32px rgba(30,40,90,.18)}
+:root[data-theme=light] #panel{background:rgba(250,251,255,.9);border-color:rgba(50,70,160,.18);color:#445;box-shadow:0 12px 40px rgba(30,40,90,.2)}
+:root[data-theme=light] #badge{color:#5a6c94}
+:root[data-theme=light] #tab,:root[data-theme=light] #drawBtn,:root[data-theme=light] #helpBtn,:root[data-theme=light] #themeBtn,
+:root[data-theme=light] .seg,:root[data-theme=light] .pbtn{background:rgba(30,40,90,.04);border-color:rgba(30,40,90,.16);color:#3a4a7a}
+:root[data-theme=light] #tab:hover,:root[data-theme=light] #drawBtn:hover,:root[data-theme=light] #helpBtn:hover,:root[data-theme=light] #themeBtn:hover,
+:root[data-theme=light] .seg:hover,:root[data-theme=light] .pbtn:hover{background:rgba(30,40,90,.1);color:#223}
+:root[data-theme=light] #tab.open,:root[data-theme=light] #drawBtn.on,:root[data-theme=light] .seg.on,:root[data-theme=light] .pbtn.on{background:rgba(60,90,220,.14);border-color:rgba(60,90,220,.45);color:#1f4fbf}
+:root[data-theme=light] .ti,:root[data-theme=light] .tmh,:root[data-theme=light] .ch{color:#3a4fd0}
+:root[data-theme=light] .tl{color:#3a4a7a}
+:root[data-theme=light] #helpBtn{color:#1f4fbf}
+:root[data-theme=light] #helpBtn.glow{border-color:rgba(60,90,220,.8)}
+:root[data-theme=light] .psec{border-color:rgba(30,40,90,.08)}
+:root[data-theme=light] .ph,:root[data-theme=light] .vlbl{color:#4a5f99}
+:root[data-theme=light] .ph:hover{color:#1f3a8a}
+:root[data-theme=light] .ph-arr{color:#4a5f99}
+:root[data-theme=light] .pl{color:#4a5f99}
+:root[data-theme=light] input[type=range]{background:rgba(60,80,180,.22)}
+:root[data-theme=light] input[type=range]::-webkit-slider-thumb{background:#4a5fe0;border-color:#fff}
+:root[data-theme=light] input[type=range]::-moz-range-thumb{background:#4a5fe0;border-color:#fff}
+:root[data-theme=light] select,:root[data-theme=light] input.nin{background:#fff;border-color:rgba(30,40,90,.2);color:#223}
+:root[data-theme=light] input.nin{color:#8a5200}
+:root[data-theme=light] #sq{background:rgba(255,255,255,.6);border-color:rgba(30,40,90,.18);color:#223}
+:root[data-theme=light] #sq:focus{background:#fff;border-color:rgba(60,90,220,.5)}
+:root[data-theme=light] #sq::placeholder,:root[data-theme=light] .sqi,:root[data-theme=light] #sqx{color:#6a6a80}
+:root[data-theme=light] #drawHint{background:rgba(225,232,255,.95);border-color:rgba(60,90,220,.4);color:#1f2f6a}
+:root[data-theme=light] #toast{background:rgba(255,255,255,.96);border-color:rgba(60,90,220,.35);color:#1f2f6a}
+:root[data-theme=light] #opHint{border-color:rgba(190,120,20,.4)}
+:root[data-theme=light] #opHint .oph{color:#9a5a00}
+:root[data-theme=light] #opHint .opc,:root[data-theme=light] .lawl{color:#8a5200}
+:root[data-theme=light] #opHint .opc{background:rgba(200,130,30,.08);border-color:rgba(200,130,30,.25)}
+:root[data-theme=light] #opHint .opc:hover,:root[data-theme=light] .lawrow:hover{background:rgba(200,130,30,.16)}
+:root[data-theme=light] .lawrow{background:rgba(30,40,90,.03);border-color:rgba(30,40,90,.1)}
+:root[data-theme=light] .lawrow.on{background:rgba(200,130,30,.18);border-color:rgba(200,130,30,.45)}
+:root[data-theme=light] .veq{background:rgba(30,40,90,.04);border-color:rgba(30,40,90,.1);color:#112}
+:root[data-theme=light] .veq:hover{background:rgba(60,90,220,.12);border-color:rgba(60,90,220,.35)}
+:root[data-theme=light] .veq.alt{color:#445}
+:root[data-theme=light] .veq.gen{color:#3d4f7a}
+:root[data-theme=light] .veq.known,:root[data-theme=light] .ti2.done b{color:#17804a}
+:root[data-theme=light] .srt,:root[data-theme=light] .tth{color:#112}
+:root[data-theme=light] .sr{border-color:rgba(30,40,90,.07)}
+:root[data-theme=light] .sr.act,:root[data-theme=light] .sr:hover,:root[data-theme=light] .ti2:hover{background:rgba(60,90,220,.12)}
+:root[data-theme=light] .sr mark{background:rgba(60,90,220,.22)}
+:root[data-theme=light] .ti2{color:#223}
+:root[data-theme=light] .tck{border-color:rgba(60,90,220,.4);color:#556}
+:root[data-theme=light] .ti2.done .tck{background:rgba(20,150,90,.15);border-color:#2a9a60;color:#17804a}
+:root[data-theme=light] .tnew{color:#9a6a00}
+:root[data-theme=light] .cdots i{background:#c8cddc}
+:root[data-theme=light] .cdots i.d{background:#2a9a60}
+:root[data-theme=light] .cdots i.c{background:#3a6ae0}
+:root[data-theme=light] .cact{background:rgba(220,170,20,.1);border-color:rgba(180,130,0,.45);color:#7a5600}
+:root[data-theme=light] .cact.ok{background:rgba(20,150,90,.1);border-color:rgba(20,150,90,.4);color:#17804a}
+:root[data-theme=light] .term{color:#1f4fbf;border-bottom-color:#1f4fbf}
+:root[data-theme=light] .term.open{background:rgba(60,90,220,.14)}
+:root[data-theme=light] .vsub,:root[data-theme=light] .vx,:root[data-theme=light] .snone,:root[data-theme=light] .srs,
+:root[data-theme=light] .lawd,:root[data-theme=light] .tbl,:root[data-theme=light] .treset,:root[data-theme=light] .ttd,
+:root[data-theme=light] .vfoot,:root[data-theme=light] .tmh span{color:#5e5e74}
+:root[data-theme=light] .vx:hover{color:#223}
+/* inline greys and pale inks written by the script */
+:root[data-theme=light] [style*="color:#7d7d9"],:root[data-theme=light] [style*="color:#7b7b9c"],:root[data-theme=light] [style*="color:#7e7e8e"],
+:root[data-theme=light] [style*="color:#99a"]{color:#5e5e74!important}
+:root[data-theme=light] [style*="color:#eef"],:root[data-theme=light] [style*="color:#ccd"]{color:#223!important}
+:root[data-theme=light] [style*="color:#cce0ff"]{color:#1f4fbf!important;border-color:rgba(30,40,90,.12)!important}
+:root[data-theme=light] [style*="color:#99aacc"],:root[data-theme=light] [style*="color:#627fb1"]{color:#3d4f7a!important}
+/* SVG diagrams inside tooltips and tutorials */
+:root[data-theme=light] svg [fill="#aab"],:root[data-theme=light] svg [fill="#ccd"],:root[data-theme=light] svg [fill="#99a"],:root[data-theme=light] svg [fill="#889"]{fill:#445}
+:root[data-theme=light] svg [stroke="#aab"],:root[data-theme=light] svg [stroke="#ccd"]{stroke:#556}
+:root[data-theme=light] svg [stroke="#667"],:root[data-theme=light] svg [stroke="#556"],:root[data-theme=light] svg [stroke="#445"]{stroke:#9aa0b4}
+:root[data-theme=light] svg [fill="#9bf"]{fill:#2a5bd7}
+:root[data-theme=light] svg [stroke="#9bf"]{stroke:#2a5bd7}
+:root[data-theme=light] svg [fill="#fc8"]{fill:#b86a00}
+:root[data-theme=light] svg [stroke="#fc8"]{stroke:#b86a00}
+:root[data-theme=light] svg [fill="#c9a2ff"],:root[data-theme=light] svg [fill="#d9a2ff"]{fill:#7a3fd0}
+:root[data-theme=light] svg [fill="#f9a"],:root[data-theme=light] svg [fill="#f77"]{fill:#c62848}
+:root[data-theme=light] svg [fill="#3fd6c0"]{fill:#0f8f7e}
 </style>
 </head>
 <body>
@@ -236,6 +330,7 @@ body.panel-open #tl{max-height:calc(100% - min(46vh,440px) - 110px);overflow-y:a
         <div id="sres" role="listbox"></div>
       </div>
     </div>
+    <button id="themeBtn" title="Switch light / dark" aria-label="Switch light / dark theme"></button>
     <button id="tab" title="Controls" aria-label="Controls"><span class="ti">⚙</span><span class="tl">Controls</span></button>
     <div id="badge"></div>
   </div>
@@ -281,9 +376,32 @@ const panel=document.getElementById('panel');
 const tab=document.getElementById('tab');
 let W=window.innerWidth, H=window.innerHeight;
 
+// ── Theme ─────────────────────────────────────────────────────────────────────
+// Everything drawn on the canvases reads TH; the DOM chrome is themed in CSS via :root[data-theme]
+const isLight=()=>document.documentElement.dataset.theme==='light';
+const TH={};
+function setTH(){
+  const L=isLight();
+  Object.assign(TH,L?{
+    bg:0xe4e8f2, grid:0xc3cadb, halo:'rgba(248,250,255,.97)', pill:'rgba(255,255,255,.9)',
+    uvPill:'rgba(255,255,255,.94)', ink:a=>`rgba(30,40,90,${a})`, shadow:'rgba(255,255,255,.98)'
+  }:{
+    bg:0x06061a, grid:0x0d0d22, halo:'rgba(4,4,20,.97)', pill:'rgba(4,4,20,.82)',
+    uvPill:'rgba(8,10,34,.92)', ink:a=>`rgba(220,230,255,${a})`, shadow:'rgba(0,0,0,.98)'
+  });
+}
+setTH();
+// Text colour for a data colour: lifted to stay readable on dark, sunk to stay readable on light
+const ink=css=>{if(!isLight()||!css)return css;
+  let m=/rgba?\((\d+),\s*(\d+),\s*(\d+)/.exec(css),c;
+  if(m)c=[+m[1],+m[2],+m[3]];
+  else if((m=/^#([0-9a-f]{3}|[0-9a-f]{6})$/i.exec(css))){const h=m[1].length===3?m[1].replace(/./g,'$&$&'):m[1];c=[0,2,4].map(i=>parseInt(h.slice(i,i+2),16));}
+  else return css;
+  const[r,g,b]=liftRGB(...c);return `rgb(${r},${g},${b})`;};
+
 // ── Scene ─────────────────────────────────────────────────────────────────────
 const scene=new THREE.Scene();
-scene.background=new THREE.Color(0x06061a);
+scene.background=new THREE.Color(TH.bg);
 const INIT_POS=new THREE.Vector3(9,6,11), TARGET=new THREE.Vector3(0,0,0), INIT_FOV=50;
 
 const perspCam=new THREE.PerspectiveCamera(INIT_FOV,W/H,0.1,500);
@@ -451,7 +569,7 @@ function buildAxes(){
   };
   SLOTS.s.forEach((d,i)=>{if(d) add(SLOT_DIR[i],d,AX);});
   if(SLOTS.extraA&&VIEW.mode==='oblique'&&VIEW.lam>0.02) add(E_OBL.clone().multiplyScalar(VIEW.lam),'A',4);
-  const gMat=new THREE.LineBasicMaterial({color:0x0d0d22,transparent:true,opacity:0.8});
+  const gMat=new THREE.LineBasicMaterial({color:TH.grid,transparent:true,opacity:0.8});
   for(let i=-5;i<=5;i++){
     const aL=(a,b)=>axisGroup.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(...a),new THREE.Vector3(...b)]),gMat));
     aL([i,0,-5],[i,0,5]); aL([-5,0,i],[5,0,i]);
@@ -533,7 +651,7 @@ PTS.forEach(pt=>{
     new THREE.MeshBasicMaterial({color:0x00000a,side:THREE.BackSide,transparent:true,opacity:0,depthWrite:false}));
   pt.rim.visible=false; scene.add(pt.rim);
   pt.glow=new THREE.Mesh(new THREE.SphereGeometry(r*2.2,14,14),
-    new THREE.MeshBasicMaterial({color:col.hex,transparent:true,opacity:0,blending:THREE.AdditiveBlending,depthWrite:false}));
+    new THREE.MeshBasicMaterial({color:col.hex,transparent:true,opacity:0,blending:isLight()?THREE.NormalBlending:THREE.AdditiveBlending,depthWrite:false}));
   pt.glow.visible=false; scene.add(pt.glow);
   pt.ring=new THREE.Mesh(new THREE.TorusGeometry(r*1.5,r*0.18,8,28),
     new THREE.MeshBasicMaterial({color:col.hex,transparent:true,opacity:0,depthWrite:false}));
@@ -966,7 +1084,7 @@ function setOperator(op){
     const o={...arrow,from:a,to:b,target:t,baseOp:b?0.9:0.2,
       eq:op.eq(nm(a),b?nm(b):`[${dimStr(...t)}]`)};
     o.tipHtml=tipHead(o.eq)+tipSub(`${esc(op.label)} · ${esc(opMove(op))}`)+
-      `<div style="font-size:9px"><span style="color:${arrow.sc.css}">${esc(nm(a))}</span><span style="color:#7b7b9c"> → </span><span style="color:${arrow.ec.css}">${b?esc(nm(b)):'unnamed'}</span></div>`+
+      `<div style="font-size:9px"><span style="color:${ink(arrow.sc.css)}">${esc(nm(a))}</span><span style="color:#7b7b9c"> → </span><span style="color:${ink(arrow.ec.css)}">${b?esc(nm(b)):'unnamed'}</span></div>`+
       (b?'':`<div style="font-size:8.5px;color:#7d7d90;margin-top:3px">No quantity in the list sits at ${esc(dimStr(...t))}</div>`)+tipFoot;
     arrow.pm.userData={__op:o}; opPickMeshes.push(arrow.pm); opObjs.push(o);
   });
@@ -1085,7 +1203,7 @@ function showCard(uv){
   const sgn=n=>n>0?`+${fracStr(n)}`:fracStr(n);
   const row=(t,cls='veq')=>`<div class="${cls}" data-copy="${esc(t)}" title="Click to copy">${esc(t)}</div>`;
   vcard.innerHTML=
-    `<div class="vhead"><span><span style="color:${sc.css}">${esc(nm(a))}</span> <span style="color:#7d7d92">→</span> <span style="color:${ec.css}">${esc(nm(b))}</span></span><button class="vx" id="vcardX" title="Close">✕</button></div>`+
+    `<div class="vhead"><span><span style="color:${ink(sc.css)}">${esc(nm(a))}</span> <span style="color:#7d7d92">→</span> <span style="color:${ink(ec.css)}">${esc(nm(b))}</span></span><button class="vx" id="vcardX" title="Close">✕</button></div>`+
     `<div class="vsub">Δ = (${sgn(eq.dL)}, ${sgn(eq.dM)}, ${sgn(eq.dT)}, ${sgn(eq.dA)}) = ${esc(eq.delta)}</div>`+
     (eq.named.length?eq.named.map((n,i)=>row(n.eq,i?'veq alt':'veq')).join(''):'<div class="vsub">No named quantity spans this step.</div>')+
     row(eq.generic,'veq gen')+
@@ -1148,7 +1266,7 @@ function cStroke(r,g,b){return(0.299*r+0.587*g+0.114*b)/255>.55?'rgba(0,0,8,.95)
 // but raise its OKLab lightness to at least 0.78 so labels of dark (low-mass) points stay readable.
 const LIFT_CACHE=new Map();
 function liftRGB(r,g,b){
-  const k=(r<<16)|(g<<8)|b; if(LIFT_CACHE.has(k)) return LIFT_CACHE.get(k);
+  const k=((r<<16)|(g<<8)|b)*2+(isLight()?1:0); if(LIFT_CACHE.has(k)) return LIFT_CACHE.get(k);
   const lin=c=>{c/=255;return c<=0.04045?c/12.92:Math.pow((c+0.055)/1.055,2.4);};
   const R=lin(r),G=lin(g),B=lin(b);
   const l=Math.cbrt(0.4122214708*R+0.5363325363*G+0.0514459929*B);
@@ -1158,7 +1276,8 @@ function liftRGB(r,g,b){
   const A=1.9779984951*l-2.4285922050*m+0.4505937099*q;
   const Bb=0.0259040371*l+0.7827717662*m-0.8086757660*q;
   let out=[r,g,b];
-  if(L<0.78){const c=oklabToSRGBMapped(0.78,A,Bb);out=c.map(v=>Math.round(Math.max(0,Math.min(1,v))*255));}
+  const tgt=isLight()?(L>0.5?0.5:null):(L<0.78?0.78:null);
+  if(tgt!==null){const c=oklabToSRGBMapped(tgt,A,Bb);out=c.map(v=>Math.round(Math.max(0,Math.min(1,v))*255));}
   LIFT_CACHE.set(k,out); return out;
 }
 const liftCss=(r,g,b,a=1)=>{const[x,y,z]=liftRGB(r,g,b);return `rgba(${x},${y},${z},${a})`;};
@@ -1172,17 +1291,17 @@ function drawLbl(sx,sy,text,r,g,b,isH,isBadge=false,sizeBoost=0){
   lc.shadowBlur=0; lc.shadowOffsetX=0; lc.shadowOffsetY=0;
   if(lblEffect==='pill'){
     const m=lc.measureText(text),p=4,ph=sz*1.35;
-    lc.fillStyle='rgba(4,4,20,.82)';rrect(lc,sx-m.width/2-p,y0-sz*.82,m.width+p*2,ph,4);lc.fill();
+    lc.fillStyle=TH.pill;rrect(lc,sx-m.width/2-p,y0-sz*.82,m.width+p*2,ph,4);lc.fill();
     lc.strokeStyle=`rgba(${r},${g},${b},.35)`;lc.lineWidth=.75;lc.stroke();
     lc.fillStyle=fill;lc.fillText(text,sx,y0);
   } else if(lblEffect==='halo'){
-    lc.strokeStyle='rgba(4,4,20,.97)';lc.lineWidth=Math.max(2,sz*.22);lc.lineJoin='round';
+    lc.strokeStyle=TH.halo;lc.lineWidth=Math.max(2,sz*.22);lc.lineJoin='round';
     lc.strokeText(text,sx,y0);lc.fillStyle=fill;lc.fillText(text,sx,y0);
   } else if(lblEffect==='outline'){
     lc.strokeStyle=cStroke(r,g,b);lc.lineWidth=Math.max(1.2,sz*.14);lc.lineJoin='round';
     lc.strokeText(text,sx,y0);lc.fillStyle=fill;lc.fillText(text,sx,y0);
   } else if(lblEffect==='shadow'){
-    lc.shadowColor='rgba(0,0,0,.98)';lc.shadowBlur=Math.max(3,sz*.55);lc.shadowOffsetX=1;lc.shadowOffsetY=1;
+    lc.shadowColor=TH.shadow;lc.shadowBlur=Math.max(3,sz*.55);lc.shadowOffsetX=1;lc.shadowOffsetY=1;
     lc.fillStyle=fill;lc.fillText(text,sx,y0);
     lc.shadowBlur=0;lc.shadowOffsetX=0;lc.shadowOffsetY=0;
   } else if(lblEffect==='glow'){
@@ -1211,7 +1330,7 @@ function tipKinds(pt){
   const head=K.length>1?`<div style="color:#7e7e8e;font-size:8.5px;margin-bottom:3px">${K.length} kinds share this spot · only the same kind is commensurable</div>`
     :E.length>1?'<div style="color:#7e7e8e;font-size:8.5px;margin-bottom:3px">one kind · all commensurable</div>':'';
   const body=g.length>1
-    ?g.map(p=>`<div style="color:${dimColor('A',p.A).css};font-size:8.5px;margin-top:3px">${esc(dimStr(...ptv(p)))}${VIEW.vis.A?'':' (angle hidden)'}</div>`+p.kinds.map(k=>`• ${k.map(esc).join(' = ')}`).join('<br>')).join('')
+    ?g.map(p=>`<div style="color:${ink(dimColor('A',p.A).css)};font-size:8.5px;margin-top:3px">${esc(dimStr(...ptv(p)))}${VIEW.vis.A?'':' (angle hidden)'}</div>`+p.kinds.map(k=>`• ${k.map(esc).join(' = ')}`).join('<br>')).join('')
     :K.map(k=>`• ${k.map(esc).join(' = ')}`).join('<br>');
   return head+`<div style="color:#99aacc;font-size:10px;line-height:1.8">${body}</div>`;
 }
@@ -1226,7 +1345,7 @@ function pick(e,force=false){
     if(newCm){
       const{pt,members,css}=newCm, others=grpKinds(pt).filter(k=>k!==members);
       const mp=PT_OF_NAME.get(members[0]);
-      tip.innerHTML=`<div style="font:bold 11px 'Courier New',monospace;color:${css};margin-bottom:4px">${members.map(esc).join(' = ')}</div>`+
+      tip.innerHTML=`<div style="font:bold 11px 'Courier New',monospace;color:${ink(css)};margin-bottom:4px">${members.map(esc).join(' = ')}</div>`+
         `<div style="font-size:9px;color:#7d7d90;margin-bottom:5px">${esc(dimStr(...ptv(mp)))}${members.length>1?' · one kind, commensurable':''}</div>`+
         `<div style="font-size:9px;color:#99aacc;line-height:1.7">Same spot in this view, different kind (not commensurable):<br>${others.map(k=>`• ${k.map(esc).join(' = ')}`).join('<br>')}</div>`+
         `<div style="font-size:8px;color:#7d7d97;margin-top:4px">click to copy</div>`;
@@ -1234,21 +1353,21 @@ function pick(e,force=false){
       const c=newPt.col;
       const preview=(drawMode&&drawStart&&drawStart!==newPt)
         ?`<div style="color:#cce0ff;font-weight:bold;margin-bottom:5px;border-bottom:1px solid rgba(255,255,255,.1);padding-bottom:4px">${esc(vectorEquations(drawStart,newPt).primary)}</div>`:'';
-      tip.innerHTML=preview+`<div style="display:flex;align-items:center;gap:8px;margin-bottom:5px"><span style="display:inline-block;width:13px;height:13px;border-radius:3px;background:${c.css};flex-shrink:0"></span><span style="color:${c.css};font-weight:bold">${esc(dimStr(...ptv(newPt)))} <span style="font-weight:normal;color:#7d7d90;font-size:10px">(${grpEntries(newPt).length})</span></span></div>${tipKinds(newPt)}${tipFoot}`;
+      tip.innerHTML=preview+`<div style="display:flex;align-items:center;gap:8px;margin-bottom:5px"><span style="display:inline-block;width:13px;height:13px;border-radius:3px;background:${c.css};flex-shrink:0"></span><span style="color:${ink(c.css)};font-weight:bold">${esc(dimStr(...ptv(newPt)))} <span style="font-weight:normal;color:#7d7d90;font-size:10px">(${grpEntries(newPt).length})</span></span></div>${tipKinds(newPt)}${tipFoot}`;
     } else if(newFo){
       const d=newFo.def,sc=coordToColor(d.from[0],d.from[1],d.from[2]),ec=coordToColor(d.to[0],d.to[1],d.to[2]);
       const fp=PTS.find(p=>p.key===newFo.fromKey),tp=PTS.find(p=>p.key===newFo.toKey);
       tip.innerHTML=`<div style="font:bold 11px 'Courier New',monospace;color:#eef;margin-bottom:4px">${d.label}</div>`+
         `<div style="font-size:9px;color:#7d7d90;margin-bottom:6px">${d.desc}</div>`+
         `<div style="display:flex;align-items:center;gap:5px;font-size:9px">`+
-        `<span style="color:${sc.css}">${fp?fp.entries[0]:'?'}</span>`+
+        `<span style="color:${ink(sc.css)}">${fp?fp.entries[0]:'?'}</span>`+
         `<span style="color:#7b7b9c"> → </span>`+
-        `<span style="color:${ec.css}">${tp?tp.entries[0]:`[${esc(dimStr(...v4(d.to)))}] (unnamed)`}</span></div>`;
+        `<span style="color:${ink(ec.css)}">${tp?tp.entries[0]:`[${esc(dimStr(...v4(d.to)))}] (unnamed)`}</span></div>`;
     } else if(newUV){
       const{eq,sc,ec}=newUV;
       tip.innerHTML=`<div style="font:bold 11px 'Courier New',monospace;color:#eef;margin-bottom:4px">${esc(eq.primary)}</div>`+
         `<div style="font-size:9px;color:#7d7d90;margin-bottom:4px">Δ = ${esc(eq.delta)}</div>`+
-        `<div style="font-size:9px"><span style="color:${sc.css}">${esc(nm(newUV.from))}</span><span style="color:#7b7b9c"> → </span><span style="color:${ec.css}">${esc(nm(newUV.to))}</span></div>`+
+        `<div style="font-size:9px"><span style="color:${ink(sc.css)}">${esc(nm(newUV.from))}</span><span style="color:#7b7b9c"> → </span><span style="color:${ink(ec.css)}">${esc(nm(newUV.to))}</span></div>`+
         `<div style="font-size:8px;color:#7d7d97;margin-top:4px">click to copy · open details</div>`;
     } else if(newOp){
       tip.innerHTML=newOp.tipHtml;
@@ -1303,8 +1422,8 @@ function acc(title,content,open=true){
 
 function updFov(s){
   if(!fovValLbl) return;
-  if(s===0){fovValLbl.textContent='Orthographic';fovValLbl.style.color='#aaccff';}
-  else{const f=sliderToFOV(s),fl=Math.round(18/Math.tan(THREE.MathUtils.degToRad(f/2)));fovValLbl.textContent=`${Math.round(f)}° · ~${fl}mm`;fovValLbl.style.color='#8899cc';}
+  if(s===0){fovValLbl.textContent='Orthographic';fovValLbl.style.color='var(--acc)';}
+  else{const f=sliderToFOV(s),fl=Math.round(18/Math.tan(THREE.MathUtils.degToRad(f/2)));fovValLbl.textContent=`${Math.round(f)}° · ~${fl}mm`;fovValLbl.style.color='var(--pv)';}
 }
 
 // Projection
@@ -1446,8 +1565,8 @@ function updateDimUI(){
 (()=>{
   const div=document.createElement('div');
   const row=document.createElement('div'); row.className='prow';
-  rotBtn=document.createElement('button'); rotBtn.className='pbtn'; rotBtn.textContent='▶ Rotate'; rotBtn.style.color='#aaaacc';
-  rotBtn.addEventListener('click',()=>{autoRotOn=!autoRotOn;controls.autoRotate=autoRotOn;rotBtn.textContent=autoRotOn?'⏸ Pause':'▶ Rotate';rotBtn.style.color=autoRotOn?'#88aaff':'#aaaacc';});
+  rotBtn=document.createElement('button'); rotBtn.className='pbtn'; rotBtn.textContent='▶ Rotate';
+  rotBtn.addEventListener('click',()=>{autoRotOn=!autoRotOn;controls.autoRotate=autoRotOn;rotBtn.textContent=autoRotOn?'⏸ Pause':'▶ Rotate';rotBtn.style.color=autoRotOn?'var(--acc)':'';});
   rotBtn.addEventListener('mousedown',e=>e.stopPropagation());
   const rb=document.createElement('button'); rb.className='pbtn'; rb.textContent='↺ Reset';
   rb.addEventListener('click',()=>{
@@ -1548,7 +1667,7 @@ function renderVecList(){
     const row=document.createElement('div'); row.className='vrow';
     const eq=document.createElement('div'); eq.className='veq'; eq.textContent=uv.eq.primary;
     eq.dataset.copy=uv.eq.primary; eq.title='Click to copy';
-    eq.style.color=`rgb(${uv.midCol.r},${uv.midCol.g},${uv.midCol.b})`;
+    eq.style.color=ink(`rgb(${uv.midCol.r},${uv.midCol.g},${uv.midCol.b})`);
     eq.addEventListener('click',()=>showCard(uv));
     const x=document.createElement('button'); x.className='vx'; x.textContent='✕'; x.title='Delete vector';
     x.addEventListener('click',()=>removeUserVector(uv));
@@ -1578,7 +1697,7 @@ function focusPoint(pt,name){
   const c=pt.col, syms=n=>(SYMBOLS[n]||[]).join(', ');
   const keys=new Set((pt.grp||[pt]).map(p=>p.key));
   const rel=FORMULA_DEFS.filter(d=>keys.has(keyOf(...v4(d.from)))||keys.has(keyOf(...v4(d.to))));
-  vcard.innerHTML=`<div class="vhead"><span style="color:${c.css}">${esc(name||nm(pt))}</span><button class="vx" id="vcardX" title="Close">✕</button></div>`+
+  vcard.innerHTML=`<div class="vhead"><span style="color:${ink(c.css)}">${esc(name||nm(pt))}</span><button class="vx" id="vcardX" title="Close">✕</button></div>`+
     `<div class="vsub">${esc(dimStr(...ptv(pt)))} · coordinate (${ptv(pt).map(fracStr).join(', ')})</div>`+
     `<div class="vlbl">Quantities at this point</div>`+
     grpEntries(pt).map(n=>`<div class="veq alt" data-copy="${esc(n)}" title="Click to copy">${esc(n)}${syms(n)?` <span style="color:#7e7e8e">· ${esc(syms(n))}</span>`:''}</div>`).join('')+
@@ -1591,7 +1710,7 @@ function focusFormula(fo){
   const d=fo.def, fp=PT_BY_KEY.get(fo.fromKey), tp=PT_BY_KEY.get(fo.toKey);
   vcard.innerHTML=`<div class="vhead"><span>${esc(d.label)}</span><button class="vx" id="vcardX" title="Close">✕</button></div>`+
     `<div class="vsub">${esc(d.desc)}</div>`+
-    `<div class="veq alt"><span style="color:${fp.col.css}">${esc(nm(fp))}</span> → <span style="color:${tp.col.css}">${esc(nm(tp))}</span></div>`+
+    `<div class="veq alt"><span style="color:${ink(fp.col.css)}">${esc(nm(fp))}</span> → <span style="color:${ink(tp.col.css)}">${esc(nm(tp))}</span></div>`+
     `<div class="vfoot">Formula arrows are now on — toggle them in ⚙ Controls › Formulas</div>`;
   vcard.style.display='block';
   document.getElementById('vcardX').addEventListener('click',hideCard);
@@ -1671,8 +1790,8 @@ function runSearch(){
   sAct=0;
   sres.innerHTML=sHits.length?sHits.map((h,i)=>{
     const en=h.en,col=KIND_COL[en.kind]||'#aab', symHit=en.sym.find(s=>s===q||norm(s)===qn);
-    return `<div class="sr${i===sAct?' act':''}" data-i="${i}" role="option"><span class="srk" style="color:${col}">${en.kind}</span>`+
-      `<div><div class="srt">${hl(en.title,qn)}${symHit?` <span style="color:${col}">(${esc(symHit)})</span>`:''}</div><div class="srs">${qn.length>1?hl(en.sub,qn):esc(en.sub)}</div></div></div>`;
+    return `<div class="sr${i===sAct?' act':''}" data-i="${i}" role="option"><span class="srk" style="color:${ink(col)}">${en.kind}</span>`+
+      `<div><div class="srt">${hl(en.title,qn)}${symHit?` <span style="color:${ink(col)}">(${esc(symHit)})</span>`:''}</div><div class="srs">${qn.length>1?hl(en.sub,qn):esc(en.sub)}</div></div></div>`;
   }).join(''):`<div class="snone">No matches for “${esc(q)}”</div>`;
   sres.style.display='block';
 }
@@ -1710,7 +1829,7 @@ const GLOSS={
     v:SVG(150,60,[...Array(5)].map((_,i)=>[...Array(3)].map((_,j)=>`<circle cx="${15+i*30}" cy="${12+j*18}" r="${i===3&&j===1?6:2.5}" fill="${i===3&&j===1?'#9bf':'#556'}"/>`).join('')).join('')+'<text x="110" y="52" fill="#9bf" font-size="9">(3, 1)</text>')},
   dimension:{t:'Dimension',h:'<i>What kind</i> of thing a quantity is, written as [[base|base dimensions]] raised to [[exponent|exponents]]. Force is L¹·M¹·T⁻² — i.e. kg·m/s².',
     v:SVG(170,68,`<text x="0" y="12" fill="#889" font-size="9">Force</text>`+[['L',1,LC],['M',1,MC],['T',-2,TC]].map(([s,e,c],i)=>`<text x="${8+i*55}" y="52" fill="${c}" font-size="11" font-weight="bold">${s}</text><rect x="${22+i*55}" y="${e>0?34-e*10:34}" width="14" height="${Math.abs(e)*10}" fill="${c}" opacity=".8"/><text x="${22+i*55}" y="${e>0?30-e*10:34+Math.abs(e)*10+9}" fill="${c}" font-size="9">${e>0?'+'+e:e}</text>`).join('')+'<line x1="0" x2="170" y1="34" y2="34" stroke="#445"/>')},
-  base:{t:'Base dimensions',h:'Three building blocks, each with an [[unit|SI unit]]: <b style="color:'+LC+'">L</b> length (metre), <b style="color:'+MC+'">M</b> mass (kilogram), <b style="color:'+TC+'">T</b> time (second). Every mechanical quantity is built from them.',
+  base:{t:'Base dimensions',h:'Three building blocks, each with an [[unit|SI unit]]: <b style="color:'+ink(LC)+'">L</b> length (metre), <b style="color:'+ink(MC)+'">M</b> mass (kilogram), <b style="color:'+ink(TC)+'">T</b> time (second). Every mechanical quantity is built from them.',
     v:SVG(180,44,`<g stroke="${LC}" fill="none" stroke-width="2"><line x1="6" y1="28" x2="50" y2="28"/>${[0,1,2,3,4].map(i=>`<line x1="${6+i*11}" y1="28" x2="${6+i*11}" y2="${i%2?23:20}"/>`).join('')}</g><text x="22" y="42" fill="${LC}" font-size="9">L</text>`+
       `<path d="M74 30 L80 14 L96 14 L102 30 Z" fill="${MC}" opacity=".85"/><circle cx="88" cy="11" r="3" fill="none" stroke="${MC}"/><text x="85" y="42" fill="${MC}" font-size="9">M</text>`+
       `<circle cx="150" cy="22" r="13" fill="none" stroke="${TC}" stroke-width="2"/><line x1="150" y1="22" x2="150" y2="13" stroke="${TC}" stroke-width="2"/><line x1="150" y1="22" x2="157" y2="25" stroke="${TC}" stroke-width="2"/><text x="147" y="42" fill="${TC}" font-size="9">T</text>`)},
@@ -1882,6 +2001,23 @@ const store={get(k,d){try{const v=localStorage.getItem(k);return v===null?d:JSON
   set(k,v){try{localStorage.setItem(k,JSON.stringify(v));}catch{}}};
 const tutDone=new Set(store.get('pms.tutDone',[]));
 
+// ── Theme switching (device setting by default; the button saves an override) ─
+const themeBtn=document.getElementById('themeBtn');
+function applyTheme(t){
+  document.documentElement.dataset.theme=t; setTH(); LIFT_CACHE.clear();
+  scene.background.setHex(TH.bg); buildAxes();
+  PTS.forEach(pt=>{if(pt.glow){pt.glow.material.blending=isLight()?THREE.NormalBlending:THREE.AdditiveBlending;pt.glow.material.needsUpdate=true;}});
+  themeBtn.textContent=isLight()?'☾':'☀';
+  themeBtn.title=isLight()?'Switch to dark mode':'Switch to light mode';
+}
+themeBtn.addEventListener('click',()=>{const t=isLight()?'dark':'light';try{localStorage.setItem('theme',t);}catch{}applyTheme(t);});
+matchMedia('(prefers-color-scheme: light)').addEventListener('change',e=>{
+  let saved=null;try{saved=localStorage.getItem('theme');}catch{}
+  if(saved!=='light'&&saved!=='dark') applyTheme(e.matches?'light':'dark');});
+// Follow a switch made in another tab, or on the page this is embedded in (same origin)
+addEventListener('storage',e=>{if(e.key==='theme'&&(e.newValue==='light'||e.newValue==='dark'))applyTheme(e.newValue);});
+applyTheme(isLight()?'light':'dark');
+
 const helpBtn=document.getElementById('helpBtn'), tmenu=document.getElementById('tmenu'), coach=document.getElementById('coach');
 if(store.get('pms.helpSeen',false)) helpBtn.classList.remove('glow');
 function renderMenu(){
@@ -1967,7 +2103,7 @@ window.addEventListener('keydown',e=>{
   if(e.target.closest&&e.target.closest('button')&&(e.key===' '||e.key==='Enter')) return;
   KEYS[e.key]=true;
   if(e.key==='/'){sq.focus();sq.select();e.preventDefault();return;}
-  if(e.key===' '){autoRotOn=!autoRotOn;controls.autoRotate=autoRotOn;rotBtn.textContent=autoRotOn?'⏸ Pause':'▶ Rotate';rotBtn.style.color=autoRotOn?'#88aaff':'#aaaacc';e.preventDefault();}
+  if(e.key===' '){autoRotOn=!autoRotOn;controls.autoRotate=autoRotOn;rotBtn.textContent=autoRotOn?'⏸ Pause':'▶ Rotate';rotBtn.style.color=autoRotOn?'var(--acc)':'';e.preventDefault();}
   if(e.key==='r'||e.key==='R'){
     if(usingOrtho){controls.object=perspCam;controls.minDistance=2;controls.maxDistance=60;usingOrtho=false;activeCamera=perspCam;}
     perspCam.fov=INIT_FOV;perspCam.position.copy(INIT_POS);perspCam.updateProjectionMatrix();
@@ -2035,7 +2171,7 @@ function animate(){
   AXIS_TICKS.forEach(({p,t,c,dx,dy})=>{const[sx,sy]=toSc(p.x,p.y,p.z);drawLbl(sx+dx,sy+dy,t,c.r,c.g,c.b,false,true);});
   if(sliceMode()){
     const c=dimColor('A',VIEW.slice);
-    lc.font=`bold ${lblSize+3}px ${lblFont}`; lc.textAlign='right'; lc.fillStyle=c.css;
+    lc.font=`bold ${lblSize+3}px ${lblFont}`; lc.textAlign='right'; lc.fillStyle=ink(c.css);
     lc.fillText(`slice A = ${VIEW.slice}`,W-16,H-12); lc.textAlign='center';
   }
   // Pre-compute hover sets once — shared by label pass and 3D highlight pass
@@ -2088,7 +2224,7 @@ function animate(){
             lc.font=`${hot?'bold ':''}${sz}px ${lblFont}`;
             lc.textAlign=ux>0.25?'left':ux<-0.25?'right':'center';
             const tx=bx+ux*9, ty=by+uy*9+(uy>0.25?sz*.8:uy<-0.25?-2:sz*.35);
-            lc.strokeStyle='rgba(4,4,20,.97)';lc.lineWidth=Math.max(2,sz*.25);lc.lineJoin='round';
+            lc.strokeStyle=TH.halo;lc.lineWidth=Math.max(2,sz*.25);lc.lineJoin='round';
             lc.strokeText(m.label,tx,ty); {const c=new THREE.Color(m.css); lc.fillStyle=liftCss(Math.round(c.r*255),Math.round(c.g*255),Math.round(c.b*255));} lc.fillText(m.label,tx,ty);
           });
           lc.textAlign='center';
@@ -2114,7 +2250,7 @@ function animate(){
       const foBoost=dim?(foDirect?3:foActive?2:0):0;
       lc.font=`bold ${Math.max(7,lblSize-1+foBoost)}px ${lblFont}`;
       lc.textAlign='center';
-      lc.strokeStyle='rgba(4,4,20,.97)';
+      lc.strokeStyle=TH.halo;
       lc.lineWidth=2.8;
       lc.lineJoin='round';
       lc.strokeText(fo.def.label,sx,sy-6);
@@ -2130,15 +2266,15 @@ function animate(){
     const sz=lblSize+(isH?2:0.5);
     lc.font=`bold ${sz}px ${lblFont}`; lc.textAlign='center';
     const m=lc.measureText(uv.eq.short),p=5,y0=sy+sz+8;
-    lc.fillStyle='rgba(8,10,34,.92)'; rrect(lc,sx-m.width/2-p,y0-sz*.85,m.width+p*2,sz*1.45,5); lc.fill();
-    lc.strokeStyle=isH?'rgba(220,230,255,.9)':'rgba(220,230,255,.45)'; lc.lineWidth=isH?1.4:.9; lc.stroke();
+    lc.fillStyle=TH.uvPill; rrect(lc,sx-m.width/2-p,y0-sz*.85,m.width+p*2,sz*1.45,5); lc.fill();
+    lc.strokeStyle=TH.ink(isH?.9:.45); lc.lineWidth=isH?1.4:.9; lc.stroke();
     lc.fillStyle=liftCss(uv.midCol.r,uv.midCol.g,uv.midCol.b); lc.fillText(uv.eq.short,sx,y0);
   });
   lc.globalAlpha=1;
   // Rubber-band preview from the chosen start point to the cursor (snaps to a hovered point)
   if(drawMode&&drawStart){
     const[ax,ay]=toSc(drawStart.pos.x,drawStart.pos.y,drawStart.pos.z);
-    lc.strokeStyle='rgba(220,230,255,.95)'; lc.lineWidth=2;
+    lc.strokeStyle=TH.ink(.95); lc.lineWidth=2;
     lc.beginPath(); lc.arc(ax,ay,11,0,Math.PI*2); lc.stroke();
     let end=null;
     if(hovered&&hovered!==drawStart){const[bx,by]=toSc(hovered.pos.x,hovered.pos.y,hovered.pos.z);end=[bx,by];}
@@ -2151,7 +2287,7 @@ function animate(){
   // Pulsing ring around a point picked from search
   if(focusPt){
     const[fx,fy]=toSc(focusPt.pos.x,focusPt.pos.y,focusPt.pos.z), ph=(performance.now()%1400)/1400;
-    lc.strokeStyle=`rgba(200,215,255,${1-ph})`; lc.lineWidth=2;
+    lc.strokeStyle=TH.ink(1-ph); lc.lineWidth=2;
     lc.beginPath(); lc.arc(fx,fy,10+ph*18,0,Math.PI*2); lc.stroke();
   }
   // Smoothly re-centre the orbit on a searched-for point

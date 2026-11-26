@@ -8,6 +8,16 @@
       name="description"
       content="Mathieu Poulin is a machine learning developer who builds visualizations, interactive experiments, and mathematical software projects."
     />
+    <script>
+      /* Theme before first paint: saved choice, else the device setting */
+      (function () {
+        var t;
+        try { t = localStorage.getItem("theme"); } catch (e) {}
+        if (t !== "light" && t !== "dark")
+          t = matchMedia("(prefers-color-scheme: light)").matches ? "light" : "dark";
+        document.documentElement.dataset.theme = t;
+      })();
+    </script>
     <style>
       :root {
         --bg: #0b1020;
@@ -20,6 +30,48 @@
         --accent-2: #8fb4ff;
         --shadow: 0 18px 50px rgba(0, 0, 0, 0.28);
         --max: 1080px;
+        --page: linear-gradient(180deg, #09101f 0%, #0d1326 50%, #0b1020 100%);
+        --glow-1: rgba(127, 231, 216, 0.1);
+        --glow-2: rgba(143, 180, 255, 0.12);
+        --header-bg: rgba(9, 16, 31, 0.7);
+        --header-line: rgba(255, 255, 255, 0.06);
+        --surface: rgba(255, 255, 255, 0.04);
+        --surface-soft: rgba(255, 255, 255, 0.03);
+        --surface-line: rgba(255, 255, 255, 0.08);
+        --tint-accent: rgba(127, 231, 216, 0.08);
+        --tint-accent-line: rgba(127, 231, 216, 0.2);
+        --tint-accent-2: rgba(143, 180, 255, 0.12);
+        --tint-accent-2-line: rgba(143, 180, 255, 0.18);
+        --on-accent: #06211d;
+        --accent-end: #99fff1;
+        color-scheme: dark;
+      }
+
+      :root[data-theme="light"] {
+        --bg: #f5f7fc;
+        --bg-alt: #ffffff;
+        --panel: rgba(255, 255, 255, 0.86);
+        --text: #141a2e;
+        --muted: #4d5874;
+        --line: rgba(40, 60, 140, 0.14);
+        --accent: #0c7f72;
+        --accent-2: #2f5fd0;
+        --shadow: 0 14px 40px rgba(30, 45, 90, 0.12);
+        --page: linear-gradient(180deg, #f7f9fd 0%, #eef2fa 50%, #f5f7fc 100%);
+        --glow-1: rgba(20, 170, 150, 0.12);
+        --glow-2: rgba(60, 110, 230, 0.12);
+        --header-bg: rgba(250, 251, 255, 0.78);
+        --header-line: rgba(20, 30, 70, 0.08);
+        --surface: rgba(20, 30, 70, 0.04);
+        --surface-soft: rgba(20, 30, 70, 0.03);
+        --surface-line: rgba(20, 30, 70, 0.1);
+        --tint-accent: rgba(12, 127, 114, 0.08);
+        --tint-accent-line: rgba(12, 127, 114, 0.25);
+        --tint-accent-2: rgba(47, 95, 208, 0.08);
+        --tint-accent-2-line: rgba(47, 95, 208, 0.2);
+        --on-accent: #ffffff;
+        --accent-end: #12a594;
+        color-scheme: light;
       }
 
       * {
@@ -35,10 +87,11 @@
         font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont,
           "Segoe UI", sans-serif;
         color: var(--text);
-        background:
-          radial-gradient(circle at top left, rgba(127, 231, 216, 0.1), transparent 28%),
-          radial-gradient(circle at top right, rgba(143, 180, 255, 0.12), transparent 32%),
-          linear-gradient(180deg, #09101f 0%, #0d1326 50%, #0b1020 100%);
+        background-color: var(--bg);
+        background-image:
+          radial-gradient(circle at top left, var(--glow-1), transparent 28%),
+          radial-gradient(circle at top right, var(--glow-2), transparent 32%),
+          var(--page);
         line-height: 1.65;
       }
 
@@ -56,8 +109,8 @@
         top: 0;
         z-index: 20;
         backdrop-filter: blur(14px);
-        background: rgba(9, 16, 31, 0.7);
-        border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+        background: var(--header-bg);
+        border-bottom: 1px solid var(--header-line);
       }
 
       .nav {
@@ -76,6 +129,35 @@
         display: flex;
         gap: 1rem;
         flex-wrap: wrap;
+        align-items: center;
+      }
+
+      .theme-toggle {
+        width: 2.2rem;
+        height: 2.2rem;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        padding: 0;
+        border-radius: 999px;
+        border: 1px solid var(--surface-line);
+        background: var(--surface);
+        color: var(--text);
+        cursor: pointer;
+      }
+
+      .theme-toggle:hover {
+        border-color: var(--accent);
+      }
+
+      .theme-toggle svg {
+        width: 1.1rem;
+        height: 1.1rem;
+      }
+
+      :root[data-theme="light"] .icon-sun,
+      :root:not([data-theme="light"]) .icon-moon {
+        display: none;
       }
 
       .nav-links a {
@@ -104,8 +186,8 @@
         margin-bottom: 1rem;
         padding: 0.35rem 0.75rem;
         border-radius: 999px;
-        border: 1px solid rgba(127, 231, 216, 0.2);
-        background: rgba(127, 231, 216, 0.08);
+        border: 1px solid var(--tint-accent-line);
+        background: var(--tint-accent);
         color: var(--accent);
         font-size: 0.88rem;
         font-weight: 600;
@@ -155,14 +237,14 @@
       }
 
       .button.primary {
-        background: linear-gradient(135deg, var(--accent), #99fff1);
-        color: #06211d;
+        background: linear-gradient(135deg, var(--accent), var(--accent-end));
+        color: var(--on-accent);
         box-shadow: var(--shadow);
       }
 
       .button.secondary {
-        background: rgba(255, 255, 255, 0.04);
-        border-color: rgba(255, 255, 255, 0.08);
+        background: var(--surface);
+        border-color: var(--surface-line);
         color: var(--text);
       }
 
@@ -233,8 +315,8 @@
       .fact {
         padding: 0.95rem 1rem;
         border-radius: 1rem;
-        background: rgba(255, 255, 255, 0.03);
-        border: 1px solid rgba(255, 255, 255, 0.06);
+        background: var(--surface-soft);
+        border: 1px solid var(--surface-line);
       }
 
       .fact strong {
@@ -269,8 +351,8 @@
         display: inline-block;
         padding: 0.35rem 0.65rem;
         border-radius: 999px;
-        background: rgba(143, 180, 255, 0.12);
-        border: 1px solid rgba(143, 180, 255, 0.18);
+        background: var(--tint-accent-2);
+        border: 1px solid var(--tint-accent-2-line);
         color: var(--accent-2);
         font-size: 0.82rem;
         font-weight: 600;
@@ -283,9 +365,9 @@
       .project-frame {
         width: 100%;
         min-height: 420px;
-        border: 1px solid rgba(255, 255, 255, 0.08);
+        border: 1px solid var(--surface-line);
         border-radius: 1rem;
-        background: rgba(255, 255, 255, 0.02);
+        background: var(--surface-soft);
         margin-top: 1rem;
       }
 
@@ -381,6 +463,15 @@
           <a href="#about">About</a>
           <a href="#projects">Projects</a>
           <a href="#contact">Contact</a>
+          <button class="theme-toggle" type="button" aria-label="Switch light / dark theme">
+            <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
+              <circle cx="12" cy="12" r="4" />
+              <path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4" />
+            </svg>
+            <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z" />
+            </svg>
+          </button>
         </nav>
       </div>
     </header>
@@ -607,5 +698,33 @@
         the clean single-page version.
       </div>
     </footer>
+
+    <script>
+      (function () {
+        var root = document.documentElement;
+        var btn = document.querySelector(".theme-toggle");
+        function label() {
+          btn.title = root.dataset.theme === "light" ? "Switch to dark mode" : "Switch to light mode";
+        }
+        function saved() {
+          try { return localStorage.getItem("theme"); } catch (e) { return null; }
+        }
+        btn.addEventListener("click", function () {
+          var t = root.dataset.theme === "light" ? "dark" : "light";
+          root.dataset.theme = t;
+          // Same-origin embeds (the explorer) listen for this key and follow along
+          try { localStorage.setItem("theme", t); } catch (e) {}
+          label();
+        });
+        matchMedia("(prefers-color-scheme: light)").addEventListener("change", function (e) {
+          var s = saved();
+          if (s !== "light" && s !== "dark") { root.dataset.theme = e.matches ? "light" : "dark"; label(); }
+        });
+        addEventListener("storage", function (e) {
+          if (e.key === "theme" && (e.newValue === "light" || e.newValue === "dark")) { root.dataset.theme = e.newValue; label(); }
+        });
+        label();
+      })();
+    </script>
   </body>
 </html>
