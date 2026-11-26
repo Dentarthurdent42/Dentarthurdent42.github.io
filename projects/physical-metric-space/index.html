@@ -493,18 +493,19 @@ const fill=new THREE.DirectionalLight(0x8899ff,0.25); fill.position.set(-6,-4,-4
 // projection of that 4-D lattice chosen in ⚙ Controls › Dimensions:
 //  · each base dimension can be shown or hidden (hidden = its exponent is ignored, so points
 //    that differ only there land on one sphere and become beads, as in the SI view);
-//  · with all four shown, the fourth (A) is drawn as an oblique axis (scaled by λ), as short
-//    stalks off each L·M·T point, or one A-slice at a time.
+//  · with all four shown, the fourth (A) is drawn as short vertical stalks off each L·M·T point,
+//    or one A-slice at a time.
+// The default is the SI view: angle hidden, so rad counts as 1.
 // The projection is linear, so drawn vectors still add: multiplying quantities stays tip-to-tail.
 const DIMS=['L','M','T','A'];
 const DIM_NAME={L:'length',M:'mass',T:'time',A:'angle'};
-const VIEW_DEFAULT={vis:{L:true,M:true,T:true,A:true},mode:'oblique',lam:1,slice:1,frac:false};
+const VIEW_DEFAULT={vis:{L:true,M:true,T:true,A:false},mode:'stalk',slice:1,frac:false};
 let VIEW=JSON.parse(JSON.stringify(VIEW_DEFAULT));
-try{const sv=JSON.parse(localStorage.getItem('pms.view')||'null');if(sv&&sv.vis)VIEW={...VIEW,...sv,vis:{...VIEW.vis,...sv.vis}};}catch{}
-const saveView=()=>{try{localStorage.setItem('pms.view',JSON.stringify(VIEW));}catch{}};
-// A generic direction (not a rational mix of the three axes), so distinct lattice points never coincide
-const E_OBL=new THREE.Vector3(-0.43,-0.61,0.29);
-const E_STALK=E_OBL.clone().normalize().multiplyScalar(0.45);
+try{const sv=JSON.parse(localStorage.getItem('pms.view2')||'null');if(sv&&sv.vis)VIEW={...VIEW,...sv,vis:{...VIEW.vis,...sv.vis}};}catch{}
+if(!['stalk','slice'].includes(VIEW.mode)) VIEW.mode='stalk';
+const saveView=()=>{try{localStorage.setItem('pms.view2',JSON.stringify(VIEW));}catch{}};
+// Stalks point straight up; 0.45 per angle power never lands on a whole or half M step
+const E_STALK=new THREE.Vector3(0,0.45,0);
 const SLOT_DIR=[new THREE.Vector3(1,0,0),new THREE.Vector3(0,1,0),new THREE.Vector3(0,0,1)];
 // Which base dimension sits on each of the three orthogonal axes, and whether A is the extra one
 function slots(){
@@ -521,8 +522,7 @@ function proj(v){
   v=v4(v); const p=new THREE.Vector3();
   SLOTS.s.forEach((d,i)=>{if(d) p.addScaledVector(SLOT_DIR[i],v[DIMS.indexOf(d)]);});
   if(SLOTS.extraA){
-    if(VIEW.mode==='oblique') p.addScaledVector(E_OBL,v[3]*VIEW.lam);
-    else if(VIEW.mode==='stalk') p.addScaledVector(E_STALK,v[3]);
+    if(VIEW.mode==='stalk') p.addScaledVector(E_STALK,v[3]);
   }
   return p;
 }
@@ -577,7 +577,6 @@ function buildAxes(){
     }
   };
   SLOTS.s.forEach((d,i)=>{if(d) add(SLOT_DIR[i],d,AX);});
-  if(SLOTS.extraA&&VIEW.mode==='oblique'&&VIEW.lam>0.02) add(E_OBL.clone().multiplyScalar(VIEW.lam),'A',4);
   const gMat=new THREE.LineBasicMaterial({color:TH.grid,transparent:true,opacity:0.8});
   for(let i=-5;i<=5;i++){
     const aL=(a,b)=>axisGroup.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(...a),new THREE.Vector3(...b)]),gMat));
@@ -1465,14 +1464,11 @@ function updateDimUI(){
   dimUI.frac.forEach(b=>b.classList.toggle('on',String(!!VIEW.frac)===b.dataset.f));
   const four=DIMS.every(d=>VIEW.vis[d]);
   dimUI.mode.forEach(b=>{b.classList.toggle('on',b.dataset.v===VIEW.mode);b.disabled=!four;b.style.opacity=four?1:.45;});
-  dimUI.lamRow.style.display=four&&VIEW.mode==='oblique'?'flex':'none';
   dimUI.sliceRow.style.display=four&&VIEW.mode==='slice'?'flex':'none';
-  dimUI.lam.value=Math.round(VIEW.lam*100); dimUI.lamV.textContent=`λ ${VIEW.lam.toFixed(2)}`;
   dimUI.slice.value=VIEW.slice; dimUI.sliceV.textContent=`A = ${VIEW.slice}`;
   const shown=DIMS.filter(d=>VIEW.vis[d]);
   dimUI.note.textContent=four
-    ?{oblique:'All four shown. Angle runs along a slanted fourth axis; λ shrinks it to 0, where angle stops separating points (the SI view).',
-      stalk:'All four shown. Each L·M·T point grows a short stalk; beads along it are its angle powers A⁻²…A².',
+    ?{stalk:'All four shown. Each L·M·T point grows a short vertical stalk; beads along it are its angle powers A⁻²…A².',
       slice:'All four shown. Only one angle layer is solid; the others are ghosts.'}[VIEW.mode]
     :`Showing ${shown.join(', ')||'nothing'}. Hidden exponents are ignored, so points that differ only there share a sphere (shown as beads).`;
 }
@@ -1492,7 +1488,7 @@ function updateDimUI(){
   });
   const l2=document.createElement('div'); l2.className='pl'; l2.style.margin='9px 0 5px'; l2.textContent='4-D view (when all four are shown)';
   const segM=document.createElement('div'); segM.className='segs';
-  dimUI.mode=[['Oblique','oblique'],['Stalks','stalk'],['Slices','slice']].map(([t,v])=>{
+  dimUI.mode=[['Stalks','stalk'],['Slices','slice']].map(([t,v])=>{
     const b=document.createElement('button'); b.className='seg'; b.dataset.v=v; b.textContent=t;
     b.addEventListener('click',()=>{VIEW.mode=v;applyView();});
     b.addEventListener('mousedown',e=>e.stopPropagation());
@@ -1505,9 +1501,6 @@ function updateDimUI(){
     const v=document.createElement('span'); v.className='pv';
     row.append(r,v); return{row,r,v};
   };
-  const L=mkRow(0,100,1); dimUI.lamRow=L.row; dimUI.lam=L.r; dimUI.lamV=L.v;
-  L.r.style.background=`linear-gradient(to right,${dimColor('A',-2).css},${dimColor('A',2).css})`;
-  L.r.addEventListener('input',()=>{VIEW.lam=+L.r.value/100;applyView();});
   const S=mkRow(-2,2,1); dimUI.sliceRow=S.row; dimUI.slice=S.r; dimUI.sliceV=S.v;
   S.r.addEventListener('input',()=>{VIEW.slice=+S.r.value;applyView();});
   const l3=document.createElement('div'); l3.className='pl'; l3.style.margin='9px 0 5px'; l3.textContent='Fractional exponents (√Hz noise, Gaussian units)';
@@ -1523,7 +1516,7 @@ function updateDimUI(){
   const reset=document.createElement('button'); reset.className='pbtn'; reset.textContent='SI view (hide angle)';
   reset.style.marginTop='7px'; reset.style.width='100%';
   reset.addEventListener('click',()=>{VIEW.vis={L:true,M:true,T:true,A:false};applyView();});
-  div.append(l1,segV,l2,segM,L.row,S.row,l3,segF,dimUI.note,reset);
+  div.append(l1,segV,l2,segM,S.row,l3,segF,dimUI.note,reset);
   panel.appendChild(acc('DIMENSIONS',div,true));
   updateDimUI();
 })();
@@ -1762,8 +1755,9 @@ formulaObjs.forEach(fo=>{
   ['control','Reset view','Return the camera to its start (R)',['reset','home','camera','view','recenter'],()=>{showControl('VIEW');window.dispatchEvent(new KeyboardEvent('keydown',{key:'r'}));}],
   ['control','Hover tooltip','Hover a sphere to see every quantity at that point; click to copy',['tooltip','hover','copy','clipboard','info'],()=>focusPoint(PT_BY_KEY.get(keyOf(1,1,-2)),'Force')],
   ['control','Dimensions: unit vectors shown','Show or hide L, M, T or angle A',['dimension','dimensions','unit vector','axis','axes','hide','angle','radian','4d','four'],()=>showControl('DIMENSIONS')],
-  ['control','4-D view: oblique, stalks, slices','How the fourth exponent (angle) is drawn',['4d','4-d','fourth','oblique','stalk','stalks','slice','slices','lambda','λ','projection'],()=>showControl('DIMENSIONS')],
+  ['control','4-D view: stalks, slices','How the fourth exponent (angle) is drawn',['4d','4-d','fourth','stalk','stalks','slice','slices','projection'],()=>showControl('DIMENSIONS')],
   ['control','Fractional exponents','Show quantities with half-integer exponents (√Hz noise densities, Gaussian units)',['fractional','fraction','half','sqrt','√','noise','gaussian','cgs','hz'],()=>{VIEW.frac=true;applyView();showControl('DIMENSIONS');}],
+  ['control','Show angle as a dimension','Give rad its own exponent: torque separates from energy',['angle','radian','rad','4d','torque','show angle'],()=>{VIEW.vis={...VIEW.vis,A:true};applyView();showControl('DIMENSIONS');}],
   ['control','SI view (angle hidden)','Treat rad as 1: angle quantities fold onto L·M·T',['si','radian','dimensionless','hide angle','rad'],()=>{VIEW.vis={L:true,M:true,T:true,A:false};applyView();showControl('DIMENSIONS');}],
   ['control','Dimensionless origin','(0,0,0,0): strain, Mach & Reynolds numbers',['origin','dimensionless','zero','unitless','ratio'],()=>focusPoint(PT_BY_KEY.get(keyOf(0,0,0)),'Strain')],
 ].forEach(([kind,title,sub,keys,go])=>SEARCH_INDEX.push({kind,title,sub,keys,sym:[],go}));
@@ -1880,7 +1874,7 @@ const GLOSS={
     v:SVG(150,44,`<path d="M6 22 L70 10 L70 34Z" fill="#9bf" opacity=".35"/><text x="20" y="44" fill="#9bf" font-size="8">narrow</text><path d="M86 22 L146 0 L146 44Z" fill="#fc8" opacity=".35"/><text x="104" y="44" fill="#fc8" font-size="8">wide</text>`)},
   angledim:{t:'Angle as a dimension',h:'Here angle gets its own exponent A, with 1 rad as its unit. A solid angle is rad² (A²), and a cycle is 2π rad, so frequency and angular velocity share A·T⁻¹. Torque is energy per radian (A⁻¹). The SI instead treats rad as 1, which is the view with A hidden. Drawing four exponents needs a [[proj4|4-D view]].',
     v:SVG(180,46,`<text x="0" y="14" fill="#c9a2ff" font-size="10">Energy  L²M T⁻² A⁰</text><text x="0" y="30" fill="#3fd6c0" font-size="10">Torque  L²M T⁻² A⁻¹</text><text x="0" y="44" fill="#99a" font-size="9">same L·M·T, different A</text>`)},
-  proj4:{t:'4-D view',h:'The screen has three directions, so a fourth exponent needs a choice: a slanted extra axis (shrink it with λ), short stalks off each point, or one slice at a time. All are [[linproj|projections]]. Hiding a dimension is a projection too.'},
+  proj4:{t:'4-D view',h:'The screen has three directions, so a fourth exponent needs a choice: short vertical stalks off each point, or one slice at a time. All are [[linproj|projections]]. Hiding a dimension is a projection too.'},
   linproj:{t:'Projection',h:'A rule that sends each 4-D point to a 3-D spot. These are linear: the spot of A + B is the spot of A plus the spot of B, so drawn vectors still chain tip to tail. Points that land on the same spot share a sphere and show as beads.'},
   colour:{t:'Colour = position',h:'Each point is coloured from its [[coord|coordinate]]: the L exponent sets green↔pink, T sets blue↔yellow, M sets darker↔lighter. The colours are [[perceptual|perceptually uniform]], so nearby points look alike.',
     v:SVG(170,52,[['L',-3,3,c=>coordToColor(c,0,0)],['T',-4,1,c=>coordToColor(0,0,c)],['M',-1,1,c=>coordToColor(0,c,0)]].map(([s,a,b,f],i)=>`<defs><linearGradient id="g${s}"><stop offset="0" stop-color="${f(a).css}"/><stop offset="1" stop-color="${f(b).css}"/></linearGradient></defs><text x="0" y="${12+i*17}" fill="#aab" font-size="9">${s}</text><rect x="14" y="${4+i*17}" width="150" height="10" rx="3" fill="url(#g${s})"/>`).join(''))},
@@ -1999,10 +1993,10 @@ const TUTS=[
     {h:'This is [[ortho|orthographic]]: grid lines stay parallel, so coordinates are easy to read. Slide right for [[persp|perspective]] with a wider [[fov|field of view]].'},
   ]},
   {id:'angle',title:'Angle as a dimension',blurb:'A fourth exponent and how to draw it',steps:[
-    {h:'Angle has its own exponent here: [[angledim|angle as a dimension]]. Torque is energy per radian, so it sits one step along the teal angle axis from Energy.',
-     btn:['Show Torque',()=>focusPoint(PT_OF_NAME.get('Torque'),'Torque')],enter:()=>showControl('DIMENSIONS')},
-    {h:'Under ⚙ Dimensions you choose which unit vectors are drawn and the [[proj4|4-D view]].',act:'Change any Dimensions setting: drag λ, pick Stalks or Slices, or toggle a letter.',wait:'view',enter:()=>showControl('DIMENSIONS')},
-    {h:'Press <b>SI view</b> to hide angle: Torque falls onto Energy’s sphere and becomes a bead. Operators ∂/∂θ, ∫dθ and ∫dΩ move along the angle axis, e.g. ∫ torque dθ = work.',
+    {h:'The default is the SI view, where rad counts as 1: Torque shares Energy’s sphere as a bead. Angle can also be [[angledim|a dimension]] of its own.',
+     btn:['Show angle',()=>{VIEW.vis={...VIEW.vis,A:true};applyView();focusPoint(PT_OF_NAME.get('Torque'),'Torque');}],enter:()=>showControl('DIMENSIONS')},
+    {h:'With A on, Torque is energy per radian: it sits one stalk step below Energy. Under ⚙ Dimensions you choose which unit vectors are drawn and the [[proj4|4-D view]].',act:'Change any Dimensions setting: pick Stalks or Slices, or toggle a letter.',wait:'view',enter:()=>showControl('DIMENSIONS')},
+    {h:'Operators ∂/∂θ, ∫dθ and ∫dΩ move along the angle stalks, e.g. ∫ torque dθ = work. Press <b>SI view</b> to fold angle back in.',
      btn:['SI view',()=>{VIEW.vis={L:true,M:true,T:true,A:false};applyView();}]},
   ]},
   {id:'labels',title:'Labels & view',blurb:'Legibility, visibility, rotation',steps:[
@@ -2168,7 +2162,9 @@ layoutView();
 //  · a missing key means the frozen SHARE_V1 default below, never the app's current default;
 //  · quantities are named by their exponents (L,M,T,A), which are physics and never change,
 //    not by list position or display name; operators and laws by their fixed ids;
-//  · anything unknown or out of range is skipped, so a link from a newer version still opens.
+//  · anything unknown or out of range is skipped, so a link from a newer version still opens;
+//  · a retired setting is mapped to its nearest replacement: the oblique angle axis is gone, so
+//    mode=oblique (also the v1 default) opens as stalks, and lam is accepted and ignored.
 const REPO_URL='https://github.com/Dentarthurdent42/physical-metric-space';
 const SHARE_VERSION=1;
 const SHARE_V1={cam:[9,6,11],tgt:[0,0,0],fov:50,zoom:1,dims:'LMTA',mode:'oblique',lam:1,slice:1,frac:false,
@@ -2182,7 +2178,7 @@ const vecParse=(s,n)=>{const a=String(s).split(',').map(numParse);return a.lengt
 const ptStr=p=>ptv(p).map(fracStr).join(',');
 const ptParse=s=>{const a=String(s).split(',').map(numParse);
   return a.length>=3&&a.length<=4&&a.every(v=>v!==null)?PT_BY_KEY.get(keyOf(...a))||null:null;};
-const MODES=['oblique','stalk','slice'], VISV=['full','low','hidden'], LFX=['none','shadow','halo','outline','pill','glow'];
+const MODES=['oblique','stalk','slice'], MODE_NOW={oblique:'stalk',stalk:'stalk',slice:'slice'}, VISV=['full','low','hidden'], LFX=['none','shadow','halo','outline','pill','glow'];
 
 function shareState(){
   const st={v:SHARE_VERSION};
@@ -2190,9 +2186,8 @@ function shareState(){
   st.cam=vecStr(cam.toArray()); st.tgt=vecStr(tgt.toArray());
   if(usingOrtho){st.proj='ortho'; st.zoom=numStr(orthoCam.zoom);} else st.fov=numStr(perspCam.fov);
   const dims=DIMS.filter(d=>VIEW.vis[d]).join('');
-  if(dims!==SHARE_V1.dims) st.dims=dims;
-  if(VIEW.mode!==SHARE_V1.mode) st.mode=VIEW.mode;
-  if(VIEW.lam!==SHARE_V1.lam) st.lam=numStr(VIEW.lam);
+  st.dims=dims;   // always explicit: the app's default (SI) differs from the frozen v1 default (LMTA)
+  if(dims==='LMTA') st.mode=VIEW.mode;   // always explicit: the v1 default (oblique) no longer exists
   if(VIEW.slice!==SHARE_V1.slice) st.slice=VIEW.slice;
   if(!!VIEW.frac!==SHARE_V1.frac) st.frac=VIEW.frac?1:0;
   if(metricsVis!==SHARE_V1.spheres) st.spheres=metricsVis;
@@ -2226,8 +2221,7 @@ function applyShare(hash){
   // Dimensions first: they decide where every point sits
   const dims=get('dims',s=>/^[LMTA]{1,4}$/.test(s)?s:null);
   VIEW.vis=Object.fromEntries(DIMS.map(d=>[d,dims.includes(d)]));
-  VIEW.mode=get('mode',oneOf(MODES));
-  VIEW.lam=get('lam',numParse,v=>v>=0&&v<=1);
+  VIEW.mode=MODE_NOW[get('mode',oneOf(MODES))];
   VIEW.slice=get('slice',numParse,v=>Number.isInteger(v)&&v>=-2&&v<=2);
   VIEW.frac=get('frac',bool);
   // Overlays are cleared, then rebuilt from the link
