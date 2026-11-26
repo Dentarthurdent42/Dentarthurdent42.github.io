@@ -218,6 +218,12 @@ body.panel-open #tl{max-height:calc(100% - min(46vh,440px) - 110px);overflow-y:a
   background:rgba(255,255,255,.04);color:#cce0ff;font:15px/1 'Courier New',monospace;cursor:pointer;
   touch-action:manipulation;-webkit-tap-highlight-color:transparent}
 #themeBtn:hover{background:rgba(255,255,255,.1)}
+#shareBtn{flex-shrink:0;width:36px;height:36px;border-radius:50%;border:1px solid rgba(255,255,255,.14);
+  background:rgba(255,255,255,.04);color:#cce0ff;font:15px/1 'Courier New',monospace;cursor:pointer;
+  touch-action:manipulation;-webkit-tap-highlight-color:transparent}
+#shareBtn:hover{background:rgba(255,255,255,.1)}
+.plink{display:block;margin-top:7px;color:var(--acc);text-decoration:none;font-size:10px}
+.plink:hover{text-decoration:underline}
 /* ── Light theme: same layout, inverted surfaces, darker inks ── */
 :root[data-theme=light]{--acc:#1f4fbf;--pv:#4a5a8a;color-scheme:light}
 :root[data-theme=light],:root[data-theme=light] body{background:#e4e8f2}
@@ -233,9 +239,9 @@ body.panel-open #tl{max-height:calc(100% - min(46vh,440px) - 110px);overflow-y:a
 :root[data-theme=light] #dock{background:#f8f9fd;border-color:rgba(50,70,160,.2);box-shadow:0 10px 32px rgba(30,40,90,.18)}
 :root[data-theme=light] #panel{background:#f8f9fd;border-color:rgba(50,70,160,.18);color:#445;box-shadow:0 12px 40px rgba(30,40,90,.2)}
 :root[data-theme=light] #badge{color:#5a6c94}
-:root[data-theme=light] #tab,:root[data-theme=light] #drawBtn,:root[data-theme=light] #helpBtn,:root[data-theme=light] #themeBtn,
+:root[data-theme=light] #tab,:root[data-theme=light] #drawBtn,:root[data-theme=light] #helpBtn,:root[data-theme=light] #themeBtn,:root[data-theme=light] #shareBtn,
 :root[data-theme=light] .seg,:root[data-theme=light] .pbtn{background:#eef1f8;border-color:rgba(30,40,90,.16);color:#3a4a7a}
-:root[data-theme=light] #tab:hover,:root[data-theme=light] #drawBtn:hover,:root[data-theme=light] #helpBtn:hover,:root[data-theme=light] #themeBtn:hover,
+:root[data-theme=light] #tab:hover,:root[data-theme=light] #drawBtn:hover,:root[data-theme=light] #helpBtn:hover,:root[data-theme=light] #themeBtn:hover,:root[data-theme=light] #shareBtn:hover,
 :root[data-theme=light] .seg:hover,:root[data-theme=light] .pbtn:hover{background:rgba(30,40,90,.1);color:#223}
 :root[data-theme=light] #tab.open,:root[data-theme=light] #drawBtn.on,:root[data-theme=light] .seg.on,:root[data-theme=light] .pbtn.on{background:rgba(60,90,220,.14);border-color:rgba(60,90,220,.45);color:#1f4fbf}
 :root[data-theme=light] .ti,:root[data-theme=light] .tmh,:root[data-theme=light] .ch{color:#3a4fd0}
@@ -332,6 +338,7 @@ body.panel-open #tl{max-height:calc(100% - min(46vh,440px) - 110px);overflow-y:a
         <div id="sres" role="listbox"></div>
       </div>
     </div>
+    <button id="shareBtn" title="Copy a link to this exact view" aria-label="Share a link to this view">🔗</button>
     <button id="themeBtn" title="Switch light / dark" aria-label="Switch light / dark theme"></button>
     <button id="tab" title="Controls" aria-label="Controls"><span class="ti">⚙</span><span class="tl">Controls</span></button>
     <div id="badge"></div>
@@ -1103,14 +1110,14 @@ function setOperator(op){
 // vector, so the law is a path from the origin that steps along each factor's ray in turn. The
 // steps can wander through fractional points even when the law lands on a whole-number one.
 const POWER_LAWS=[
-  {label:'E(k) = C·ε²ᐟ³·k⁻⁵ᐟ³', desc:'Kolmogorov turbulence spectrum', lands:'Energy Spectrum E(k)', terms:[['ε',[2,0,-3],2/3],['k',[-1,0,0],-5/3]]},
-  {label:'η = (ν³/ε)¹ᐟ⁴',       desc:'Kolmogorov length scale',        terms:[['ν',[2,0,-1],3/4],['ε',[2,0,-3],-1/4]]},
-  {label:'τη = (ν/ε)¹ᐟ²',       desc:'Kolmogorov time scale',          terms:[['ν',[2,0,-1],1/2],['ε',[2,0,-3],-1/2]]},
-  {label:'ω = √(g/L)·rad',      desc:'pendulum angular frequency',     lands:'Angular Frequency ω', terms:[['g',[1,0,-2],1/2],['L',[1,0,0],-1/2],['rad',[0,0,0,1],1]]},
-  {label:'v = √(T/μ)',          desc:'wave speed on a string',         terms:[['T',[1,1,-2],1/2],['μ',[-1,1,0],-1/2]]},
-  {label:'v = √(2GM/r)',        desc:'escape velocity',                terms:[['GM',[3,0,-2],1/2],['r',[1,0,0],-1/2]]},
-  {label:'T = 2π√(a³/GM)',      desc:"Kepler's third law",             terms:[['a',[1,0,0],3/2],['GM',[3,0,-2],-1/2]]},
-  {label:'ℓ = √(D·t)',          desc:'diffusion length',               terms:[['D',[2,0,-1],1/2],['t',[0,0,1],1/2]]},
+  {id:'kolmogorov-spectrum', label:'E(k) = C·ε²ᐟ³·k⁻⁵ᐟ³', desc:'Kolmogorov turbulence spectrum', lands:'Energy Spectrum E(k)', terms:[['ε',[2,0,-3],2/3],['k',[-1,0,0],-5/3]]},
+  {id:'kolmogorov-length', label:'η = (ν³/ε)¹ᐟ⁴',       desc:'Kolmogorov length scale',        terms:[['ν',[2,0,-1],3/4],['ε',[2,0,-3],-1/4]]},
+  {id:'kolmogorov-time', label:'τη = (ν/ε)¹ᐟ²',       desc:'Kolmogorov time scale',          terms:[['ν',[2,0,-1],1/2],['ε',[2,0,-3],-1/2]]},
+  {id:'pendulum', label:'ω = √(g/L)·rad',      desc:'pendulum angular frequency',     lands:'Angular Frequency ω', terms:[['g',[1,0,-2],1/2],['L',[1,0,0],-1/2],['rad',[0,0,0,1],1]]},
+  {id:'string-wave', label:'v = √(T/μ)',          desc:'wave speed on a string',         terms:[['T',[1,1,-2],1/2],['μ',[-1,1,0],-1/2]]},
+  {id:'escape-velocity', label:'v = √(2GM/r)',        desc:'escape velocity',                terms:[['GM',[3,0,-2],1/2],['r',[1,0,0],-1/2]]},
+  {id:'kepler-third', label:'T = 2π√(a³/GM)',      desc:"Kepler's third law",             terms:[['a',[1,0,0],3/2],['GM',[3,0,-2],-1/2]]},
+  {id:'diffusion-length', label:'ℓ = √(D·t)',          desc:'diffusion length',               terms:[['D',[2,0,-1],1/2],['t',[0,0,1],1/2]]},
 ];
 const termStr=([sym,,p])=>p===1?sym:sym+supStr(fracStr(p));
 function setLaw(law){
@@ -1234,6 +1241,11 @@ drawBtn.addEventListener('click',()=>setDrawMode(!drawMode));
 
 // ── Labels ────────────────────────────────────────────────────────────────────
 let lblSize=9.5, lblFont="'Courier New',monospace", lblEffect='halo';
+// [stable id used in share links, menu name, CSS font stack]
+const LBL_FONTS=[['courier','Courier New',"'Courier New',monospace"],['system','System UI','system-ui,sans-serif'],['arial','Arial','Arial,sans-serif'],
+  ['georgia','Georgia','Georgia,serif'],['optima','Optima','Optima,Candara,sans-serif'],['times','Times New Roman',"'Times New Roman',serif"],
+  ['palatino','Palatino','Palatino,serif'],['menlo','Menlo','Menlo,Monaco,monospace'],['sysmono','System Mono','ui-monospace,monospace']];
+const lblUI={}, visUI={};
 function applyNodeEffect(){
   PTS.forEach(pt=>{
     pt.rim.visible=false; pt.rim.material.opacity=0; pt.rim.scale.setScalar(pt.sc);
@@ -1408,6 +1420,7 @@ c3d.addEventListener('pointerup',e=>{
 
 // ── Panel ─────────────────────────────────────────────────────────────────────
 let rotBtn, fovSlider, fovValLbl;
+function setAutoRot(on){autoRotOn=on;controls.autoRotate=on;rotBtn.textContent=on?'⏸ Pause':'▶ Rotate';rotBtn.style.color=on?'var(--acc)':'';}
 const SECTIONS={};
 function acc(title,content,open=true){
   const sec=document.createElement('div'); sec.className='psec';
@@ -1528,9 +1541,9 @@ function updateDimUI(){
   const fr=document.createElement('div'); fr.style.cssText='margin:5px 0;display:flex;flex-direction:column;gap:3px;';
   const fl=document.createElement('div'); fl.className='pl'; fl.textContent='Typeface';
   const fsel=document.createElement('select');
-  [["Courier New","'Courier New',monospace"],['System UI','system-ui,sans-serif'],['Arial','Arial,sans-serif'],['Georgia','Georgia,serif'],['Optima','Optima,Candara,sans-serif'],["Times New Roman","'Times New Roman',serif"],['Palatino','Palatino,serif'],['Menlo',"Menlo,Monaco,monospace"],['System Mono','ui-monospace,monospace']].forEach(([l,f])=>{const o=document.createElement('option');o.value=f;o.textContent=l;if(f===lblFont)o.selected=true;fsel.appendChild(o);});
+  LBL_FONTS.forEach(([,l,f])=>{const o=document.createElement('option');o.value=f;o.textContent=l;if(f===lblFont)o.selected=true;fsel.appendChild(o);});
   fsel.addEventListener('change',()=>{lblFont=fsel.value;});fsel.addEventListener('mousedown',e=>e.stopPropagation());
-  fr.append(fl,fsel); div.appendChild(fr);
+  fr.append(fl,fsel); div.appendChild(fr); Object.assign(lblUI,{ss,sv2,fsel});
   const xl=document.createElement('div'); xl.className='pl'; xl.style.cssText='margin:6px 0 5px;'; xl.textContent='Legibility effect';
   const xs=document.createElement('div'); xs.className='segs';
   [['None','none'],['Shadow','shadow'],['Halo','halo'],['Outline','outline'],['Pill','pill'],['Glow','glow']].forEach(([l,v])=>{
@@ -1539,7 +1552,7 @@ function updateDimUI(){
     btn.addEventListener('mousedown',e=>e.stopPropagation());
     xs.appendChild(btn);
   });
-  div.append(xl,xs);
+  div.append(xl,xs); lblUI.xs=xs;
   panel.appendChild(acc('LABELS',div,true));
 })();
 
@@ -1556,7 +1569,7 @@ function updateDimUI(){
       btn.addEventListener('mousedown',e=>e.stopPropagation());
       segs.appendChild(btn);
     });
-    row.append(lbl,segs); return row;
+    row.append(lbl,segs); visUI[label]=segs; return row;
   }
   div.appendChild(mkVRow('Spheres',()=>metricsVis,v=>{metricsVis=v;applyMetricsVis();}));
   div.appendChild(mkVRow('Labels',()=>labelsVis,v=>{labelsVis=v;}));
@@ -1568,7 +1581,7 @@ function updateDimUI(){
   const div=document.createElement('div');
   const row=document.createElement('div'); row.className='prow';
   rotBtn=document.createElement('button'); rotBtn.className='pbtn'; rotBtn.textContent='▶ Rotate';
-  rotBtn.addEventListener('click',()=>{autoRotOn=!autoRotOn;controls.autoRotate=autoRotOn;rotBtn.textContent=autoRotOn?'⏸ Pause':'▶ Rotate';rotBtn.style.color=autoRotOn?'var(--acc)':'';});
+  rotBtn.addEventListener('click',()=>setAutoRot(!autoRotOn));
   rotBtn.addEventListener('mousedown',e=>e.stopPropagation());
   const rb=document.createElement('button'); rb.className='pbtn'; rb.textContent='↺ Reset';
   rb.addEventListener('click',()=>{
@@ -2105,7 +2118,7 @@ window.addEventListener('keydown',e=>{
   if(e.target.closest&&e.target.closest('button')&&(e.key===' '||e.key==='Enter')) return;
   KEYS[e.key]=true;
   if(e.key==='/'){sq.focus();sq.select();e.preventDefault();return;}
-  if(e.key===' '){autoRotOn=!autoRotOn;controls.autoRotate=autoRotOn;rotBtn.textContent=autoRotOn?'⏸ Pause':'▶ Rotate';rotBtn.style.color=autoRotOn?'var(--acc)':'';e.preventDefault();}
+  if(e.key===' '){setAutoRot(!autoRotOn);e.preventDefault();}
   if(e.key==='r'||e.key==='R'){
     if(usingOrtho){controls.object=perspCam;controls.minDistance=2;controls.maxDistance=60;usingOrtho=false;activeCamera=perspCam;}
     perspCam.fov=INIT_FOV;perspCam.position.copy(INIT_POS);perspCam.updateProjectionMatrix();
@@ -2146,6 +2159,170 @@ function layoutView(){
 window.addEventListener('resize',layoutView);
 if(window.ResizeObserver) new ResizeObserver(()=>layoutView()).observe(document.getElementById('tl'));
 layoutView();
+
+// ── Share links ───────────────────────────────────────────────────────────────
+// The whole view fits in the URL fragment (#v=1&cam=…&vec=…), so a link reopens exactly what you
+// saw, on any static host, with nothing stored on a server. The format is a public contract
+// (documented in the README); to keep old links working for good:
+//  · keys are never renamed, removed or given a new meaning; new settings get new keys;
+//  · a missing key means the frozen SHARE_V1 default below, never the app's current default;
+//  · quantities are named by their exponents (L,M,T,A), which are physics and never change,
+//    not by list position or display name; operators and laws by their fixed ids;
+//  · anything unknown or out of range is skipped, so a link from a newer version still opens.
+const REPO_URL='https://github.com/Dentarthurdent42/physical-metric-space';
+const SHARE_VERSION=1;
+const SHARE_V1={cam:[9,6,11],tgt:[0,0,0],fov:50,zoom:1,dims:'LMTA',mode:'oblique',lam:1,slice:1,frac:false,
+  spheres:'full',labels:'full',lsize:9.5,lfont:'courier',lfx:'halo',formulas:false,rot:false,n:2/3};
+const numStr=v=>String(+(+v).toFixed(3));
+const numParse=s=>{const m=/^(-?\d+(?:\.\d+)?)(?:\/(\d+(?:\.\d+)?))?$/.exec(String(s).trim());
+  if(!m)return null;const v=m[2]?+m[1]/+m[2]:+m[1];return Number.isFinite(v)?v:null;};
+const vecStr=a=>a.map(numStr).join(',');
+const vecParse=(s,n)=>{const a=String(s).split(',').map(numParse);return a.length===n&&a.every(v=>v!==null)?a:null;};
+// A 4-D lattice point, written with exact fractions: 1,0,-2,0 or -1/2,1/2,-1,0
+const ptStr=p=>ptv(p).map(fracStr).join(',');
+const ptParse=s=>{const a=String(s).split(',').map(numParse);
+  return a.length>=3&&a.length<=4&&a.every(v=>v!==null)?PT_BY_KEY.get(keyOf(...a))||null:null;};
+const MODES=['oblique','stalk','slice'], VISV=['full','low','hidden'], LFX=['none','shadow','halo','outline','pill','glow'];
+
+function shareState(){
+  const st={v:SHARE_VERSION};
+  const cam=activeCamera.position, tgt=controls.target;
+  st.cam=vecStr(cam.toArray()); st.tgt=vecStr(tgt.toArray());
+  if(usingOrtho){st.proj='ortho'; st.zoom=numStr(orthoCam.zoom);} else st.fov=numStr(perspCam.fov);
+  const dims=DIMS.filter(d=>VIEW.vis[d]).join('');
+  if(dims!==SHARE_V1.dims) st.dims=dims;
+  if(VIEW.mode!==SHARE_V1.mode) st.mode=VIEW.mode;
+  if(VIEW.lam!==SHARE_V1.lam) st.lam=numStr(VIEW.lam);
+  if(VIEW.slice!==SHARE_V1.slice) st.slice=VIEW.slice;
+  if(!!VIEW.frac!==SHARE_V1.frac) st.frac=VIEW.frac?1:0;
+  if(metricsVis!==SHARE_V1.spheres) st.spheres=metricsVis;
+  if(labelsVis!==SHARE_V1.labels) st.labels=labelsVis;
+  if(lblSize!==SHARE_V1.lsize) st.lsize=numStr(lblSize);
+  const font=LBL_FONTS.find(f=>f[2]===lblFont); if(font&&font[0]!==SHARE_V1.lfont) st.lfont=font[0];
+  if(lblEffect!==SHARE_V1.lfx) st.lfx=lblEffect;
+  if(showFormulas!==SHARE_V1.formulas) st.formulas=showFormulas?1:0;
+  if(autoRotOn!==SHARE_V1.rot) st.rot=autoRotOn?1:0;
+  if(activeOp){st.op=activeOp.id; if(activeOp===POW_OP) st.n=fracStr(POW_OP.scale);}
+  else if(activeLaw) st.law=activeLaw.id;
+  if(userVecs.length) st.vec=userVecs.map(u=>`${ptStr(u.from)}~${ptStr(u.to)}`).join(';');
+  if(focusPt&&vcard.style.display==='block'&&!selectedUV) st.focus=ptStr(focusPt);
+  // Only characters that need no escaping in a fragment: letters, digits , ; ~ / . -
+  return Object.entries(st).map(([k,v])=>`${k}=${v}`).join('&');
+}
+function shareURL(){return location.href.replace(/#.*$/,'')+'#'+shareState();}
+
+// Applies a fragment; returns how many entries could not be used (so the viewer can be told)
+function applyShare(hash){
+  const q=new Map();
+  hash.replace(/^#/,'').split('&').forEach(kv=>{const i=kv.indexOf('=');if(i>0){
+    try{q.set(decodeURIComponent(kv.slice(0,i)),decodeURIComponent(kv.slice(i+1)));}catch{}}});
+  if(!q.has('v')&&!q.has('cam')) return null;          // not a share link (e.g. some other #anchor)
+  const ver=parseInt(q.get('v')||'1',10)||1;
+  let skipped=0;
+  const get=(k,parse,ok=()=>true)=>{if(!q.has(k))return SHARE_V1[k];const v=parse(q.get(k));
+    if(v===null||v===undefined||!ok(v)){skipped++;return SHARE_V1[k];}return v;};
+  const bool=s=>s==='1'?true:s==='0'?false:null;
+  const oneOf=list=>s=>list.includes(s)?s:null;
+  // Dimensions first: they decide where every point sits
+  const dims=get('dims',s=>/^[LMTA]{1,4}$/.test(s)?s:null);
+  VIEW.vis=Object.fromEntries(DIMS.map(d=>[d,dims.includes(d)]));
+  VIEW.mode=get('mode',oneOf(MODES));
+  VIEW.lam=get('lam',numParse,v=>v>=0&&v<=1);
+  VIEW.slice=get('slice',numParse,v=>Number.isInteger(v)&&v>=-2&&v<=2);
+  VIEW.frac=get('frac',bool);
+  // Overlays are cleared, then rebuilt from the link
+  hideCard(); setDrawMode(false); setOperator(null);
+  [...userVecs].forEach(removeUserVector);
+  applyView();
+  // Visibility and labels (through their controls, so the panel shows the same thing)
+  const seg=(segs,v)=>segs&&segs.querySelectorAll('.seg').forEach(b=>b.classList.toggle('on',b.dataset.v===v));
+  metricsVis=get('spheres',oneOf(VISV)); seg(visUI.Spheres,metricsVis); applyMetricsVis();
+  labelsVis=get('labels',oneOf(VISV)); seg(visUI.Labels,labelsVis);
+  lblSize=get('lsize',numParse,v=>v>=6&&v<=20); lblUI.ss.value=lblSize; lblUI.sv2.textContent=`${lblSize}px`;
+  const fid=get('lfont',s=>LBL_FONTS.some(f=>f[0]===s)?s:null);
+  lblFont=LBL_FONTS.find(f=>f[0]===fid)[2]; lblUI.fsel.value=lblFont;
+  lblEffect=get('lfx',oneOf(LFX)); seg(lblUI.xs,lblEffect); applyNodeEffect();
+  setFormulas(get('formulas',bool));
+  setAutoRot(get('rot',bool));
+  // Camera: orbit target, eye position, then lens
+  const tgt=get('tgt',s=>vecParse(s,3),a=>a.every(v=>Math.abs(v)<100));
+  const cam=get('cam',s=>vecParse(s,3),a=>a.every(v=>Math.abs(v)<200)&&Math.hypot(a[0]-tgt[0],a[1]-tgt[1],a[2]-tgt[2])>1e-3);
+  camTween=null;
+  if(usingOrtho) exitOrtho(SHARE_V1.fov);
+  controls.target.fromArray(tgt); perspCam.position.fromArray(cam);
+  const ortho=q.get('proj')==='ortho';
+  if(q.has('proj')&&!['ortho','persp'].includes(q.get('proj'))) skipped++;
+  if(ortho){
+    perspCam.fov=SHARE_V1.fov; perspCam.updateProjectionMatrix(); controls.update();
+    enterOrtho(); orthoCam.zoom=get('zoom',numParse,v=>v>0.01&&v<100); orthoCam.updateProjectionMatrix();
+    fovSlider.value=0; updFov(0);
+  } else {
+    perspCam.fov=get('fov',numParse,v=>v>=2&&v<=90); perspCam.updateProjectionMatrix();
+    const sv=Math.round(Math.pow((perspCam.fov-2)/88,1/1.3)*100); fovSlider.value=sv; updFov(sv);
+  }
+  controls.update();
+  // Vectors, then whichever overlay was on, then the point whose card was open
+  if(q.has('vec')) q.get('vec').split(';').forEach(pair=>{
+    const[a,b]=pair.split('~').map(ptParse);
+    if(a&&b&&a!==b&&!a.off&&!b.off) addUserVector(a,b,true); else skipped++;
+  });
+  if(q.has('op')){
+    const op=OPERATORS.find(o=>o.id===q.get('op'));
+    if(op){if(op===POW_OP){const n=get('n',numParse,v=>v!==0&&Math.abs(v)<=6);POW_OP.scale=n;
+      const nin=document.querySelector('.nin'); if(nin){nin.value=fracStr(n);nin.classList.remove('bad');}}
+      setOperator(op);} else skipped++;
+  } else if(q.has('law')){
+    const law=POWER_LAWS.find(l=>l.id===q.get('law')); if(law) setLaw(law); else skipped++;
+  }
+  if(q.has('focus')){
+    const pt=ptParse(q.get('focus'));
+    if(pt){const keep=controls.target.clone(); focusPoint(pt); camTween=null; controls.target.copy(keep); controls.update();}
+    else skipped++;
+  }
+  // Keys this version does not know (a newer link) are reported, never fatal
+  const KNOWN=new Set(['v','cam','tgt','fov','proj','zoom','dims','mode','lam','slice','frac','spheres','labels','lsize','lfont','lfx','formulas','rot','op','n','law','vec','focus']);
+  q.forEach((_,k)=>{if(!KNOWN.has(k))skipped++;});
+  return{skipped,newer:ver>SHARE_VERSION};
+}
+function loadShareFromHash(){
+  if(!location.hash||location.hash.length<3) return;
+  let r=null;
+  try{r=applyShare(location.hash);}catch(err){console.warn('Share link could not be applied',err);toast('This share link could not be read');return;}
+  if(!r) return;
+  if(r.newer) toast('Link made with a newer version: some settings may be missing');
+  else if(r.skipped) toast(`Opened shared view (${r.skipped} setting${r.skipped>1?'s':''} no longer available)`);
+  else toast('Opened shared view');
+}
+async function shareView(){
+  const url=shareURL();
+  // Keep the address bar in step, so the link can also be copied or bookmarked from there
+  try{history.replaceState(null,'',url);}catch{}
+  if(navigator.share&&matchMedia('(pointer:coarse)').matches){
+    try{await navigator.share({title:document.title,url});return;}catch(e){if(e&&e.name==='AbortError')return;}
+  }
+  try{await navigator.clipboard.writeText(url);toast('Link to this view copied');}
+  catch{copyText(url);}
+}
+document.getElementById('shareBtn').addEventListener('click',shareView);
+addEventListener('hashchange',loadShareFromHash);
+
+// Share & source: last section of the controls panel
+(()=>{
+  const div=document.createElement('div');
+  const b=document.createElement('button'); b.className='pbtn'; b.textContent='🔗 Copy link to this view'; b.style.width='100%';
+  b.title='The link holds the camera, dimensions, labels, vectors and any operator or power law';
+  b.addEventListener('click',shareView); b.addEventListener('mousedown',e=>e.stopPropagation());
+  const note=document.createElement('div'); note.style.cssText='margin-top:6px;font-size:8px;color:#627fb1;line-height:1.6;';
+  note.textContent='Links keep working in later versions: quantities are saved by their exponents, not by name.';
+  const a=document.createElement('a'); a.className='plink'; a.href=REPO_URL; a.target='_blank'; a.rel='noopener';
+  a.textContent='Source code on GitHub ↗';
+  div.append(b,note,a);
+  panel.appendChild(acc('SHARE & SOURCE',div,true));
+})();
+SEARCH_INDEX.push(
+  {kind:'control',title:'Share link',sub:'Copy a link that reopens this exact view',keys:['share','link','url','copy','permalink','bookmark','send'],sym:[],go:shareView},
+  {kind:'control',title:'Source code (GitHub)',sub:'physical-metric-space repository',keys:['source','code','github','repo','repository'],sym:[],go:()=>window.open(REPO_URL,'_blank','noopener')});
+loadShareFromHash();
 
 // ── Render loop ───────────────────────────────────────────────────────────────
 const _bw=new THREE.Vector3();

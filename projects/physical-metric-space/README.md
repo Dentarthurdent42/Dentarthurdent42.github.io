@@ -44,6 +44,8 @@ The visualization helps show that dimensional analysis is not just a bookkeeping
 - **Search** (press `/`) for quantity names (“force”), symbols (“F” — case-sensitive), formulas, operations (×, ÷), controls and glossary terms
 - **Tutorials** behind the glowing **?** button: short guided walkthroughs (what the points are, drawing vectors, formula arrows, search, projection, labels) with nested glossary tooltips and progress marks
 - **Formula arrows** for well-known laws (F = ma, E = mc², …), hidden by default and toggled from the controls panel
+- **Share links** — the 🔗 button (or ⚙ Controls › Share & source) copies a link that reopens the exact view: camera, projection, dimensions, labels, visibility, drawn vectors, and any operator or power law. On phones it opens the system share sheet. See [Share link format](#share-link-format)
+- **Source link** — ⚙ Controls › Share & source links back to this repository
 
 ## Why this exists
 
@@ -90,6 +92,43 @@ Then open the local address in your browser.
 - **Esc** — cancel the vector in progress / leave drawing mode
 - **O** (or the Operators panel) — cycle through calculus operators; Esc clears
 - **Click** a point, formula arrow, drawn vector, or operator arrow — copy its label / equation
+- **🔗** — copy a link to the current view
+
+## Share link format
+
+A share link keeps the whole view in the URL fragment, so it works on any static host and nothing is stored on a server:
+
+```
+index.html#v=1&cam=9,6,11&tgt=0,0,0&fov=50&dims=LMT&op=ddt&vec=1,0,0,0~1,0,-1,0
+```
+
+| Key | Value | Default (v1) |
+| --- | --- | --- |
+| `v` | format version | `1` |
+| `cam`, `tgt` | camera position and orbit target, `x,y,z` | `9,6,11` and `0,0,0` |
+| `fov` | perspective field of view in degrees (2–90) | `50` |
+| `proj`, `zoom` | `proj=ortho` with its zoom factor | perspective, `1` |
+| `dims` | base dimensions shown, any of `LMTA` | `LMTA` |
+| `mode` | 4-D view: `oblique`, `stalk` or `slice` | `oblique` |
+| `lam`, `slice` | λ for oblique (0–1); angle layer for slices (−2…2) | `1`, `1` |
+| `frac` | fractional exponents shown (`1`/`0`) | `0` |
+| `spheres`, `labels` | `full`, `low` or `hidden` | `full` |
+| `lsize`, `lfont`, `lfx` | label size (6–20), typeface id, legibility effect | `9.5`, `courier`, `halo` |
+| `formulas`, `rot` | formula arrows, auto-rotation (`1`/`0`) | `0` |
+| `op`, `n` | operator id (`ddt`, `intdx`, `pow`, …) and the exponent for `pow` | none, `2/3` |
+| `law` | power-law id (`kolmogorov-spectrum`, `kepler-third`, …) | none |
+| `vec` | drawn vectors, `from~to` pairs separated by `;` | none |
+| `focus` | point whose card is open | none |
+
+Points are written as their exponents `L,M,T,A` with exact fractions (`-1/2,1/2,-1,0`), never by name or list position, so renaming or adding quantities cannot break a link.
+
+**Compatibility rules** (so links made today keep working):
+
+- Keys are never renamed, removed or given a new meaning. New settings get new keys.
+- A missing key means the frozen v1 default in the table above, not whatever the app defaults to later.
+- Operator and power-law ids are fixed once published.
+- Anything unknown or out of range is skipped and the rest still applies; the viewer is told how many settings were skipped. A link from a newer version opens with whatever this version understands.
+- `v` is bumped only for a change that cannot follow these rules, and the decoder for every earlier version stays.
 
 ## Project goal
 
