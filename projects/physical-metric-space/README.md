@@ -36,7 +36,7 @@ The visualization helps show that dimensional analysis is not just a bookkeeping
 - **Calculus operators** — pick d/dt, ∫dt, ∂/∂x (∇), ∇², ∫dx, ∫dA, ∫dV and more to see the operator as a field of parallel arrows. A derivative or integral is a fixed shift in exponent space, so chains like Length → Velocity → Acceleration → Jerk show up as straight lines. Gradient, divergence and curl share the same L⁻¹ shift; they differ in tensor rank, which L·M·T exponents can't see. √ and x² scale the vector about the origin instead of shifting it
 - **General powers** — the xⁿ operator raises every quantity to any exponent you type (2/3, −5/3, 1.5)
 - **Power laws** — formulas like Kolmogorov's E(k) = C·ε²ᐟ³·k⁻⁵ᐟ³, η = (ν³/ε)¹ᐟ⁴, ω = √(g/L) and Kepler's third law drawn as a path from the origin: each factor Xᵖ steps p times along X's ray, passing through unnamed fractional points before landing on the result
-- **Angle as a dimension** — every quantity has a fourth exponent **A** (1 rad = A, sr = rad² = A², one cycle = 2π rad), so torque (N·m/rad), angular momentum (J·s/rad), moment of inertia (kg·m²/rad²) and radiant intensity (W/sr) separate from the quantities they used to share a point with. ⚙ Controls › Dimensions picks which unit vectors (L, M, T, A) are drawn and how a fourth one is shown: an **oblique** axis (with a λ slider that folds it back to the SI view), **stalks** off each L·M·T point, or one **slice** of A at a time. Hidden exponents are ignored, so points that differ only there merge into one sphere with beads. Angle operators ∂/∂θ, ∫dθ and ∫dΩ join the operator panel
+- **Angle as a dimension** — angle can be a fourth exponent **A** (1 rad = A, sr = rad² = A², one cycle = 2π rad), so torque (N·m/rad), angular momentum (J·s/rad), moment of inertia (kg·m²/rad²) and radiant intensity (W/sr) separate from the quantities they share a point with in SI. The default is the **SI view** (angle hidden, rad = 1). Turn on **A** under ⚙ Controls › Dimensions to separate them; with all four shown, angle is drawn as short **vertical stalks** off each L·M·T point, or one **slice** of A at a time. Hidden exponents are ignored, so points that differ only there merge into one sphere with beads. Angle operators ∂/∂θ, ∫dθ and ∫dΩ join the operator panel
 - **Fractional exponents on demand** — quantities with half-integer exponents (per-√Hz noise densities such as NEP and accelerometer noise, and CGS-Gaussian electromagnetic quantities such as charge L³ᐟ²·M¹ᐟ²·T⁻¹ and magnetometer noise in G/√Hz, where all three exponents are fractional) are hidden by default and shown with ⚙ Controls › Dimensions › Fractional exponents. Picking one from search switches them on
 - **Commensurable quantities** — quantities with identical dimensions share a point, but only quantities of the same *kind* are commensurable (time = period = half-life; energy ≠ torque). Where different kinds share a point, each kind gets its own bead on a ring around it. Hover to fan out the kinds; click a bead to copy that kind's names
 - **Fractional exponents** — quantities like fracture toughness (M·L⁻¹ᐟ²·T⁻²), sorptivity (L·T⁻¹ᐟ²) and Gaussian charge (L³ᐟ²·M¹ᐟ²·T⁻¹) sit between lattice points; exponents display as fractions
@@ -108,9 +108,10 @@ index.html#v=1&cam=9,6,11&tgt=0,0,0&fov=50&dims=LMT&op=ddt&vec=1,0,0,0~1,0,-1,0
 | `cam`, `tgt` | camera position and orbit target, `x,y,z` | `9,6,11` and `0,0,0` |
 | `fov` | perspective field of view in degrees (2–90) | `50` |
 | `proj`, `zoom` | `proj=ortho` with its zoom factor | perspective, `1` |
-| `dims` | base dimensions shown, any of `LMTA` | `LMTA` |
-| `mode` | 4-D view: `oblique`, `stalk` or `slice` | `oblique` |
-| `lam`, `slice` | λ for oblique (0–1); angle layer for slices (−2…2) | `1`, `1` |
+| `dims` | base dimensions shown, any of `LMTA` (new links always write it; the app itself now opens in SI view, `LMT`) | `LMTA` |
+| `mode` | 4-D view: `stalk` or `slice` (`oblique` is retired and opens as `stalk`) | `oblique`, shown as `stalk` |
+| `slice` | angle layer for slices (−2…2) | `1` |
+| `lam` | retired (λ of the removed oblique axis): accepted and ignored | |
 | `frac` | fractional exponents shown (`1`/`0`) | `0` |
 | `spheres`, `labels` | `full`, `low` or `hidden` | `full` |
 | `lsize`, `lfont`, `lfx` | label size (6–20), typeface id, legibility effect | `9.5`, `courier`, `halo` |
@@ -127,6 +128,7 @@ Points are written as their exponents `L,M,T,A` with exact fractions (`-1/2,1/2,
 - Keys are never renamed, removed or given a new meaning. New settings get new keys.
 - A missing key means the frozen v1 default in the table above, not whatever the app defaults to later.
 - Operator and power-law ids are fixed once published.
+- A retired setting maps to its nearest replacement rather than failing: `mode=oblique` opens as stalks and `lam` is ignored.
 - Anything unknown or out of range is skipped and the rest still applies; the viewer is told how many settings were skipped. A link from a newer version opens with whatever this version understands.
 - `v` is bumped only for a change that cannot follow these rules, and the decoder for every earlier version stays.
 
