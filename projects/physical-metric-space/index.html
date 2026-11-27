@@ -44,24 +44,33 @@ html,body{width:100%;height:100%;overflow:hidden;background:#06061a}
    <body>.can-side = landscape, so the grip tab is offered; .dock-dragging while it is dragged. */
 :root{
   --db-h:36px;--db-r:10px;
-  --db-bg:rgba(255,255,255,.04);--db-bd:rgba(255,255,255,.12);--db-ink:#aabbee;--db-hover:rgba(255,255,255,.1);
+  --db-bg:rgba(255,255,255,.075);--db-bd:transparent;
+  /* depth instead of outlines: buttons raised, inputs and switch tracks sunk; pressed = outline + glow */
+  --db-raise:inset 0 1px 0 rgba(255,255,255,.09),0 1px 2px rgba(0,0,0,.55);
+  --db-raise-on:inset 0 1px 0 rgba(255,255,255,.12),0 0 14px rgba(120,150,255,.45);
+  --db-sink:inset 0 1px 3px rgba(0,0,0,.65);
+  --db-ink:#aabbee;--db-hover:rgba(255,255,255,.1);
   --db-on-bg:rgba(80,110,220,.3);--db-on-bd:rgba(100,140,255,.5);--db-on-ink:#cce0ff;
   --sw-knob:#aabbee;--sw-knob-ink:#0a0c24;--sw-shadow:none;
   --dw:212px;--pw:min(340px,36vw)}
 :root[data-theme=light]{
-  --db-bg:#eef1f8;--db-bd:rgba(30,40,90,.16);--db-ink:#3a4a7a;--db-hover:rgba(30,40,90,.1);
+  --db-bg:#eef1f8;--db-bd:transparent;
+  --db-raise:0 1px 2px rgba(30,40,90,.22),0 3px 8px rgba(30,40,90,.12);
+  --db-raise-on:0 1px 2px rgba(30,40,90,.2),0 0 10px rgba(60,90,220,.25);
+  --db-sink:inset 0 1px 3px rgba(30,40,90,.22);
+  --db-ink:#3a4a7a;--db-hover:rgba(30,40,90,.1);
   --db-on-bg:rgba(60,90,220,.14);--db-on-bd:rgba(60,90,220,.45);--db-on-ink:#1f4fbf;
   --sw-knob:#fff;--sw-knob-ink:#3a4a7a;--sw-shadow:0 1px 3px rgba(30,40,90,.3)}
 #tools{display:contents}
 .ico{width:18px;height:18px;display:block;flex-shrink:0;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;pointer-events:none}
 .dbtn{flex-shrink:0;display:flex;align-items:center;justify-content:center;gap:6px;
   height:var(--db-h);min-width:var(--db-h);padding:0 12px;border-radius:var(--db-r);
-  border:1px solid var(--db-bd);background:var(--db-bg);color:var(--db-ink);
+  border:1px solid var(--db-bd);background:var(--db-bg);color:var(--db-ink);box-shadow:var(--db-raise);
   font:12px/1 'Courier New',monospace;white-space:nowrap;cursor:pointer;user-select:none;
   touch-action:manipulation;-webkit-tap-highlight-color:transparent;transition:background .12s}
 /* hover only where there is a real pointer, so a tapped button never keeps its hover shade */
 @media (hover:hover){.dbtn:hover{background:var(--db-hover)}}
-.dbtn.on{background:var(--db-on-bg);border-color:var(--db-on-bd);color:var(--db-on-ink)}
+.dbtn.on{background:var(--db-on-bg);border-color:var(--db-on-bd);color:var(--db-on-ink);box-shadow:var(--db-raise-on)}
 .dbtn .lb{pointer-events:none}
 /* Fixed icon slot so swapping icons never resizes the button */
 .ti{display:inline-block;width:18px;height:18px;pointer-events:none}
@@ -74,12 +83,14 @@ html,body{width:100%;height:100%;overflow:hidden;background:#06061a}
 .dsw{order:99;flex-shrink:0;display:flex;align-items:center;justify-content:center;height:var(--db-h);padding:0;border:none;background:none;
   border-radius:var(--db-r);cursor:pointer;touch-action:manipulation;-webkit-tap-highlight-color:transparent}
 .sw{position:relative;display:block;width:66px;height:var(--db-h);border-radius:var(--db-r);pointer-events:none;
-  background:var(--db-bg);border:1px solid var(--db-bd);transition:background .2s,border-color .2s}
+  background:var(--db-bg);border:1px solid var(--db-bd);box-shadow:var(--db-sink);transition:background .2s,border-color .2s}
 .knob{position:absolute;top:2px;left:2px;width:30px;height:30px;border-radius:calc(var(--db-r) - 2px);display:flex;align-items:center;justify-content:center;
   background:var(--sw-knob);color:var(--sw-knob-ink);box-shadow:var(--sw-shadow);transition:left .2s cubic-bezier(.4,0,.2,1),top .2s cubic-bezier(.4,0,.2,1)}
 .knob .ico{width:16px;height:16px}
 .dsw[aria-checked=true] .knob{left:calc(100% - 32px)}
-.dsw[aria-checked=true] .sw{background:var(--db-on-bg);border-color:var(--db-on-bd)}
+.dsw[aria-checked=true] .sw{background:var(--db-on-bg);border-color:var(--db-on-bd);box-shadow:var(--db-raise-on)}
+/* High-contrast modes drop shadows: bring the outlines back */
+@media (forced-colors:active){.dbtn,.sw,#sq{border-color:ButtonText}}
 @media (hover:hover){.dsw:hover .sw{background:var(--db-hover)}.dsw[aria-checked=true]:hover .sw{background:var(--db-on-bg)}}
 .dsw:focus-visible{outline:none}
 .dsw:focus-visible .sw{outline:2px solid var(--db-on-bd);outline-offset:2px}
@@ -244,7 +255,7 @@ input.nin.bad{border-color:rgba(255,90,90,.7)}
 .vrow{display:flex;align-items:center;gap:6px;margin:4px 0}
 .vrow .veq{flex:1;font-size:9px;font-weight:normal;padding:3px 5px}
 #search{position:static;width:260px;min-width:0;flex:1 1 260px}
-#sq{width:100%;height:36px;padding:0 26px 0 28px;border-radius:10px;border:1px solid rgba(255,255,255,.12);
+#sq{width:100%;height:36px;padding:0 26px 0 28px;border-radius:10px;border:1px solid transparent;box-shadow:var(--db-sink);
   background:rgba(0,0,10,.35);color:#dde6ff;font:12px 'Courier New',monospace;outline:none;
   -webkit-appearance:none;appearance:none}
 #sq::-webkit-search-cancel-button{display:none}
@@ -355,7 +366,7 @@ body.panel-open #tl{max-height:calc(100% - min(46vh,440px) - 110px);overflow-y:a
 :root[data-theme=light] input[type=range]::-moz-range-thumb{background:#4a5fe0;border-color:#fff}
 :root[data-theme=light] select,:root[data-theme=light] input.nin{background:#fff;border-color:rgba(30,40,90,.2);color:#223}
 :root[data-theme=light] input.nin{color:#8a5200}
-:root[data-theme=light] #sq{background:#fff;border-color:rgba(30,40,90,.18);color:#223}
+:root[data-theme=light] #sq{background:#fff;color:#223}
 :root[data-theme=light] #sq:focus{background:#fff;border-color:rgba(60,90,220,.5)}
 :root[data-theme=light] #sq::placeholder,:root[data-theme=light] .sqi,:root[data-theme=light] #sqx{color:#55556a}
 :root[data-theme=light] #drawHint{background:rgba(225,232,255,.95);border-color:rgba(60,90,220,.4);color:#1f2f6a}
