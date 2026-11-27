@@ -29,13 +29,139 @@ html,body{width:100%;height:100%;overflow:hidden;background:#06061a}
 #tl{position:absolute;top:12px;left:12px;z-index:25;display:flex;flex-direction:column;align-items:flex-start;gap:8px;
   max-width:calc(100% - 58px);pointer-events:none}
 #tl>*{pointer-events:auto}
-#badge{flex-shrink:0;padding:0 6px;font:10px 'Courier New',monospace;color:#6380aa;pointer-events:none;white-space:nowrap}
 /* Bottom dock: every control lives in one glass bar; the panel rises above it */
 #dock{position:absolute;left:50%;transform:translateX(-50%);bottom:max(12px,env(safe-area-inset-bottom,0px));z-index:45;
   display:flex;align-items:center;gap:6px;padding:6px;width:max-content;max-width:calc(100% - 24px);
   background:rgba(10,12,36,.72);-webkit-backdrop-filter:blur(14px) saturate(1.3);backdrop-filter:blur(14px) saturate(1.3);
   border:1px solid rgba(150,170,255,.2);border-radius:16px;box-shadow:0 12px 40px rgba(0,0,0,.55)}
+/* ── Dock ──────────────────────────────────────────────────────────────────────
+   Every dock button is a .dbtn and reads the --db-* tokens, so a theme or a new button
+   never needs its own selector list. The light/dark switch (.dsw) uses the same tokens, and
+   the grip tab (.dgrip) drags the bar to an edge.
+   State on <body>: .dock-compact = labels don't fit (icons only, all the same square);
+   .panel-over = side dock on a narrow screen, so the Controls panel floats over the view.
+   <body>.dock-side + .dock-left/.dock-right = the bar is a column on that edge;
+   <body>.can-side = landscape, so the grip tab is offered; .dock-dragging while it is dragged. */
+:root{
+  --db-h:36px;--db-r:10px;
+  --db-bg:rgba(255,255,255,.04);--db-bd:rgba(255,255,255,.12);--db-ink:#aabbee;--db-hover:rgba(255,255,255,.1);
+  --db-on-bg:rgba(80,110,220,.3);--db-on-bd:rgba(100,140,255,.5);--db-on-ink:#cce0ff;
+  --sw-knob:#aabbee;--sw-knob-ink:#0a0c24;--sw-shadow:none;
+  --dw:212px;--pw:min(340px,36vw)}
+:root[data-theme=light]{
+  --db-bg:#eef1f8;--db-bd:rgba(30,40,90,.16);--db-ink:#3a4a7a;--db-hover:rgba(30,40,90,.1);
+  --db-on-bg:rgba(60,90,220,.14);--db-on-bd:rgba(60,90,220,.45);--db-on-ink:#1f4fbf;
+  --sw-knob:#fff;--sw-knob-ink:#3a4a7a;--sw-shadow:0 1px 3px rgba(30,40,90,.3)}
 #tools{display:contents}
+.ico{width:18px;height:18px;display:block;flex-shrink:0;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;pointer-events:none}
+.dbtn{flex-shrink:0;display:flex;align-items:center;justify-content:center;gap:6px;
+  height:var(--db-h);min-width:var(--db-h);padding:0 12px;border-radius:var(--db-r);
+  border:1px solid var(--db-bd);background:var(--db-bg);color:var(--db-ink);
+  font:12px/1 'Courier New',monospace;white-space:nowrap;cursor:pointer;user-select:none;
+  touch-action:manipulation;-webkit-tap-highlight-color:transparent;transition:background .12s}
+/* hover only where there is a real pointer, so a tapped button never keeps its hover shade */
+@media (hover:hover){.dbtn:hover{background:var(--db-hover)}}
+.dbtn.on{background:var(--db-on-bg);border-color:var(--db-on-bd);color:var(--db-on-ink)}
+.dbtn .lb{pointer-events:none}
+/* Fixed icon slot so swapping icons never resizes the button */
+.ti{display:inline-block;width:18px;height:18px;pointer-events:none}
+/* Buttons with two labels keep one width for both, content centred */
+/* (class-level specificity on purpose, so compact/side rules can override it) */
+.dbtn:where(#drawBtn){min-width:calc(50px + 12ch)}
+.dbtn:where(#tab){min-width:calc(50px + 8ch)}
+/* Light/dark switch: a button-shaped track (same height, corners, border and fill as .dbtn)
+   whose knob carries the current mode's icon. It always sits at the end of the bar. */
+.dsw{order:99;flex-shrink:0;display:flex;align-items:center;justify-content:center;height:var(--db-h);padding:0;border:none;background:none;
+  border-radius:var(--db-r);cursor:pointer;touch-action:manipulation;-webkit-tap-highlight-color:transparent}
+.sw{position:relative;display:block;width:66px;height:var(--db-h);border-radius:var(--db-r);pointer-events:none;
+  background:var(--db-bg);border:1px solid var(--db-bd);transition:background .2s,border-color .2s}
+.knob{position:absolute;top:2px;left:2px;width:30px;height:30px;border-radius:calc(var(--db-r) - 2px);display:flex;align-items:center;justify-content:center;
+  background:var(--sw-knob);color:var(--sw-knob-ink);box-shadow:var(--sw-shadow);transition:left .2s cubic-bezier(.4,0,.2,1),top .2s cubic-bezier(.4,0,.2,1)}
+.knob .ico{width:16px;height:16px}
+.dsw[aria-checked=true] .knob{left:calc(100% - 32px)}
+.dsw[aria-checked=true] .sw{background:var(--db-on-bg);border-color:var(--db-on-bd)}
+@media (hover:hover){.dsw:hover .sw{background:var(--db-hover)}.dsw[aria-checked=true]:hover .sw{background:var(--db-on-bg)}}
+.dsw:focus-visible{outline:none}
+.dsw:focus-visible .sw{outline:2px solid var(--db-on-bd);outline-offset:2px}
+/* Grip tab: drag the bar to the left, right or bottom edge (landscape only). Always first. */
+.dgrip{order:-3;display:none;flex-shrink:0;align-items:center;justify-content:center;width:18px;height:var(--db-h);padding:0;
+  border:none;background:none;border-radius:6px;color:var(--db-ink);opacity:.55;cursor:grab;touch-action:none;
+  -webkit-tap-highlight-color:transparent}
+.dgrip .ico{width:16px;height:16px}
+body.can-side .dgrip{display:flex}
+@media (hover:hover){.dgrip:hover{opacity:1}}
+.dgrip:focus-visible{opacity:1;outline:2px solid var(--db-on-bd);outline-offset:1px}
+body.dock-dragging,body.dock-dragging .dgrip{cursor:grabbing}
+body.dock-dragging #dock{opacity:.92;transition:none;z-index:60}
+/* Where the bar will land while it is dragged */
+#dockZone{display:none;position:absolute;z-index:44;pointer-events:none;border-radius:16px;
+  border:2px dashed var(--db-on-bd);background:var(--db-on-bg);opacity:.7}
+body.dock-dragging #dockZone{display:block}
+#dockZone[data-zone=bottom]{left:12px;right:12px;bottom:max(12px,env(safe-area-inset-bottom,0px));height:50px}
+#dockZone[data-zone=left]{left:max(12px,env(safe-area-inset-left,0px));top:12px;bottom:12px;width:60px}
+#dockZone[data-zone=right]{right:max(12px,env(safe-area-inset-right,0px));top:12px;bottom:12px;width:60px}
+body.dock-compact .lb{display:none}
+body.dock-compact .dbtn{width:var(--db-h);min-width:0;padding:0}
+/* Side dock: everything that used to sit above the bar moves out of its way via --L / --R */
+body.dock-left{--L:calc(var(--dw) + max(12px,env(safe-area-inset-left,0px)) + 12px)}
+body.dock-right{--R:calc(var(--dw) + max(12px,env(safe-area-inset-right,0px)) + 12px)}
+body.dock-left.panel-open:not(.panel-over){--L:calc(var(--dw) + var(--pw) + max(12px,env(safe-area-inset-left,0px)) + 24px)}
+body.dock-right.panel-open:not(.panel-over){--R:calc(var(--dw) + var(--pw) + max(12px,env(safe-area-inset-right,0px)) + 24px)}
+body.dock-side #dock{top:max(12px,env(safe-area-inset-top,0px));bottom:auto;transform:none;width:var(--dw);max-width:none;
+  max-height:calc(100% - 24px);flex-direction:column;align-items:stretch}
+body.dock-left #dock{left:max(12px,env(safe-area-inset-left,0px));right:auto}
+body.dock-right #dock{right:max(12px,env(safe-area-inset-right,0px));left:auto}
+body.dock-side #dock{display:grid;grid-template-columns:1fr;align-content:start}
+body.dock-side #search{order:-1;grid-column:1/-1;width:100%}
+body.dock-side .dbtn{grid-column:1/-1;width:auto;min-width:0;justify-content:flex-start}
+/* (.class:where(#id) keeps these at class specificity so the icon-grid rules can reset them) */
+body.dock-side .dbtn:where(#tab){order:1}
+body.dock-side .dsw{grid-column:1/-1;justify-self:stretch}
+body.dock-side .sw{width:100%}
+body.dock-side .dgrip{grid-column:1/-1;width:100%;height:18px}
+body.dock-side .dgrip .ico{transform:rotate(90deg)}
+/* Icon column (narrow or short screens): grip on top, then one column of icon squares; search is
+   a button that opens the field beside the bar, and the switch stands upright to fit the column */
+#searchBtn{display:none}
+/* --cols/--rows are set by fitDock: as many columns as it takes to fit the screen height,
+   items split evenly between them (filled top to bottom, then the next column) */
+body.dock-side.dock-compact{--dw:calc(var(--cols,1) * var(--db-h) + (var(--cols,1) - 1) * 6px + 14px)}
+body.dock-side.dock-compact #dock{display:grid;grid-auto-flow:column;grid-template-rows:repeat(var(--rows,7),auto);
+  grid-template-columns:repeat(var(--cols,1),var(--db-h));justify-content:center;align-items:center;justify-items:center}
+body.dock-side.dock-compact #searchBtn{display:flex;order:-1}
+body.dock-side.dock-compact .dbtn,body.dock-side.dock-compact .dsw{grid-column:auto}
+body.dock-side.dock-compact .dgrip{grid-row:1/2;grid-column:1/-1}
+body.dock-side.dock-compact .dbtn{width:var(--db-h);justify-content:center}
+body.dock-side.dock-compact:not(.dock-multi) .dsw{height:auto;justify-self:center}
+body.dock-side.dock-compact:not(.dock-multi) .sw{width:var(--db-h);height:66px}
+body.dock-side.dock-compact:not(.dock-multi) .knob{top:calc(100% - 32px)}
+body.dock-side.dock-compact:not(.dock-multi) .dsw[aria-checked=true] .knob{left:2px;top:2px}
+/* Two or more columns: the switch lies flat across the bottom row, spanning every column */
+/* ...and fills that row: a button-sized track whose knob slides the full width */
+body.dock-side.dock-compact.dock-multi .dsw{grid-column:1/-1;grid-row:-2/-1;justify-self:stretch}
+/* last resort, past three columns */
+body.dock-scroll #dock{overflow-y:auto;overscroll-behavior:contain}
+body.dock-side.dock-compact #search{display:none;position:fixed;z-index:46;top:max(12px,env(safe-area-inset-top,0px));
+  width:min(300px,calc(100vw - var(--dw) - 48px));padding:6px;border-radius:14px;
+  background:rgba(10,12,36,.96);border:1px solid rgba(150,170,255,.2);box-shadow:0 12px 40px rgba(0,0,0,.55)}
+:root[data-theme=light] body.dock-side.dock-compact #search{background:#f8f9fd;border-color:rgba(50,70,160,.2);box-shadow:0 10px 32px rgba(30,40,90,.18)}
+body.dock-side.dock-compact.search-open #search{display:block}
+body.dock-left.dock-compact #search{left:calc(var(--dw) + max(12px,env(safe-area-inset-left,0px)) + 10px)}
+body.dock-right.dock-compact #search{right:calc(var(--dw) + max(12px,env(safe-area-inset-right,0px)) + 10px)}
+body.dock-side.dock-compact #sres{position:absolute;top:calc(100% + 8px);left:0;right:auto;max-height:calc(100vh - 90px)}
+body.dock-side #panel{top:max(12px,env(safe-area-inset-top,0px));bottom:max(12px,env(safe-area-inset-bottom,0px));height:auto;width:var(--pw)}
+body.dock-left #panel{left:calc(var(--dw) + max(12px,env(safe-area-inset-left,0px)) + 12px);right:auto}
+body.dock-right #panel{right:calc(var(--dw) + max(12px,env(safe-area-inset-right,0px)) + 12px);left:auto}
+body.dock-side #panel.closed{transform:translateX(0) scale(.98)}
+/* Popovers beside a side dock are fixed to the viewport, so a scrolling column can't clip them.
+   (That needs the dock to have no backdrop-filter, which would otherwise contain them.) */
+body.dock-side #dock{-webkit-backdrop-filter:none;backdrop-filter:none;background:rgba(10,12,36,.94)}
+body.dock-side #sres,body.dock-side #tmenu{position:fixed;top:max(12px,env(safe-area-inset-top,0px));bottom:auto;max-height:calc(100vh - 24px)}
+body.dock-left #sres,body.dock-left #tmenu{left:calc(var(--dw) + max(12px,env(safe-area-inset-left,0px)) + 10px);right:auto}
+body.dock-right #sres,body.dock-right #tmenu{right:calc(var(--dw) + max(12px,env(safe-area-inset-right,0px)) + 10px);left:auto}
+body.dock-side #tl{left:var(--L,12px);max-width:calc(100% - var(--L,12px) - var(--R,12px))}
+body.dock-side #vcard,body.dock-side.panel-open #vcard{left:var(--L,12px);bottom:max(12px,env(safe-area-inset-bottom,0px));max-height:calc(100% - 24px)}
+body.dock-side #toast{bottom:max(12px,env(safe-area-inset-bottom,0px));left:calc(var(--L,12px) + (100% - var(--L,12px) - var(--R,12px)) / 2)}
 #panel{position:absolute;left:12px;right:12px;bottom:calc(max(12px,env(safe-area-inset-bottom,0px)) + 60px);
   height:min(46vh,440px);z-index:44;overflow-y:auto;
   display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));align-content:start;
@@ -44,14 +170,6 @@ html,body{width:100%;height:100%;overflow:hidden;background:#06061a}
   font:11px 'Courier New',monospace;color:#aab;
   transition:transform .26s cubic-bezier(.4,0,.2,1),opacity .2s}
 #panel.closed{transform:translateY(24px);opacity:0;pointer-events:none;visibility:hidden}
-#tab{flex-shrink:0;height:36px;padding:0 12px;display:flex;align-items:center;gap:6px;cursor:pointer;
-  background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.12);border-radius:10px;color:#aabbee;
-  user-select:none;touch-action:manipulation;-webkit-tap-highlight-color:transparent;transition:background .15s}
-#tab:hover{background:rgba(255,255,255,.1)}
-#tab.open{background:rgba(80,110,220,.3);border-color:rgba(100,140,255,.5)}
-/* Fixed icon slot so swapping ⚙ for ✕ never resizes the button (iOS draws ⚙ as a wide emoji otherwise) */
-.ti{display:inline-block;width:18px;text-align:center;font-family:'Segoe UI Symbol','Apple Symbols',sans-serif;font-size:16px;color:#8899ff;pointer-events:none;line-height:1}
-.tl{font:11px/1 'Courier New',monospace;color:#aabbee;pointer-events:none;min-width:8ch;text-align:left}
 .psec{padding:8px 13px;border-bottom:1px solid rgba(255,255,255,.06);border-right:1px solid rgba(255,255,255,.04);min-width:0}
 .ph{color:#667fb6;font-size:9px;letter-spacing:.08em;text-transform:uppercase;
   display:flex;align-items:center;justify-content:space-between;
@@ -87,12 +205,6 @@ select{width:100%;background:rgba(6,6,26,.99);border:1px solid rgba(255,255,255,
   -webkit-tap-highlight-color:transparent;transition:background .12s}
 .pbtn:hover,.pbtn:active{background:rgba(255,255,255,.1)}
 .pbtn.on{background:rgba(80,110,220,.25);border-color:rgba(100,140,255,.45);color:#aaccff}
-#drawBtn{flex-shrink:0;height:36px;padding:0 12px;border-radius:10px;white-space:nowrap;display:flex;align-items:center;gap:6px;
-  border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.04);cursor:pointer;
-  font:11px 'Courier New',monospace;color:#aabbee;touch-action:manipulation;
-  -webkit-tap-highlight-color:transparent;transition:background .12s}
-#drawBtn:hover{background:rgba(255,255,255,.1)}
-#drawBtn.on{background:rgba(80,110,220,.3);border-color:rgba(100,140,255,.5);color:#cce0ff}
 #drawHint{position:relative;z-index:6;display:none;
   max-width:calc(100% - 32px);padding:6px 12px;border-radius:7px;background:rgba(40,50,120,.85);
   border:1px solid rgba(120,150,255,.35);font:11px 'Courier New',monospace;color:#dde6ff;
@@ -139,9 +251,10 @@ input.nin.bad{border-color:rgba(255,90,90,.7)}
 @media (pointer:coarse){#sq{font-size:16px}}
 #sq:focus{border-color:rgba(120,150,255,.5);background:rgba(8,10,34,.96)}
 #sq::placeholder{color:#7d7d92}
-.sqi{position:relative;float:left;width:0;left:10px;top:10px;font-size:11px;color:#7d7d92;pointer-events:none}
-#sqx{position:relative;float:right;margin-top:-32px;margin-right:2px;display:none;background:none;border:none;color:#7d7d90;
-  cursor:pointer;font-size:12px;padding:4px 6px}
+.sqi{position:relative;float:left;width:0;height:0;left:10px;top:11px;color:#7d7d92;pointer-events:none}
+.sqi .ico,#sqx .ico{width:14px;height:14px}
+#sqx{position:relative;float:right;margin-top:-33px;margin-right:3px;display:none;background:none;border:none;color:#7d7d90;
+  cursor:pointer;padding:8px}
 #sres{display:none;position:absolute;left:0;bottom:calc(100% + 10px);max-height:min(55vh,420px);overflow-y:auto;border-radius:12px;
   background:rgba(4,4,18,.98);border:1px solid rgba(255,255,255,.14);box-shadow:0 6px 28px rgba(0,0,0,.8);
   font:11px/1.4 'Courier New',monospace;color:#dde;width:min(380px,calc(100vw - 24px))}
@@ -156,10 +269,6 @@ input.nin.bad{border-color:rgba(255,90,90,.7)}
 .snone{padding:9px;color:#7d7d90;font-size:10px}
 .flash{animation:flash 1.4s ease-out 2}
 @keyframes flash{0%{box-shadow:0 0 0 0 rgba(140,170,255,.9)}100%{box-shadow:0 0 0 12px rgba(140,170,255,0)}}
-#helpBtn{flex-shrink:0;width:36px;height:36px;border-radius:50%;border:1px solid rgba(255,255,255,.14);
-  background:rgba(255,255,255,.04);color:#cce0ff;font:bold 15px 'Courier New',monospace;cursor:pointer;
-  touch-action:manipulation;-webkit-tap-highlight-color:transparent}
-#helpBtn:hover{background:rgba(255,255,255,.1)}
 #helpBtn.glow{border-color:rgba(160,190,255,.9);animation:helpGlow 1.6s ease-in-out infinite}
 @keyframes helpGlow{0%,100%{box-shadow:0 0 4px 1px rgba(120,160,255,.5)}50%{box-shadow:0 0 18px 6px rgba(140,180,255,.9);color:#fff}}
 #tmenu{display:none;position:absolute;left:0;bottom:calc(100% + 10px);z-index:30;width:min(300px,calc(100vw - 24px));
@@ -205,7 +314,6 @@ body.panel-open #vcard{bottom:calc(max(12px,env(safe-area-inset-bottom,0px)) + 7
 body.panel-open #tl{max-height:calc(100% - min(46vh,440px) - 110px);overflow-y:auto}
 @media (max-width:600px){
   #dock{left:8px;right:8px;transform:none;width:auto;max-width:none}
-  #drawBtn .lb,#tab .tl,#badge{display:none}
   #panel{left:8px;right:8px;height:min(42vh,400px);grid-template-columns:1fr}
   body.panel-open #vcard{bottom:calc(max(12px,env(safe-area-inset-bottom,0px)) + 70px + min(42vh,400px))}
   body.panel-open #tl{max-height:calc(100% - min(42vh,400px) - 110px)}
@@ -215,14 +323,6 @@ body.panel-open #tl{max-height:calc(100% - min(46vh,440px) - 110px);overflow-y:a
   border:1px solid rgba(120,150,255,.35);font:11px 'Courier New',monospace;color:#dde6ff;
   pointer-events:none;opacity:0;transition:opacity .2s;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 :root{--acc:#aaccff;--pv:#8899cc;color-scheme:dark}
-#themeBtn{flex-shrink:0;width:36px;height:36px;border-radius:50%;border:1px solid rgba(255,255,255,.14);
-  background:rgba(255,255,255,.04);color:#cce0ff;font:15px/1 'Courier New',monospace;cursor:pointer;
-  touch-action:manipulation;-webkit-tap-highlight-color:transparent}
-#themeBtn:hover{background:rgba(255,255,255,.1)}
-#shareBtn{flex-shrink:0;width:36px;height:36px;border-radius:50%;border:1px solid rgba(255,255,255,.14);
-  background:rgba(255,255,255,.04);color:#cce0ff;font:15px/1 'Courier New',monospace;cursor:pointer;
-  touch-action:manipulation;-webkit-tap-highlight-color:transparent}
-#shareBtn:hover{background:rgba(255,255,255,.1)}
 .plink{display:block;margin-top:7px;color:var(--acc);text-decoration:none;font-size:10px}
 .plink:hover{text-decoration:underline}
 /* ── Light theme: same layout, inverted surfaces, darker inks ── */
@@ -239,16 +339,12 @@ body.panel-open #tl{max-height:calc(100% - min(46vh,440px) - 110px);overflow-y:a
 :root[data-theme=light] #dock,:root[data-theme=light] #panel{-webkit-backdrop-filter:none;backdrop-filter:none}
 :root[data-theme=light] #dock{background:#f8f9fd;border-color:rgba(50,70,160,.2);box-shadow:0 10px 32px rgba(30,40,90,.18)}
 :root[data-theme=light] #panel{background:#f8f9fd;border-color:rgba(50,70,160,.18);color:#445;box-shadow:0 12px 40px rgba(30,40,90,.2)}
-:root[data-theme=light] #badge{color:#5a6c94}
-:root[data-theme=light] #tab,:root[data-theme=light] #drawBtn,:root[data-theme=light] #helpBtn,:root[data-theme=light] #themeBtn,:root[data-theme=light] #shareBtn,
 :root[data-theme=light] .seg,:root[data-theme=light] .pbtn{background:#eef1f8;border-color:rgba(30,40,90,.16);color:#3a4a7a}
-:root[data-theme=light] #tab:hover,:root[data-theme=light] #drawBtn:hover,:root[data-theme=light] #helpBtn:hover,:root[data-theme=light] #themeBtn:hover,:root[data-theme=light] #shareBtn:hover,
 :root[data-theme=light] .seg:hover,:root[data-theme=light] .pbtn:hover{background:rgba(30,40,90,.1);color:#223}
-:root[data-theme=light] #tab.open,:root[data-theme=light] #drawBtn.on,:root[data-theme=light] .seg.on,:root[data-theme=light] .pbtn.on{background:rgba(60,90,220,.14);border-color:rgba(60,90,220,.45);color:#1f4fbf}
-:root[data-theme=light] .ti,:root[data-theme=light] .tmh,:root[data-theme=light] .ch{color:#3a4fd0}
-:root[data-theme=light] .tl{color:#3a4a7a}
-:root[data-theme=light] #helpBtn{color:#1f4fbf}
-:root[data-theme=light] #helpBtn.glow{border-color:rgba(60,90,220,.8)}
+:root[data-theme=light] .seg.on,:root[data-theme=light] .pbtn.on{background:rgba(60,90,220,.14);border-color:rgba(60,90,220,.45);color:#1f4fbf}
+:root[data-theme=light] .tmh,:root[data-theme=light] .ch{color:#3a4fd0}
+:root[data-theme=light] #helpBtn.glow{border-color:rgba(60,90,220,.8);animation-name:helpGlowL}
+@keyframes helpGlowL{0%,100%{box-shadow:0 0 4px 1px rgba(60,90,220,.35)}50%{box-shadow:0 0 16px 5px rgba(60,90,220,.45);color:#1f4fbf}}
 :root[data-theme=light] .psec{border-color:rgba(30,40,90,.08)}
 :root[data-theme=light] .ph,:root[data-theme=light] .vlbl{color:#4a5f99}
 :root[data-theme=light] .ph:hover{color:#1f3a8a}
@@ -327,22 +423,36 @@ body.panel-open #tl{max-height:calc(100% - min(46vh,440px) - 110px);overflow-y:a
   <div id="vcard"></div>
   <div id="toast"></div>
   <div id="panel" class="closed" aria-label="Controls"></div>
-  <div id="dock">
+  <svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <!-- One icon set for the dock: 24px grid, 1.8 stroke, round caps, inherits text colour -->
+  <symbol id="i-help" viewBox="0 0 24 24"><path d="M8.6 9.2a3.4 3.4 0 0 1 6.8.2c0 2.3-3.4 2.8-3.4 5.1"/><path d="M12 18.6v.01"/></symbol>
+  <symbol id="i-draw" viewBox="0 0 24 24"><path d="M4 20h4L19 9a2.1 2.1 0 0 0-4-4L4 16z"/><path d="M13.5 6.5l4 4"/></symbol>
+  <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="6.5"/><path d="M20 20l-4.4-4.4"/></symbol>
+  <symbol id="i-x" viewBox="0 0 24 24"><path d="M6.5 6.5l11 11M17.5 6.5l-11 11"/></symbol>
+  <symbol id="i-link" viewBox="0 0 24 24"><path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1"/><path d="M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1"/></symbol>
+  <symbol id="i-moon" viewBox="0 0 24 24"><path d="M19.5 14.5A7.8 7.8 0 0 1 9.5 4.5a7.8 7.8 0 1 0 10 10z"/></symbol>
+  <symbol id="i-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2.5v2M12 19.5v2M2.5 12h2M19.5 12h2M5.3 5.3l1.4 1.4M17.3 17.3l1.4 1.4M5.3 18.7l1.4-1.4M17.3 6.7l1.4-1.4"/></symbol>
+  <symbol id="i-grip" viewBox="0 0 24 24"><g fill="currentColor" stroke="none"><circle cx="9" cy="6" r="1.5"/><circle cx="15" cy="6" r="1.5"/><circle cx="9" cy="12" r="1.5"/><circle cx="15" cy="12" r="1.5"/><circle cx="9" cy="18" r="1.5"/><circle cx="15" cy="18" r="1.5"/></g></symbol>
+  <symbol id="i-controls" viewBox="0 0 24 24"><path d="M4 7h9M17 7h3M4 17h3M11 17h9"/><circle cx="15" cy="7" r="2"/><circle cx="9" cy="17" r="2"/></symbol>
+</svg>
+<div id="dockZone" aria-hidden="true"></div>
+<div id="dock">
+  <button id="dockGrip" class="dgrip" title="Drag to an edge to move the toolbar" aria-label="Move the toolbar: drag it to the left, right or bottom edge, or use the arrow keys"><svg class="ico" aria-hidden="true"><use href="#i-grip"/></svg></button>
   <div id="tools">
-      <button id="helpBtn" class="glow" title="Tutorials" aria-label="Tutorials">?</button>
+      <button id="helpBtn" class="dbtn glow" title="Tutorials" aria-label="Tutorials"><svg class="ico" aria-hidden="true"><use href="#i-help"/></svg><span class="lb">Help</span></button>
       <div id="tmenu" role="menu"></div>
-      <button id="drawBtn" title="Draw a vector between two points (V)"><span class="ic">✎</span><span class="lb">Draw vector</span></button>
+      <button id="drawBtn" class="dbtn" title="Draw a vector between two points (V)"><svg class="ico" aria-hidden="true"><use href="#i-draw"/></svg><span class="lb">Draw vector</span></button>
+      <button id="searchBtn" class="dbtn" title="Search (/)" aria-label="Search" aria-expanded="false"><svg class="ico" aria-hidden="true"><use href="#i-search"/></svg><span class="lb">Search</span></button>
       <div id="search">
-        <span class="sqi">⌕</span>
+        <span class="sqi"><svg class="ico" aria-hidden="true"><use href="#i-search"/></svg></span>
         <input id="sq" type="search" placeholder="force, F, ÷, help…" autocomplete="off" spellcheck="false" aria-label="Search quantities, symbols, formulas and controls">
-        <button id="sqx" title="Clear search" aria-label="Clear search">✕</button>
+        <button id="sqx" title="Clear search" aria-label="Clear search"><svg class="ico" aria-hidden="true"><use href="#i-x"/></svg></button>
         <div id="sres" role="listbox"></div>
       </div>
     </div>
-    <button id="shareBtn" title="Copy a link to this exact view" aria-label="Share a link to this view">🔗</button>
-    <button id="themeBtn" title="Switch light / dark" aria-label="Switch light / dark theme"></button>
-    <button id="tab" title="Controls" aria-label="Controls"><span class="ti">⚙&#xFE0E;</span><span class="tl">Controls</span></button>
-    <div id="badge"></div>
+    <button id="shareBtn" class="dbtn" title="Copy a link to this exact view" aria-label="Share a link to this view"><svg class="ico" aria-hidden="true"><use href="#i-link"/></svg><span class="lb">Share</span></button>
+    <button id="themeBtn" class="dsw" role="switch" aria-checked="false" title="Dark mode" aria-label="Dark mode"><span class="sw"><span class="knob"></span></span></button>
+    <button id="tab" class="dbtn" title="Controls" aria-label="Controls"><span class="ti"><svg class="ico" aria-hidden="true"><use href="#i-controls"/></svg></span><span class="lb">Controls</span></button>
   </div>
 </div>
 <script type="module">
@@ -487,26 +597,86 @@ scene.add(new THREE.AmbientLight(0xffffff,0.6));
 const sun=new THREE.DirectionalLight(0xffffff,0.85); sun.position.set(8,12,6); scene.add(sun);
 const fill=new THREE.DirectionalLight(0x8899ff,0.25); fill.position.set(-6,-4,-4); scene.add(fill);
 
-// ── Four exponents: L, M, T and angle A ───────────────────────────────────────
-// Every quantity is a 4-vector of exponents (L, M, T, A). Angle is a base dimension here:
-// 1 rad is the unit of A, a steradian is rad² (A²), and one cycle counts as 2π rad, so a
-// frequency in cycles/s sits with angular velocity at A·T⁻¹. What reaches the screen is a
-// projection of that 4-D lattice chosen in ⚙ Controls › Dimensions:
-//  · each base dimension can be shown or hidden (hidden = its exponent is ignored, so points
-//    that differ only there land on one sphere and become beads, as in the SI view);
-//  · with all four shown, the fourth (A) is drawn as short vertical stalks off each L·M·T point,
-//    or one A-slice at a time.
-// The default is the SI view: angle hidden, so rad counts as 1.
+// ── Exponents: L, M, T, angle A, and the other SI base dimensions ─────────────
+// Every quantity is an 8-vector of exponents (L, M, T, A, I, Θ, N, J): length, mass, time, angle,
+// electric current, temperature, amount of substance and luminous intensity. Angle is a base
+// dimension here: 1 rad is the unit of A, a steradian is rad² (A²), and one cycle counts as 2π rad,
+// so a frequency in cycles/s sits with angular velocity at A·T⁻¹. What reaches the screen is a
+// projection of that lattice, in two stages:
+//  1. The unit system (⚙ Controls › Unit system). Setting a constant to 1 (c, ħ, G, k_B, ε₀)
+//     removes one base dimension by elimination: solve the constant's dimension for one base and
+//     substitute it everywhere. This is a linear projection along the constant's exponent vector,
+//     so points slide together and drawn vectors still add. Gaussian-style electromagnetism also
+//     puts a factor of c into B (F = q(E + v×B/c)), which shifts each magnetic quantity by its own
+//     power of c: that is per-quantity data (gc), not part of the projection.
+//  2. The view (⚙ Controls › Dimensions). L, M and T get the three axes. Angle can be shown or
+//     hidden (hidden = rad counts as 1, as in SI); with all four shown it is drawn as short vertical
+//     stalks off each L·M·T point, or one A-slice at a time. I, Θ, N and J are hidden by default,
+//     which hides the quantities that need them; shown, each adds a short slanted stalk.
 // The projection is linear, so drawn vectors still add: multiplying quantities stays tip-to-tail.
-const DIMS=['L','M','T','A'];
-const DIM_NAME={L:'length',M:'mass',T:'time',A:'angle'};
-const VIEW_DEFAULT={vis:{L:true,M:true,T:true,A:false},mode:'stalk',slice:1,frac:false};
+const DIMS=['L','M','T','A','I','K','N','J'];          // K is temperature (Θ); ids stay ASCII for links
+const ND=DIMS.length;
+const VDIMS=['L','M','T','A'];                          // dimensions with their own show/hide button
+const XDIMS=['I','K','N','J'];                          // shown together with one toggle, as stalks
+const DIM_NAME={L:'length',M:'mass',T:'time',A:'angle',I:'current',K:'temperature',N:'amount',J:'luminous intensity'};
+const DIM_SYM={L:'L',M:'M',T:'T',A:'A',I:'I',K:'Θ',N:'N',J:'J',F:'F'};
+// Constants a unit system can set to 1, with their exponent vectors and which base each one
+// removes (first in `pref` still present). Order matters: they are eliminated in CONST_ORDER.
+const CONSTS={
+  c:   {sym:'c',  name:'speed of light',          v:[1,0,-1],            pref:['T','L']},
+  hbar:{sym:'ħ',  name:'reduced Planck constant', v:[2,1,-1,-1],         pref:['L','M','T']},
+  G:   {sym:'G',  name:'gravitational constant',  v:[3,-1,-2],           pref:['M','L','T']},
+  kB:  {sym:'k_B',name:'Boltzmann constant',      v:[2,1,-2,0,0,-1],     pref:['K']},
+  eps0:{sym:'ε₀', name:'vacuum permittivity',     v:[-3,-1,4,0,2],       pref:['I']},
+};
+const CONST_ORDER=['c','hbar','G','kB','eps0'];
+const SYSTEMS=[
+  {id:'si',     label:'SI',          k:[],                     note:'SI: seven base dimensions plus angle. Nothing is set to 1.'},
+  {id:'gauss',  label:'Gaussian',    k:['eps0'],               note:'CGS-Gaussian: 4πε₀ = 1, and B carries a factor of c. Charge becomes M¹ᐟ²·L³ᐟ²·T⁻¹, so electromagnetic quantities land on half-integer points. 4π factors are invisible to exponents, so Heaviside–Lorentz looks the same.'},
+  {id:'flt',    label:'FLT',         k:[],      basis:'F',     note:'Gravitational (force–length–time): force replaces mass as a base. No point moves; the M axis is redrawn as the F axis along force, and exponents are written in F, L, T (mass = F·L⁻¹·T²).'},
+  {id:'natural',label:'Natural',     k:['c','hbar'],           note:'Particle-physics natural units: c = ħ = 1. Length and time become 1/energy, so every mechanical point lands on the M (energy) axis.'},
+  {id:'geom',   label:'Geometrized', k:['c','G'],              note:'Geometrized units: G = c = 1. Mass and time become lengths, so every mechanical point lands on the L axis.'},
+  {id:'planck', label:'Planck',      k:['c','hbar','G','kB'],  note:'Planck units: G = ħ = c = k_B = 1. Mechanics and temperature are dimensionless, so those points all meet at the origin.'},
+];
+const SYS_BY_ID=new Map(SYSTEMS.map(s=>[s.id,s]));
+const VIEW_DEFAULT={vis:{L:true,M:true,T:true,A:false},mode:'stalk',slice:1,frac:false,sys:'si',k:[],basis:'M',xdims:false};
 let VIEW=JSON.parse(JSON.stringify(VIEW_DEFAULT));
 try{const sv=JSON.parse(localStorage.getItem('pms.view2')||'null');if(sv&&sv.vis)VIEW={...VIEW,...sv,vis:{...VIEW.vis,...sv.vis}};}catch{}
 if(!['stalk','slice'].includes(VIEW.mode)) VIEW.mode='stalk';
+if(!Array.isArray(VIEW.k)) VIEW.k=[];
+VIEW.k=CONST_ORDER.filter(id=>VIEW.k.includes(id));
+if(VIEW.sys!=='custom'&&!SYS_BY_ID.has(VIEW.sys)) VIEW.sys='si';
+if(VIEW.basis!=='F') VIEW.basis='M';
+VIEW.xdims=!!VIEW.xdims;
 const saveView=()=>{try{localStorage.setItem('pms.view2',JSON.stringify(VIEW));}catch{}};
+const vN=a=>{const r=new Array(ND).fill(0);if(a)for(let i=0;i<ND&&i<a.length;i++)r[i]=+a[i]||0;return r;};
+const addV=(a,b,s=1)=>vN(a).map((v,i)=>v+s*vN(b)[i]);
+// ── Unit-system projection: sequential elimination, one base dimension per constant set to 1 ──
+let SYS_STEPS=[], SYS_ELIM={};   // SYS_ELIM: dimension id → constant id that removed it
+const elimStep=(x,{k,e})=>{const f=x[e]/k[e];return f?x.map((v,i)=>i===e?0:v-f*k[i]):x;};
+function buildSys(){
+  SYS_STEPS=[]; SYS_ELIM={};
+  CONST_ORDER.filter(id=>VIEW.k.includes(id)).forEach(id=>{
+    let k=vN(CONSTS[id].v);
+    if(!VIEW.vis.A) k[3]=0;   // with rad = 1 (angle hidden), ħ's per-radian factor drops out
+    SYS_STEPS.forEach(st=>k=elimStep(k,st));
+    const e=CONSTS[id].pref.map(d=>DIMS.indexOf(d)).find(i=>Math.abs(k[i])>1e-9&&!(DIMS[i] in SYS_ELIM));
+    if(e===undefined) return;   // already dimensionless under the other constants
+    SYS_STEPS.push({k,e,id}); SYS_ELIM[DIMS[e]]=id;
+  });
+}
+function sysVec(v){
+  let x=vN(v);
+  SYS_STEPS.forEach(st=>x=elimStep(x,st));
+  return x.map(c=>Math.abs(c)<1e-9?0:c);
+}
+const gaussMag=()=>VIEW.k.includes('eps0');
+const C_VEC=[1,0,-1];
+buildSys();
 // Stalks point straight up; 0.45 per angle power never lands on a whole or half M step
 const E_STALK=new THREE.Vector3(0,0.45,0);
+// I, Θ, N and J stalks slant out in four directions, short enough to stay off the lattice
+const X_STALK={I:new THREE.Vector3(0.30,0.16,0.30),K:new THREE.Vector3(-0.30,0.16,0.30),N:new THREE.Vector3(0.30,0.16,-0.30),J:new THREE.Vector3(-0.30,0.16,-0.30)};
 const SLOT_DIR=[new THREE.Vector3(1,0,0),new THREE.Vector3(0,1,0),new THREE.Vector3(0,0,1)];
 // Which base dimension sits on each of the three orthogonal axes, and whether A is the extra one
 function slots(){
@@ -516,22 +686,26 @@ function slots(){
   return{s,extraA};
 }
 let SLOTS=slots();
-const v4=a=>[a[0]||0,a[1]||0,a[2]||0,a[3]||0];
-const ptv=p=>[p.L,p.M,p.T,p.A];
-// Screen-space (world) position of an exponent 4-vector under the current view
-function proj(v){
-  v=v4(v); const p=new THREE.Vector3();
+const v4=vN;
+// A point's exponents in the current unit system (set by placePoints)
+const ptv=p=>DIMS.map(d=>p[d]);
+// Screen-space (world) position of an exponent vector that is already in system coordinates
+function scr(v){
+  v=vN(v); const p=new THREE.Vector3();
   SLOTS.s.forEach((d,i)=>{if(d) p.addScaledVector(SLOT_DIR[i],v[DIMS.indexOf(d)]);});
-  if(SLOTS.extraA){
-    if(VIEW.mode==='stalk') p.addScaledVector(E_STALK,v[3]);
-  }
+  if(SLOTS.extraA&&VIEW.mode==='stalk') p.addScaledVector(E_STALK,v[3]);
+  if(VIEW.xdims) XDIMS.forEach(d=>p.addScaledVector(X_STALK[d],v[DIMS.indexOf(d)]));
   return p;
 }
+// Screen-space position of any exponent vector: unit-system projection, then the view
+const proj=v=>scr(sysVec(v));
 const projA=v=>proj(v).toArray();
 const sliceMode=()=>SLOTS.extraA&&VIEW.mode==='slice';
-// Colour of one value along one base axis (A is teal, darker for negative angle powers)
+// Colour of one value along one base axis (A is teal, darker for negative angle powers;
+// I, Θ, N and J get their own hues the same way)
+const XHUE={A:0.47,I:0.76,K:0.02,N:0.30,J:0.13};
 function dimColor(d,v){
-  if(d==='A'){const t=Math.max(-1,Math.min(1,v/2));const c=new THREE.Color().setHSL(0.47,0.75,0.5+t*0.18);
+  if(d in XHUE){const t=Math.max(-1,Math.min(1,v/2));const c=new THREE.Color().setHSL(XHUE[d],0.75,0.5+t*0.18);
     const ri=Math.round(c.r*255),gi=Math.round(c.g*255),bi=Math.round(c.b*255);
     return{hex:(ri<<16)|(gi<<8)|bi,r:ri,g:gi,b:bi,css:`rgb(${ri},${gi},${bi})`};}
   return coordToColor(d==='L'?v:0,d==='M'?Math.max(-1,Math.min(1,v)):0,d==='T'?Math.max(-4,Math.min(1,v)):0);
@@ -541,13 +715,13 @@ function dimColor(d,v){
 const AX=5.2;
 const TN=[-4,-3,-2,-1,1,2,3,4];
 let axisGroup=null, AXIS_LABELS=[], AXIS_TICKS=[];
-function tubeAlong(dir,d,from,to,g,radius=0.030,steps=64){
+function tubeAlong(dir,d,from,to,g,radius=0.030,steps=64,opacity=1){
   const len=to-from, ctr=(from+to)/2;
   const geo=new THREE.CylinderGeometry(radius,radius,len,8,steps);
   const pos=geo.attributes.position, n=pos.count, col=new Float32Array(n*3);
   for(let i=0;i<n;i++){const{r,g:gg,b}=dimColor(d,ctr+pos.getY(i));col[i*3]=r/255;col[i*3+1]=gg/255;col[i*3+2]=b/255;}
   geo.setAttribute('color',new THREE.BufferAttribute(col,3));
-  const mesh=new THREE.Mesh(geo,new THREE.MeshBasicMaterial({vertexColors:true}));
+  const mesh=new THREE.Mesh(geo,new THREE.MeshBasicMaterial({vertexColors:true,transparent:opacity<1,opacity}));
   const u=dir.clone().normalize();
   mesh.quaternion.setFromUnitVectors(new THREE.Vector3(0,1,0),u);
   mesh.position.copy(u.clone().multiplyScalar(ctr*dir.length()));
@@ -555,7 +729,7 @@ function tubeAlong(dir,d,from,to,g,radius=0.030,steps=64){
   g.add(mesh);
   [to,from].forEach(e=>{
     const{hex}=dimColor(d,e);
-    const cone=new THREE.Mesh(new THREE.ConeGeometry(0.09,0.35,10),new THREE.MeshPhongMaterial({color:hex,emissive:hex,emissiveIntensity:0.3}));
+    const cone=new THREE.Mesh(new THREE.ConeGeometry(0.09,0.35,10),new THREE.MeshPhongMaterial({color:hex,emissive:hex,emissiveIntensity:0.3,transparent:opacity<1,opacity}));
     cone.position.copy(dir.clone().multiplyScalar(e));
     cone.quaternion.setFromUnitVectors(new THREE.Vector3(0,1,0),e>0?u:u.clone().negate());
     g.add(cone);
@@ -564,20 +738,29 @@ function tubeAlong(dir,d,from,to,g,radius=0.030,steps=64){
 function buildAxes(){
   if(axisGroup){scene.remove(axisGroup);axisGroup.traverse(o=>{if(o.geometry)o.geometry.dispose();if(o.material)o.material.dispose();});}
   axisGroup=new THREE.Group(); scene.add(axisGroup); AXIS_LABELS=[]; AXIS_TICKS=[];
-  const add=(dir,d,ext)=>{
-    tubeAlong(dir,d,-ext,ext,axisGroup);
-    const sym=d, word=DIM_NAME[d];
-    AXIS_LABELS.push({p:dir.clone().multiplyScalar(ext+0.5),t:`${sym} ${word} ${Math.abs(dir.y)>0.9?'↑':'→'}`,c:dimColor(d,2)});
-    AXIS_LABELS.push({p:dir.clone().multiplyScalar(-ext-0.5),t:`← −${sym}`,c:dimColor(d,-2)});
+  // An axis whose dimension the unit system removed stays, faded, and says which constant took it
+  const add=(dir,d,ext,{sym=DIM_SYM[d],word=DIM_NAME[d],col=d,small=false}={})=>{
+    const gone=SYS_ELIM[d], op=gone?0.22:1, L=dir.length();
+    tubeAlong(dir,col,-ext,ext,axisGroup,small?0.018:0.030,64,op);
+    const tail=gone?` · ${CONSTS[gone].sym} = 1`:'';
+    AXIS_LABELS.push({p:dir.clone().multiplyScalar(ext+0.5/L),t:`${sym} ${word}${tail} ${Math.abs(dir.y)>0.9?'↑':'→'}`,c:dimColor(col,2)});
+    if(!small) AXIS_LABELS.push({p:dir.clone().multiplyScalar(-ext-0.5/L),t:`← −${sym}`,c:dimColor(col,-2)});
+    if(gone) return;
     for(let n=-Math.floor(ext);n<=Math.floor(ext);n++){ if(!n) continue;
-      const c=dimColor(d,n), p=dir.clone().multiplyScalar(n);
+      const c=dimColor(col,n), p=dir.clone().multiplyScalar(n);
       const perp=Math.abs(dir.y)>0.9?new THREE.Vector3(0,0,0.1):new THREE.Vector3(0,0.1,0);
       axisGroup.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints([p.clone().sub(perp),p.clone().add(perp)]),
         new THREE.LineBasicMaterial({color:c.hex,transparent:true,opacity:0.7})));
       AXIS_TICKS.push({p,t:String(n),c,dy:Math.abs(dir.y)>0.9?8:24,dx:Math.abs(dir.y)>0.9?13:0});
     }
   };
-  SLOTS.s.forEach((d,i)=>{if(d) add(SLOT_DIR[i],d,AX);});
+  SLOTS.s.forEach((d,i)=>{
+    if(!d) return;
+    // FLT rebase: points stay put; the mass axis is redrawn along force, F = L·M·T⁻²
+    if(d==='M'&&VIEW.basis==='F'&&!SYS_ELIM.M) add(scr(sysVec([1,1,-2])),'M',2.2,{sym:'F',word:'force'});
+    else add(SLOT_DIR[i],d,AX);
+  });
+  if(VIEW.xdims) XDIMS.forEach(d=>{if(!SYS_ELIM[d]) add(X_STALK[d],d,2.2,{small:true});});
   const gMat=new THREE.LineBasicMaterial({color:TH.grid,transparent:true,opacity:0.8});
   for(let i=-5;i<=5;i++){
     const aL=(a,b)=>axisGroup.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(...a),new THREE.Vector3(...b)]),gMat));
@@ -587,7 +770,7 @@ function buildAxes(){
 }
 
 // ── Data ──────────────────────────────────────────────────────────────────────
-const RAW=[['Length',1,0,0],['Displacement',1,0,0],['Wavelength',1,0,0],['Arm / Lever',1,0,0],['Area',2,0,0],['Cross-section',2,0,0],['Volume',3,0,0],['Wavenumber',-1,0,0],['Curvature',-1,0,0],['Velocity',1,0,-1],['Speed of Light',1,0,-1],['Acceleration',1,0,-2],['Free-fall g',1,0,-2],['Jerk',1,0,-3],['Snap / Jounce',1,0,-4],['Vol. Flow Rate',3,0,-1],['Kinematic Viscosity',2,0,-1],['Diffusivity',2,0,-1],['Thermal Diffusivity',2,0,-1],['Spec. Ang. Mom.',2,0,-1],['Grav. Potential',2,0,-2],['Specific Energy',2,0,-2],['Absorbed Dose (Gy)',2,0,-2],['Dose Equivalent',2,0,-2],['Std. Grav. Param GM',3,0,-2],['Energy Spectrum E(k)',3,0,-2],['Sorptivity',1,0,-0.5],['Accel. Noise Density',1,0,-1.5],['Angle Random Walk',0,0,-0.5],['Strain',0,0,0],['Angle (rad)',0,0,0],['Solid Angle (sr)',0,0,0],['Mach Number',0,0,0],['Reynolds Number',0,0,0],['Coeff. of Restitution',0,0,0],['Time',0,0,1],['Period',0,0,1],['Half-life',0,0,1],['Frequency',0,0,-1],['Angular Velocity',0,0,-1],['Angular Frequency ω',0,0,-1],['Radioactivity (Bq)',0,0,-1],['Vorticity',0,0,-1],['Strain Rate',0,0,-1],['Angular Acceleration',0,0,-2],['Mass',0,1,0],['Linear Density',-1,1,0],['Surface Density',-2,1,0],['Volume Density',-3,1,0],['Moment of Inertia',2,1,0],['Specific Volume',3,-1,0],['Mass Flow Rate',0,1,-1],['Mech. Impedance',0,1,-1],['Mech. Admittance',0,-1,1],['Momentum',1,1,-1],['Impulse',1,1,-1],['Angular Momentum',2,1,-1],['Action',2,1,-1],['Reduced Planck ℏ',2,1,-1],['Angular Impulse',2,1,-1],['Force',1,1,-2],['Weight',1,1,-2],['Drag',1,1,-2],['Thrust',1,1,-2],['Tension',1,1,-2],['Lift',1,1,-2],['Energy',2,1,-2],['Work',2,1,-2],['Heat (Q)',2,1,-2],['Torque',2,1,-2],['Torsional Stiffness',2,1,-2],['Enthalpy',2,1,-2],['Helmholtz Energy',2,1,-2],['Power',2,1,-3],['Radiant Flux',2,1,-3],['Luminosity',2,1,-3],['Radiant Intensity (W/sr)',2,1,-3],['Radiance',0,1,-3],['Pressure',-1,1,-2],['Stress',-1,1,-2],["Young's Modulus",-1,1,-2],['Shear Modulus',-1,1,-2],['Bulk Modulus',-1,1,-2],['Energy Density',-1,1,-2],['Pressure Gradient',-2,1,-2],['Force Density',-2,1,-2],['Mass Flux (ρv)',-2,1,-1],['Yield Strength',-1,1,-2],['Surface Tension',0,1,-2],['Spring Constant',0,1,-2],['Stiffness',0,1,-2],['Dynamic Viscosity',-1,1,-1],['Intensity (W/m²)',0,1,-3],['Power Density',-1,1,-3],['Spec. Power (W/kg)',2,0,-3],['Dissipation Rate ε',2,0,-3],['Fracture Toughness',-0.5,1,-2],['Charge (Gaussian)',1.5,0.5,-1],['Irradiance',0,1,-3],['Grav. Constant G',3,-1,-2],
+const RAW=[['Length',1,0,0],['Displacement',1,0,0],['Wavelength',1,0,0],['Arm / Lever',1,0,0],['Area',2,0,0],['Cross-section',2,0,0],['Volume',3,0,0],['Wavenumber',-1,0,0],['Curvature',-1,0,0],['Velocity',1,0,-1],['Speed of Light',1,0,-1],['Acceleration',1,0,-2],['Free-fall g',1,0,-2],['Jerk',1,0,-3],['Snap / Jounce',1,0,-4],['Vol. Flow Rate',3,0,-1],['Kinematic Viscosity',2,0,-1],['Diffusivity',2,0,-1],['Thermal Diffusivity',2,0,-1],['Spec. Ang. Mom.',2,0,-1],['Grav. Potential',2,0,-2],['Specific Energy',2,0,-2],['Absorbed Dose (Gy)',2,0,-2],['Dose Equivalent',2,0,-2],['Std. Grav. Param GM',3,0,-2],['Energy Spectrum E(k)',3,0,-2],['Sorptivity',1,0,-0.5],['Accel. Noise Density',1,0,-1.5],['Angle Random Walk',0,0,-0.5],['Strain',0,0,0],['Angle (rad)',0,0,0],['Solid Angle (sr)',0,0,0],['Mach Number',0,0,0],['Reynolds Number',0,0,0],['Coeff. of Restitution',0,0,0],['Time',0,0,1],['Period',0,0,1],['Half-life',0,0,1],['Frequency',0,0,-1],['Angular Velocity',0,0,-1],['Angular Frequency ω',0,0,-1],['Radioactivity (Bq)',0,0,-1],['Vorticity',0,0,-1],['Strain Rate',0,0,-1],['Angular Acceleration',0,0,-2],['Mass',0,1,0],['Linear Density',-1,1,0],['Surface Density',-2,1,0],['Volume Density',-3,1,0],['Moment of Inertia',2,1,0],['Specific Volume',3,-1,0],['Mass Flow Rate',0,1,-1],['Mech. Impedance',0,1,-1],['Mech. Admittance',0,-1,1],['Momentum',1,1,-1],['Impulse',1,1,-1],['Angular Momentum',2,1,-1],['Action',2,1,-1],['Reduced Planck ℏ',2,1,-1],['Angular Impulse',2,1,-1],['Force',1,1,-2],['Weight',1,1,-2],['Drag',1,1,-2],['Thrust',1,1,-2],['Tension',1,1,-2],['Lift',1,1,-2],['Energy',2,1,-2],['Work',2,1,-2],['Heat (Q)',2,1,-2],['Torque',2,1,-2],['Torsional Stiffness',2,1,-2],['Enthalpy',2,1,-2],['Helmholtz Energy',2,1,-2],['Power',2,1,-3],['Radiant Flux',2,1,-3],['Luminosity',2,1,-3],['Radiant Intensity (W/sr)',2,1,-3],['Radiance',0,1,-3],['Pressure',-1,1,-2],['Stress',-1,1,-2],["Young's Modulus",-1,1,-2],['Shear Modulus',-1,1,-2],['Bulk Modulus',-1,1,-2],['Energy Density',-1,1,-2],['Pressure Gradient',-2,1,-2],['Force Density',-2,1,-2],['Mass Flux (ρv)',-2,1,-1],['Yield Strength',-1,1,-2],['Surface Tension',0,1,-2],['Spring Constant',0,1,-2],['Stiffness',0,1,-2],['Dynamic Viscosity',-1,1,-1],['Intensity (W/m²)',0,1,-3],['Power Density',-1,1,-3],['Spec. Power (W/kg)',2,0,-3],['Dissipation Rate ε',2,0,-3],['Fracture Toughness',-0.5,1,-2],['Irradiance',0,1,-3],['Grav. Constant G',3,-1,-2],
   // More mechanics (integer exponents)
   ['Crackle',1,0,-5],['Absement',1,0,1],['Areal Velocity',2,0,-1],['Circulation',2,0,-1],['Angular Jerk',0,0,-3],['Yank',1,1,-3],
   ['Specific Impulse',0,0,1],['Spring Compliance',0,-1,2],['Damping Coefficient',0,1,-1],['Grav. Field Strength',1,0,-2],
@@ -598,33 +781,96 @@ const RAW=[['Length',1,0,0],['Displacement',1,0,0],['Wavelength',1,0,0],['Arm / 
   ['Acoustic Impedance',-4,1,-1],['Spectral Irradiance (per λ)',-1,1,-3],['Rotational Kinetic Energy',2,1,-2],['Accel. PSD',2,0,-3],
   // Fractional exponents: per-√Hz noise densities and CGS-Gaussian electromagnetism
   ['Velocity Random Walk',1,0,-0.5],['Displacement Noise Density',1,0,0.5],['Strain Noise Density',0,0,0.5],
-  ['Force Noise Density',1,1,-1.5],['Noise-Equivalent Power',2,1,-2.5],['Specific Detectivity D*',-1,-1,2.5],
-  ['Electric Field (Gaussian)',-0.5,0.5,-1],['Magnetic Field (Gaussian)',-0.5,0.5,-1],['Electric Potential (Gaussian)',0.5,0.5,-1],
-  ['Current (Gaussian)',1.5,0.5,-2],['Magnetic Flux (Gaussian)',1.5,0.5,-1],['Electric Dipole Moment (Gaussian)',2.5,0.5,-1],
-  ['Magnetic Moment (Gaussian)',2.5,0.5,-1],['Magnetic Field Noise (Gaussian)',-0.5,0.5,-0.5],['Voltage Noise Density (Gaussian)',0.5,0.5,-0.5],
-  ['Charge Noise Density (Gaussian)',1.5,0.5,-0.5],['Flux Noise (Gaussian)',1.5,0.5,-0.5],['Current Noise Density (Gaussian)',1.5,0.5,-1.5]];
+  ['Force Noise Density',1,1,-1.5],['Noise-Equivalent Power',2,1,-2.5],['Specific Detectivity D*',-1,-1,2.5]];
+// Quantities that need the other SI base dimensions, stored once in SI form as full exponent
+// vectors [L,M,T,A,I,Θ,N,J]. The third field, gc, is the power of c that Gaussian-style units
+// (ε₀ = 1, F = q(E + v×B/c)) add to the quantity: +1 for B, flux and vector potential, −1 for H,
+// magnetization and magnetic moment, +2 for permeability, 0 for everything electric. With ε₀ = 1
+// and those shifts, every point below lands on its CGS-Gaussian exponents (see GAUSS_CHECK).
+const RAW_X=[
+  // Electromagnetism
+  ['Electric Current',[0,0,0,0,1]],['Electric Charge',[0,0,1,0,1]],['Elementary Charge e',[0,0,1,0,1]],
+  ['Current Density',[-2,0,0,0,1]],['Linear Charge Density',[-1,0,1,0,1]],['Surface Charge Density',[-2,0,1,0,1]],
+  ['Electric Displacement D',[-2,0,1,0,1]],['Polarization',[-2,0,1,0,1]],['Charge Density',[-3,0,1,0,1]],
+  ['Electric Potential',[2,1,-3,0,-1]],['Voltage',[2,1,-3,0,-1]],['EMF',[2,1,-3,0,-1]],
+  ['Electric Field',[1,1,-3,0,-1]],['Resistance',[2,1,-3,0,-2]],['Impedance',[2,1,-3,0,-2]],['Reactance',[2,1,-3,0,-2]],
+  ['Conductance',[-2,-1,3,0,2]],['Resistivity',[3,1,-3,0,-2]],['Conductivity',[-3,-1,3,0,2]],
+  ['Capacitance',[-2,-1,4,0,2]],['Inductance',[2,1,-2,0,-2]],['Permittivity',[-3,-1,4,0,2]],['Vacuum Permittivity ε₀',[-3,-1,4,0,2]],
+  ['Electric Dipole Moment',[1,0,1,0,1]],
+  ['Magnetic Flux Density B',[0,1,-2,0,-1],1],['Magnetic Flux',[2,1,-2,0,-1],1],['Magnetic Vector Potential',[1,1,-2,0,-1],1],
+  ['Magnetic Field Strength H',[-1,0,0,0,1],-1],['Magnetization',[-1,0,0,0,1],-1],['Magnetic Moment',[2,0,0,0,1],-1],
+  ['Permeability',[1,1,-2,0,-2],2],['Vacuum Permeability μ₀',[1,1,-2,0,-2],2],
+  // Electrical noise densities (per √Hz)
+  ['Current Noise Density',[0,0,0.5,0,1]],['Charge Noise Density',[0,0,1.5,0,1]],['Voltage Noise Density',[2,1,-2.5,0,-1]],
+  ['Magnetic Field Noise',[0,1,-1.5,0,-1],1],['Flux Noise',[2,1,-1.5,0,-1],1],
+  // Thermodynamics
+  ['Temperature',[0,0,0,0,0,1]],['Temperature Gradient',[-1,0,0,0,0,1]],['Thermal Expansion Coeff.',[0,0,0,0,0,-1]],
+  ['Entropy',[2,1,-2,0,0,-1]],['Boltzmann Constant k_B',[2,1,-2,0,0,-1]],['Heat Capacity',[2,1,-2,0,0,-1]],
+  ['Specific Heat Capacity',[2,0,-2,0,0,-1]],['Thermal Conductivity',[1,1,-3,0,0,-1]],['Heat Transfer Coeff.',[0,1,-3,0,0,-1]],
+  ['Thermal Resistance',[-2,-1,3,0,0,1]],['Stefan–Boltzmann Constant',[0,1,-3,0,0,-4]],
+  // Amount of substance
+  ['Amount of Substance',[0,0,0,0,0,0,1]],['Avogadro Constant',[0,0,0,0,0,0,-1]],['Molar Mass',[0,1,0,0,0,0,-1]],
+  ['Molar Concentration',[-3,0,0,0,0,0,1]],['Molar Energy',[2,1,-2,0,0,0,-1]],['Chemical Potential',[2,1,-2,0,0,0,-1]],
+  ['Molar Heat Capacity',[2,1,-2,0,0,-1,-1]],['Gas Constant R',[2,1,-2,0,0,-1,-1]],['Catalytic Activity',[0,0,-1,0,0,0,1]],
+  ['Faraday Constant',[0,0,1,0,1,0,-1]],
+  // Photometry (lumen = cd·sr, so luminous flux carries A²)
+  ['Luminous Intensity',[0,0,0,0,0,0,0,1]],['Luminous Flux',[0,0,0,2,0,0,0,1]],['Illuminance',[-2,0,0,2,0,0,0,1]],
+  ['Luminance',[-2,0,0,0,0,0,0,1]],['Luminous Efficacy',[-2,-1,3,2,0,0,0,1]],
+];
+// The CGS-Gaussian exponents (L, M, T) this app once listed by hand. Projecting the SI entries
+// above with ε₀ = 1 and their c-shifts must land exactly here; a mismatch is logged at start-up.
+const GAUSS_CHECK={'Electric Charge':[1.5,0.5,-1],'Electric Current':[1.5,0.5,-2],'Electric Field':[-0.5,0.5,-1],
+  'Magnetic Flux Density B':[-0.5,0.5,-1],'Electric Potential':[0.5,0.5,-1],'Magnetic Flux':[1.5,0.5,-1],
+  'Electric Dipole Moment':[2.5,0.5,-1],'Magnetic Moment':[2.5,0.5,-1],'Magnetic Field Noise':[-0.5,0.5,-0.5],
+  'Voltage Noise Density':[0.5,0.5,-0.5],'Charge Noise Density':[1.5,0.5,-0.5],'Flux Noise':[1.5,0.5,-0.5],
+  'Current Noise Density':[1.5,0.5,-1.5]};
+// Names these quantities had while they were listed in Gaussian form, for search
+const OLD_GAUSS_NAME={'Electric Charge':'Charge (Gaussian)','Electric Current':'Current (Gaussian)','Electric Field':'Electric Field (Gaussian)',
+  'Magnetic Flux Density B':'Magnetic Field (Gaussian)','Electric Potential':'Electric Potential (Gaussian)','Magnetic Flux':'Magnetic Flux (Gaussian)',
+  'Electric Dipole Moment':'Electric Dipole Moment (Gaussian)','Magnetic Moment':'Magnetic Moment (Gaussian)'};
 // Angle exponent of each quantity (all others are 0). rad = A, sr = A², cycle = 2π rad.
 const AEXP={'Angular Jerk':1,'Angle (rad)':1,'Solid Angle (sr)':2,'Curvature':1,'Wavenumber':1,'Frequency':1,'Angular Velocity':1,'Angular Frequency ω':1,
   'Vorticity':1,'Angular Acceleration':1,'Angle Random Walk':1,'Spec. Ang. Mom.':-1,'Moment of Inertia':-2,'Angular Momentum':-1,
   'Reduced Planck ℏ':-1,'Angular Impulse':-1,'Torque':-1,'Torsional Stiffness':-2,'Radiant Intensity (W/sr)':-2,'Radiance':-2};
-RAW.forEach(r=>r[4]=AEXP[r[0]]||0);
+// Every quantity as {name, s: SI exponent 8-vector, gc}
+const ENTRIES=[...RAW.map(([n,L,M,T])=>({name:n,s:vN([L,M,T,AEXP[n]||0]),gc:0})),
+  ...RAW_X.map(([n,v,gc=0])=>({name:n,s:vN(v),gc}))];
 // Exponents can be fractional (√m in fracture toughness, √Hz in noise densities). Points are
 // keyed by exponent × 60 rounded, so halves, thirds, quarters, fifths and sixths computed in
 // floating point always find the same point.
-const keyOf=(L,M,T,A=0)=>[L,M,T,A].map(v=>Math.round(v*60)+0).join(',');
+const keyOf=(...v)=>vN(v).map(x=>Math.round(x*60)+0).join(',');
 function fracStr(v){
   for(let d=1;d<=6;d++){const n=Math.round(v*d);if(Math.abs(v*d-n)<1e-9)return d===1?String(n):`${n}/${d}`;}
   return String(+v.toFixed(3));
 }
+// One point per SI exponent vector (and c-shift). pt.s and pt.skey are the SI source; pt.L … pt.J
+// and pt.key are its exponents in the current unit system, set by placePoints.
 const GROUPS=new Map();
-RAW.forEach(([name,L,M,T,A])=>{
-  const k=keyOf(L,M,T,A);
-  if(!GROUPS.has(k)) GROUPS.set(k,{L,M,T,A,entries:[]});
+ENTRIES.forEach(({name,s,gc})=>{
+  const k=keyOf(...s)+(gc?`@${gc}`:'');
+  if(!GROUPS.has(k)) GROUPS.set(k,{s,gc,entries:[]});
   GROUPS.get(k).entries.push(name);
 });
 const PTS=[...GROUPS.values()];
-PTS.forEach(pt=>{pt.key=keyOf(pt.L,pt.M,pt.T,pt.A);pt.frac=ptv(pt).some(v=>Math.abs(v-Math.round(v))>1e-9);});
-const isFracV=v=>v4(v).some(x=>Math.abs(x-Math.round(x))>1e-9);
+// A point's exponents in the current unit system: projection, plus its own c-shift under Gaussian units
+const sysOfPt=pt=>sysVec(gaussMag()&&pt.gc?addV(pt.s,C_VEC,pt.gc):pt.s);
+const isFracV=v=>vN(v).some(x=>Math.abs(x-Math.round(x))>1e-9);
+const hasX=v=>XDIMS.some(d=>Math.abs(vN(v)[DIMS.indexOf(d)])>1e-9);
+PTS.forEach(pt=>{pt.skey=keyOf(...pt.s);DIMS.forEach((d,i)=>pt[d]=sysOfPt(pt)[i]);pt.key=keyOf(...ptv(pt));});
+const SRC_BY_KEY=new Map();
+PTS.forEach(pt=>{if(!SRC_BY_KEY.has(pt.skey))SRC_BY_KEY.set(pt.skey,pt);});
+const ptSrc=(...v)=>SRC_BY_KEY.get(keyOf(...v));
+// Links made before unit systems named the Gaussian points by their L,M,T exponents: map those back
+const LEGACY_GAUSS=new Map();
+(()=>{
+  const save={k:VIEW.k}; VIEW.k=['eps0']; buildSys();
+  PTS.forEach(pt=>{if(!hasX(pt.s))return; const g=sysOfPt(pt); if(!hasX(g)&&!LEGACY_GAUSS.has(keyOf(...g))) LEGACY_GAUSS.set(keyOf(...g),pt);});
+  const bad=Object.entries(GAUSS_CHECK).filter(([n,want])=>{
+    const pt=PTS.find(p=>p.entries.includes(n)); const g=pt&&sysOfPt(pt);
+    return !g||keyOf(...g)!==keyOf(...want);});
+  if(bad.length) console.error('Gaussian projection disagrees with the CGS-Gaussian exponents for',bad.map(b=>b[0]).join(', '));
+  VIEW.k=save.k; buildSys();
+})();
 // Conventional variable symbols for each named quantity (used by search and the info card)
 const SYMBOLS={'Length':['l','L','x'],'Displacement':['x','Δx','s','d'],'Wavelength':['λ'],'Arm / Lever':['r'],'Area':['A'],'Cross-section':['A','σ'],'Volume':['V'],'Wavenumber':['k','ν̃'],'Curvature':['κ'],'Velocity':['v','u'],'Speed of Light':['c'],'Acceleration':['a'],'Free-fall g':['g'],'Jerk':['j'],'Snap / Jounce':['s'],'Vol. Flow Rate':['Q'],'Kinematic Viscosity':['ν'],'Diffusivity':['D'],'Thermal Diffusivity':['α'],'Spec. Ang. Mom.':['h'],'Grav. Potential':['Φ','V'],'Specific Energy':['ε','e'],'Absorbed Dose (Gy)':['D'],'Dose Equivalent':['H'],'Std. Grav. Param GM':['μ','GM'],'Strain':['ε'],'Angle (rad)':['θ','φ'],'Solid Angle (sr)':['Ω'],'Mach Number':['Ma','M'],'Reynolds Number':['Re'],'Coeff. of Restitution':['e'],'Time':['t'],'Period':['T'],'Half-life':['t½'],'Frequency':['f','ν'],'Angular Velocity':['ω'],'Angular Frequency ω':['ω'],'Radioactivity (Bq)':['A'],'Angular Acceleration':['α'],'Mass':['m','M'],'Linear Density':['λ','μ'],'Surface Density':['σ'],'Volume Density':['ρ'],'Moment of Inertia':['I'],'Specific Volume':['v'],'Mass Flow Rate':['ṁ'],'Mech. Impedance':['Z'],'Mech. Admittance':['Y'],'Momentum':['p'],'Impulse':['J'],'Angular Momentum':['L'],'Action':['S'],'Reduced Planck ℏ':['ℏ'],'Angular Impulse':['ΔL'],'Force':['F'],'Weight':['W'],'Drag':['F_D','D'],'Thrust':['T'],'Tension':['T'],'Lift':['L','F_L'],'Energy':['E'],'Work':['W'],'Heat (Q)':['Q'],'Torque':['τ'],'Torsional Stiffness':['κ'],'Enthalpy':['H'],'Helmholtz Energy':['F','A'],'Power':['P'],'Radiant Flux':['Φₑ'],'Luminosity':['L'],'Radiant Intensity (W/sr)':['Iₑ'],'Radiance':['Lₑ'],'Pressure':['P','p'],'Stress':['σ'],"Young's Modulus":['E'],'Shear Modulus':['G'],'Bulk Modulus':['K'],'Yield Strength':['σᵧ'],'Surface Tension':['γ'],'Spring Constant':['k'],'Stiffness':['k'],'Dynamic Viscosity':['μ','η'],'Intensity (W/m²)':['I'],'Power Density':['p'],'Spec. Power (W/kg)':['P/m'],'Irradiance':['Eₑ'],'Grav. Constant G':['G'],
   'Crackle':['c'],'Absement':['A'],'Areal Velocity':['dA/dt'],'Circulation':['Γ'],'Angular Jerk':['ζ'],'Yank':['Y'],'Specific Impulse':['I_sp'],
@@ -634,11 +880,21 @@ const SYMBOLS={'Length':['l','L','x'],'Displacement':['x','Δx','s','d'],'Wavele
   'Permeability (porous media)':['k'],'Hydraulic Conductivity':['K'],'Hubble Constant':['H₀'],'Gravity Gradient':['Γ'],
   'Specific Acoustic Impedance':['z'],'Acoustic Impedance':['Z'],'Spectral Irradiance (per λ)':['E_λ'],'Rotational Kinetic Energy':['K'],
   'Accel. PSD':['S_a'],'Velocity Random Walk':['VRW'],'Displacement Noise Density':['S_x'],'Strain Noise Density':['h'],
-  'Force Noise Density':['S_F'],'Noise-Equivalent Power':['NEP'],'Specific Detectivity D*':['D*'],'Electric Field (Gaussian)':['E'],
-  'Magnetic Field (Gaussian)':['B'],'Electric Potential (Gaussian)':['V','φ'],'Current (Gaussian)':['I'],'Magnetic Flux (Gaussian)':['Φ'],
-  'Electric Dipole Moment (Gaussian)':['p'],'Magnetic Moment (Gaussian)':['μ','m'],'Magnetic Field Noise (Gaussian)':['S_B'],
-  'Voltage Noise Density (Gaussian)':['S_V'],'Charge Noise Density (Gaussian)':['S_q'],'Flux Noise (Gaussian)':['S_Φ'],
-  'Current Noise Density (Gaussian)':['S_I']};
+  'Force Noise Density':['S_F'],'Noise-Equivalent Power':['NEP'],'Specific Detectivity D*':['D*'],'Electric Field':['E'],
+  'Magnetic Flux Density B':['B'],'Electric Potential':['V','φ'],'Voltage':['V','U'],'EMF':['ℰ'],'Electric Current':['I'],'Magnetic Flux':['Φ'],
+  'Electric Dipole Moment':['p'],'Magnetic Moment':['μ','m'],'Magnetic Field Noise':['S_B'],
+  'Voltage Noise Density':['S_V'],'Charge Noise Density':['S_q'],'Flux Noise':['S_Φ'],'Current Noise Density':['S_I'],
+  'Electric Charge':['q','Q'],'Elementary Charge e':['e'],'Current Density':['J','j'],'Linear Charge Density':['λ'],
+  'Surface Charge Density':['σ'],'Electric Displacement D':['D'],'Polarization':['P'],'Charge Density':['ρ'],
+  'Resistance':['R'],'Impedance':['Z'],'Reactance':['X'],'Conductance':['G'],'Resistivity':['ρ'],'Conductivity':['σ'],
+  'Capacitance':['C'],'Inductance':['L'],'Permittivity':['ε'],'Vacuum Permittivity ε₀':['ε₀'],
+  'Magnetic Vector Potential':['A'],'Magnetic Field Strength H':['H'],'Magnetization':['M'],'Permeability':['μ'],
+  'Vacuum Permeability μ₀':['μ₀'],'Temperature':['T','Θ'],'Temperature Gradient':['∇T'],'Thermal Expansion Coeff.':['α'],
+  'Entropy':['S'],'Boltzmann Constant k_B':['k_B','k'],'Heat Capacity':['C'],'Specific Heat Capacity':['c','c_p'],
+  'Thermal Conductivity':['k','λ'],'Heat Transfer Coeff.':['h'],'Thermal Resistance':['R_th'],'Stefan–Boltzmann Constant':['σ'],
+  'Amount of Substance':['n'],'Avogadro Constant':['N_A'],'Molar Mass':['M'],'Molar Concentration':['c'],'Molar Energy':['E_m'],
+  'Chemical Potential':['μ'],'Molar Heat Capacity':['C_m'],'Gas Constant R':['R'],'Catalytic Activity':['z'],'Faraday Constant':['F'],
+  'Luminous Intensity':['I_v'],'Luminous Flux':['Φ_v'],'Illuminance':['E_v'],'Luminance':['L_v'],'Luminous Efficacy':['η','K']};
 const PT_OF_NAME=new Map();
 PTS.forEach(pt=>pt.entries.forEach(n=>PT_OF_NAME.set(n,pt)));
 
@@ -647,7 +903,7 @@ PTS.forEach(pt=>pt.entries.forEach(n=>PT_OF_NAME.set(n,pt)));
 const R0=0.085, radiusFor=k=>R0+Math.min(k-1,7)*0.03;
 const pickMeshes=[];
 PTS.forEach(pt=>{
-  const col=coordToColor(pt.L,pt.M,pt.T); pt.col=col;
+  const col=coordToColor(pt.s[0],pt.s[1],pt.s[2]); pt.col=col;   // colour follows the SI exponents, so points can be tracked across systems
   const r=R0; pt.sc=1;
   pt.lum=(0.299*col.r+0.587*col.g+0.114*col.b)/255;
   pt.vis=new THREE.Mesh(new THREE.SphereGeometry(r,20,20),
@@ -689,6 +945,10 @@ const KIND_GROUPS=[
   ['Intensity (W/m²)','Irradiance','Heat Flux'],['Surface Tension','Surface Energy'],['Radiant Exposure','Fluence'],
   ['Mech. Impedance','Damping Coefficient'],['Dynamic Viscosity','Bulk Viscosity'],['Energy Density','Strain Energy Density'],
   ['Areal Velocity','Circulation'],['Spec. Power (W/kg)','Dissipation Rate ε'],
+  ['Electric Charge','Elementary Charge e'],['Surface Charge Density','Electric Displacement D','Polarization'],
+  ['Electric Potential','Voltage','EMF'],['Resistance','Impedance','Reactance'],['Permittivity','Vacuum Permittivity ε₀'],
+  ['Permeability','Vacuum Permeability μ₀'],['Magnetic Field Strength H','Magnetization'],['Entropy','Boltzmann Constant k_B'],
+  ['Molar Energy','Chemical Potential'],['Molar Heat Capacity','Gas Constant R'],
 ];
 const KIND_OF=new Map();
 KIND_GROUPS.forEach(g=>g.forEach(n=>KIND_OF.set(n,g)));
@@ -706,6 +966,7 @@ const beadPickMeshes=[];
 const grpEntries=pt=>(pt.grp||[pt]).flatMap(p=>p.entries);
 const grpKinds=pt=>(pt.grp||[pt]).flatMap(p=>p.kinds);
 let stalkGroup=null;
+const PT_BY_KEY=new Map();
 function buildBeads(pt){
   if(pt.holder){scene.remove(pt.holder);pt.holder=null;}
   pt.beads=null;
@@ -727,11 +988,15 @@ function buildBeads(pt){
 }
 // Re-place every point for the current view, merge coincident ones, rebuild beads and stalks
 function placePoints(){
-  SLOTS=slots();
+  SLOTS=slots(); buildSys();
   const groups=new Map();
+  PT_BY_KEY.clear();
   PTS.forEach(pt=>{
-    pt.pos=proj(ptv(pt));
-    pt.off=!VIEW.frac&&pt.frac;   // fractional exponents are hidden unless switched on
+    const sv=sysOfPt(pt); DIMS.forEach((d,i)=>pt[d]=sv[i]); pt.key=keyOf(...sv);
+    pt.frac=isFracV(sv); pt.xd=hasX(sv);
+    pt.pos=scr(sv);
+    // fractional exponents, and I·Θ·N·J, are hidden unless switched on
+    pt.off=(!VIEW.frac&&pt.frac)||(!VIEW.xdims&&pt.xd);
     pt.ghost=!pt.off&&sliceMode()&&Math.abs(pt.A-VIEW.slice)>1e-9;
     pt.lead=false; pt.grp=null; pt.leadPt=pt;
     [pt.vis,pt.rim,pt.glow,pt.ring,pt.pick].forEach(o=>o.position.copy(pt.pos));
@@ -747,6 +1012,9 @@ function placePoints(){
     arr.sort((a,b)=>Math.abs(a.A)-Math.abs(b.A)||b.entries.length-a.entries.length);
     const L=arr[0]; L.lead=true; L.grp=arr; arr.forEach(p=>p.leadPt=L);
   });
+  // Lookup by exponents in this system: the lead of each sphere first, then the others
+  PTS.forEach(pt=>{if(pt.lead) PT_BY_KEY.set(pt.key,pt);});
+  PTS.forEach(pt=>{if(!pt.off&&!PT_BY_KEY.has(pt.key)) PT_BY_KEY.set(pt.key,pt);});
   PTS.forEach(pt=>{
     pt.sc=radiusFor(Math.max(1,grpKinds(pt).length))/R0;
     [pt.vis,pt.glow,pt.ring,pt.pick].forEach(o=>o.scale.setScalar(pt.sc));
@@ -756,15 +1024,23 @@ function placePoints(){
   pickMeshes.length=0;
   PTS.forEach(pt=>{if(pt.lead)pickMeshes.push(pt.pick);});
   if(stalkGroup){scene.remove(stalkGroup);stalkGroup.traverse(o=>{if(o.geometry)o.geometry.dispose();if(o.material)o.material.dispose();});stalkGroup=null;}
-  if(SLOTS.extraA&&VIEW.mode==='stalk'){
+  // Stalks: from the L·M·T point, one segment per extra exponent (A, then I, Θ, N, J)
+  const stalkA=SLOTS.extraA&&VIEW.mode==='stalk';
+  const extras=[...(stalkA?['A']:[]),...(VIEW.xdims?XDIMS:[])];
+  if(extras.length){
     stalkGroup=new THREE.Group(); scene.add(stalkGroup);
-    PTS.forEach(pt=>{ if(!pt.A) return;
-      const base=proj([pt.L,pt.M,pt.T,0]);
-      stalkGroup.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints([base,pt.pos]),
-        new THREE.LineBasicMaterial({color:dimColor('A',pt.A).hex,transparent:true,opacity:0.7})));
+    PTS.forEach(pt=>{
+      if(pt.off||pt.ghost||!extras.some(d=>pt[d])) return;
+      const v=ptv(pt); extras.forEach(d=>v[DIMS.indexOf(d)]=0);
+      let a=scr(v);
+      extras.forEach(d=>{ if(!pt[d]) return;
+        v[DIMS.indexOf(d)]=pt[d]; const b=scr(v);
+        stalkGroup.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints([a,b]),
+          new THREE.LineBasicMaterial({color:dimColor(d,pt[d]).hex,transparent:true,opacity:0.7})));
+        a=b;
+      });
     });
   }
-  document.getElementById('badge').textContent=`${PTS.filter(p=>!p.off).reduce((n,p)=>n+p.entries.length,0)} of ${RAW.length} metrics · ${PTS.filter(p=>p.lead).length} spheres`;
   applyMetricsVis();
 }
 
@@ -830,10 +1106,22 @@ const FORMULA_DEFS=[
   {label:'ρV = m',    from:[-3,1,0], to:[0,1,0],   desc:'density × volume = mass'},
   {label:'λl = m',    from:[-1,1,0], to:[0,1,0],   desc:'lin. density × length = mass'},
   {label:'ṁt = m',   from:[0,1,-1], to:[0,1,0],   desc:'mass flow × time = mass'},
+  // Electromagnetism and heat (full SI vectors: L, M, T, A, I, Θ)
+  {label:'V = IR',    from:[0,0,0,0,1],  to:[2,1,-3,0,-1], desc:'current × resistance = voltage'},
+  {label:'P = IV',    from:[2,1,-3,0,-1],to:[2,1,-3],      desc:'voltage × current = power'},
+  {label:'Q = CV',    from:[2,1,-3,0,-1],to:[0,0,1,0,1],   desc:'voltage × capacitance = charge'},
+  {label:'F = qE',    from:[1,1,-3,0,-1],to:[1,1,-2],      desc:'field × charge = force'},
+  {label:'E = k_BT',  from:[0,0,0,0,0,1],to:[2,1,-2],      desc:'temperature × Boltzmann constant = energy'},
+  {label:'Q = TS',    from:[2,1,-2,0,0,-1],to:[2,1,-2],    desc:'entropy × temperature = heat'},
 ];
+// A formula endpoint in the current system: the listed quantity's own exponents when there is one
+// (so Gaussian c-shifts apply), else the projection of the raw vector
+const fsys=v=>{const p=ptSrc(...v);return p?ptv(p):sysVec(v);};
+const fkey=v=>keyOf(...fsys(v));
+const fShown=v=>{const x=fsys(v);return(VIEW.frac||!isFracV(x))&&(VIEW.xdims||!hasX(x));};
 // Builds a gradient arrow from one exponent coordinate to another, oriented along +Y of its group.
 // Caller adds the group to the scene (after applying any bundle offset).
-function makeArrow(from,to,{SR,CR,opacity,emissive=0}){
+function makeArrow(from,to,{SR,CR,opacity,emissive=0,cols=null}){
   const s=proj(from), e=proj(to);
   const dir=e.clone().sub(s), total=dir.length();
   // Half-steps (fractional exponents) are short, so shrink the end gaps and head to fit
@@ -841,7 +1129,7 @@ function makeArrow(from,to,{SR,CR,opacity,emissive=0}){
   dir.normalize();
   const shaftLen=total-MARGIN*2-HEAD;
   if(shaftLen<=0.05) return null;
-  const sc=coordToColor(from[0],from[1],from[2]), ec=coordToColor(to[0],to[1],to[2]);
+  const[sc,ec]=cols||[coordToColor(from[0],from[1],from[2]),coordToColor(to[0],to[1],to[2])];
   const shaftGeo=new THREE.CylinderGeometry(SR,SR,shaftLen,6,1);
   const pa=shaftGeo.attributes.position, cb=new Float32Array(pa.count*3);
   for(let j=0;j<pa.count;j++){
@@ -869,14 +1157,14 @@ function makeArrow(from,to,{SR,CR,opacity,emissive=0}){
 let showFormulas=false;
 const formulaObjs=[], formulaPickMeshes=[];
 function buildFormulas(){
-  const FDEFS=FORMULA_DEFS.filter(d=>VIEW.frac||(!isFracV(d.from)&&!isFracV(d.to)));
+  const FDEFS=FORMULA_DEFS.filter(d=>fShown(d.from)&&fShown(d.to));
   formulaObjs.forEach(fo=>{scene.remove(fo.g);fo.g.traverse(o=>{if(o.geometry)o.geometry.dispose();if(o.material)o.material.dispose();});});
   formulaObjs.length=0; formulaPickMeshes.length=0;
   const TAU=Math.PI*2;
   // Group by unordered endpoint pair — arrows between the same two points (in either direction) bundle together
   const segMap=new Map();
   FDEFS.forEach((def,idx)=>{
-    const a=keyOf(...def.from), b=keyOf(...def.to);
+    const a=fkey(def.from), b=fkey(def.to);
     const k=a<b?`${a}|${b}`:`${b}|${a}`;
     if(!segMap.has(k)) segMap.set(k,[]);
     segMap.get(k).push(idx);
@@ -885,8 +1173,8 @@ function buildFormulas(){
   const segFrames=new Map();
   segMap.forEach((indices,k)=>{
     const d=FDEFS[indices[0]];
-    const a=keyOf(...d.from), b=keyOf(...d.to);
-    const cf=a<b?d.from:d.to, ct=a<b?d.to:d.from;
+    const a=fkey(d.from), b=fkey(d.to);
+    const cf=fsys(a<b?d.from:d.to), ct=fsys(a<b?d.to:d.from);
     const cd=proj(ct).sub(proj(cf)).normalize();
     const up=new THREE.Vector3(0,1,0);
     const q=new THREE.Quaternion();
@@ -895,14 +1183,15 @@ function buildFormulas(){
     segFrames.set(k,{lx:new THREE.Vector3(1,0,0).applyQuaternion(q),lz:new THREE.Vector3(0,0,1).applyQuaternion(q)});
   });
   FDEFS.forEach((def,defIdx)=>{
-    const a=keyOf(...def.from), b=keyOf(...def.to);
+    const a=fkey(def.from), b=fkey(def.to);
     const segKey=a<b?`${a}|${b}`:`${b}|${a}`;
     const bundle=segMap.get(segKey);
     const n=bundle.length, bi=bundle.indexOf(defIdx);
     const SR=n===1?0.025:Math.max(0.010,0.025-n*0.003);
     const CR=Math.max(0.035,0.065*(SR/0.025));
     const bundleR=n===1?0:0.04+n*0.02;
-    const arrow=makeArrow(def.from,def.to,{SR,CR,opacity:0.72});
+    const fc=v=>coordToColor(v[0],v[1],v[2]);
+    const arrow=makeArrow(fsys(def.from),fsys(def.to),{SR,CR,opacity:0.72,cols:[fc(def.from),fc(def.to)]});
     if(!arrow) return;
     const{g,shaftMat,coneMat,pm,shaftLen,sc,ec}=arrow;
     if(n>1){
@@ -915,7 +1204,7 @@ function buildFormulas(){
     // World-space midpoint of shaft (including bundle offset) — used for label positioning
     const mid=new THREE.Vector3(0,shaftLen/2,0).applyQuaternion(g.quaternion).add(g.position);
     const midCol={r:Math.round((sc.r+ec.r)/2),g:Math.round((sc.g+ec.g)/2),b:Math.round((sc.b+ec.b)/2)};
-    const fromKey=keyOf(...def.from), toKey=keyOf(...def.to);
+    const fromKey=a, toKey=b;
     g.visible=showFormulas&&!overlayOn();
     const fo={g,def,mid,midCol,shaftMat,coneMat,fromKey,toKey};
     formulaObjs.push(fo);
@@ -927,42 +1216,50 @@ function buildFormulas(){
 // The user picks any two points A → B. The displacement Δ = B − A in exponent space is the
 // dimension you must multiply A by to get B, so [B] = [A] · L^ΔL M^ΔM T^ΔT. We then look for
 // named quantities with dimension Δ (multiply) or −Δ (divide) to phrase it as a physical equation.
-const PT_BY_KEY=new Map(PTS.map(p=>[p.key,p]));
+// PT_BY_KEY (exponents in the current system → point) is rebuilt by placePoints
 // The key only narrows the search; a hit must really sit at those exponents, so an arbitrary power
 // like 0.499 doesn't snap Area's image (0.998) onto Length.
-function ptAt(L,M,T,A=0){
-  const p=PT_BY_KEY.get(keyOf(L,M,T,A));
-  return p&&!p.off&&Math.abs(p.L-L)<1e-6&&Math.abs(p.M-M)<1e-6&&Math.abs(p.T-T)<1e-6&&Math.abs(p.A-A)<1e-6?p:undefined;
+function ptAt(...v){
+  v=vN(v); const p=PT_BY_KEY.get(keyOf(...v));
+  return p&&!p.off&&ptv(p).every((x,i)=>Math.abs(x-v[i])<1e-6)?p:undefined;
 }
 const SUP={'-':'⁻','0':'⁰','1':'¹','2':'²','3':'³','4':'⁴','5':'⁵','6':'⁶','7':'⁷','8':'⁸','9':'⁹','/':'ᐟ','.':'·'};
 const supStr=n=>String(n).split('').map(c=>SUP[c]).join('');
-function dimStr(L,M,T,A=0){
-  const parts=[];
-  [['L',L],['M',M],['T',T],['A',A]].forEach(([s,e])=>{const f=fracStr(e);if(f!=='0')parts.push(f==='1'?s:s+supStr(f));});
+// Exponents as a product of base dimensions; in the FLT basis mass is rewritten as F·L⁻¹·T²
+function dimStr(...v){
+  v=vN(v); const parts=[];
+  let terms=DIMS.map((d,i)=>[DIM_SYM[d],v[i]]);
+  if(VIEW.basis==='F'){const m=v[1]; terms=[['F',m],['L',v[0]-m],['T',v[2]+2*m],...terms.slice(3)];}
+  terms.forEach(([s,e])=>{const f=fracStr(e);if(f!=='0')parts.push(f==='1'?s:s+supStr(f));});
   return parts.join('·')||'1';
 }
+// SI form, whatever the current system and basis
+const dimStrSI=v=>{const b=VIEW.basis;VIEW.basis='M';const t=dimStr(...v);VIEW.basis=b;return t;};
+// Coordinates for display: L, M, T, A always, then any other exponent that is not zero
+const coordStr=v=>{v=vN(v);return DIMS.map((d,i)=>i<4||v[i]?`${i<4?'':DIM_SYM[d]+' '}${fracStr(v[i])}`:null).filter(x=>x!==null).join(', ');};
 const esc=t=>String(t).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const nm=pt=>pt.entries[0];
 function vectorEquations(a,b){
-  const dL=b.L-a.L, dM=b.M-a.M, dT=b.T-a.T, dA=b.A-a.A;
-  const delta=dimStr(dL,dM,dT,dA);
+  const d=ptv(b).map((v,i)=>v-ptv(a)[i]);
+  const[dL,dM,dT,dA]=d;
+  const delta=dimStr(...d);
   const A=nm(a), B=nm(b);
   const named=[];   // [{eq, short}]
-  const mul=ptAt(dL,dM,dT,dA), div=ptAt(-dL,-dM,-dT,-dA);
+  const mul=ptAt(...d), div=ptAt(...d.map(v=>-v));
   if(mul) named.push({eq:`${B} = ${A} × ${nm(mul)}`,short:`× ${nm(mul)}`});
   if(div) named.push({eq:`${B} = ${A} ÷ ${nm(div)}`,short:`÷ ${nm(div)}`});
   // Prefer the factor with fewer negative exponents: "÷ Time" reads better than "× Frequency"
-  const negs=p=>[p.L,p.M,p.T,p.A].filter(e=>e<0).length;
+  const negs=p=>ptv(p).filter(e=>e<0).length;
   if(mul&&div&&negs(div)<negs(mul)) named.reverse();
   // No single named factor — try two named factors (P×Q or P÷Q)
   if(!named.length){
-    const seen=new Set(), isZero=p=>!p.L&&!p.M&&!p.T&&!p.A;
+    const seen=new Set(), isZero=p=>ptv(p).every(x=>!x);
     for(const P of PTS){
-      if(isZero(P)) continue;
-      const Q=ptAt(dL-P.L,dM-P.M,dT-P.T,dA-P.A);
+      if(isZero(P)||P.off) continue;
+      const Q=ptAt(...d.map((v,i)=>v-ptv(P)[i]));
       if(Q&&!isZero(Q)){const k=[P.key,Q.key].sort().join('|');
         if(!seen.has(k)){seen.add(k);named.push({eq:`${B} = ${A} × ${nm(P)} × ${nm(Q)}`,short:`× ${nm(P)} × ${nm(Q)}`});}}
-      const R=ptAt(P.L-dL,P.M-dM,P.T-dT,P.A-dA);
+      const R=ptAt(...d.map((v,i)=>ptv(P)[i]-v));
       if(R&&!isZero(R)&&R!==P) named.push({eq:`${B} = ${A} × ${nm(P)} ÷ ${nm(R)}`,short:`× ${nm(P)} ÷ ${nm(R)}`});
       if(named.length>=4) break;
     }
@@ -970,11 +1267,11 @@ function vectorEquations(a,b){
   const generic=`[${B}] = [${A}] · ${delta}`;
   const known=[];
   FORMULA_DEFS.forEach(d=>{
-    const f=keyOf(...d.from), t=keyOf(...d.to);
+    const f=fkey(d.from), t=fkey(d.to);
     if(f===a.key&&t===b.key) known.push(`${d.label}  (${d.desc})`);
     else if(f===b.key&&t===a.key) known.push(`${d.label}  (inverse: ${d.desc})`);
   });
-  return{dL,dM,dT,dA,delta,named,generic,known,
+  return{d,dL,dM,dT,dA,delta,named,generic,known,
     primary:named.length?named[0].eq:generic,
     short:named.length?named[0].short:`× ${delta}`};
 }
@@ -984,7 +1281,7 @@ let drawMode=false, drawStart=null, selectedUV=null;
 function addUserVector(a,b,quiet=false){
   const existing=userVecs.find(u=>u.from===a&&u.to===b);
   if(existing){showCard(existing);return existing;}
-  const arrow=makeArrow(ptv(a),ptv(b),{SR:0.036,CR:0.09,opacity:0.95,emissive:0.15});
+  const arrow=makeArrow(ptv(a),ptv(b),{SR:0.036,CR:0.09,opacity:0.95,emissive:0.15,cols:[a.col,b.col]});
   if(!arrow){toast('Those two points coincide in this view: show another axis to separate them');return null;}
   const{g,shaftMat,coneMat,pm,shaftLen,sc,ec}=arrow;
   scene.add(g);
@@ -1036,10 +1333,11 @@ function parseExp(str){
   return Number.isFinite(v)&&Math.abs(v)<=6?v:null;
 }
 // Where op sends point p (or, with inv, where p came from)
+// The shift is projected into the current unit system (with c = ħ = 1, d/dt is × energy)
 const opApply=(op,p,inv=false)=>op.scale!==undefined
   ?ptv(p).map(v=>inv?v/op.scale:v*op.scale)
-  :ptv(p).map((v,i)=>v+(inv?-v4(op.shift)[i]:v4(op.shift)[i]));
-const opMove=op=>op.scale!==undefined?`scale ×${fracStr(op.scale)}`:`shift ${dimStr(...v4(op.shift))}`;
+  :ptv(p).map((v,i)=>v+(inv?-1:1)*sysVec(op.shift)[i]);
+const opMove=op=>op.scale!==undefined?`scale ×${fracStr(op.scale)}`:`shift ${dimStr(...sysVec(op.shift))}`;
 const opObjs=[], opPickMeshes=[];
 let activeOp=null, hoveredOp=null;
 const opHint=document.getElementById('opHint');
@@ -1048,6 +1346,7 @@ const opBtns=[];
 function opChain(op){
   let best=[];
   PTS.forEach(p=>{
+    if(p.off||!p.lead) return;
     if(keyOf(...opApply(op,p))===p.key) return;           // the origin is fixed under scaling
     if(op.scale!==0&&ptAt(...opApply(op,p,true))) return; // only start chains at their first link
     const chain=[p];
@@ -1086,6 +1385,7 @@ function setOperator(op){
     if(t.some(v=>Math.abs(v)>5)) return;
     const b=ptAt(...t)||null;
     if(a.ghost||a.off) return;
+    if(!a.lead) return;   // one arrow per sphere
     const arrow=makeArrow(ptv(a),t,b?{SR:0.03,CR:0.075,opacity:0.9,emissive:0.1}:{SR:0.014,CR:0.04,opacity:0.2});
     if(!arrow) return;
     scene.add(arrow.g);
@@ -1125,23 +1425,23 @@ function setLaw(law){
   activeLaw=law; activeOp=null; lawLanding=null;
   syncOverlayUI();
   if(!law) return;
-  let pos=[0,0,0,0], sofar='';
-  const end=law.terms.reduce((acc,[,d,p])=>acc.map((v,i)=>v+p*v4(d)[i]),[0,0,0,0]);
-  const landing=ptAt(...end);
+  let pos=vN([]), sofar='';
+  const end=law.terms.reduce((acc,[,d,p])=>acc.map((v,i)=>v+p*vN(d)[i]),vN([]));
+  const landing=ptAt(...sysVec(end));
   // Name the result after the quantity the law is about, not whichever member is listed first
   const landName=landing&&(landing.entries.includes(law.lands)?law.lands:nm(landing));
   if(landing) lawLanding={pt:landing,name:landName};
   law.terms.forEach((term,i)=>{
-    const[sym,d,p]=term, next=pos.map((v,j)=>v+p*v4(d)[j]);
+    const[sym,d,p]=term, next=pos.map((v,j)=>v+p*vN(d)[j]);
     const step=termStr(term); sofar=sofar?`${sofar}·${step}`:step;
     const last=i===law.terms.length-1;
     const arrow=makeArrow(pos,next,{SR:0.034,CR:0.085,opacity:0.95,emissive:0.2});
     if(arrow){
       scene.add(arrow.g);
-      const o={...arrow,from:ptAt(...pos)||null,to:last?landing:null,law,baseOp:0.95,eq:law.label};
+      const o={...arrow,from:ptAt(...sysVec(pos))||null,to:last?landing:null,law,baseOp:0.95,eq:law.label};
       o.tipHtml=tipHead(law.label)+tipSub(esc(law.desc))+
-        `<div style="font-size:9px;color:#ccd">step ${i+1}: × ${esc(step)} — adds ${esc(fracStr(p))} × [${esc(sym)}] = ${esc(dimStr(...v4(d).map(v=>v*p)))}</div>`+
-        `<div style="font-size:9px;color:#99a;margin-top:2px">now at ${esc(dimStr(...next))}${last&&landing?` = ${esc(landName)}`:''}</div>`+tipFoot;
+        `<div style="font-size:9px;color:#ccd">step ${i+1}: × ${esc(step)} — adds ${esc(fracStr(p))} × [${esc(sym)}] = ${esc(dimStr(...sysVec(vN(d).map(v=>v*p))))}</div>`+
+        `<div style="font-size:9px;color:#99a;margin-top:2px">now at ${esc(dimStr(...sysVec(next)))}${last&&landing?` = ${esc(landName)}`:''}</div>`+tipFoot;
       arrow.pm.userData={__op:o}; opPickMeshes.push(arrow.pm); opObjs.push(o);
     }
     if(!last){
@@ -1156,7 +1456,7 @@ function setLaw(law){
   });
   const path=['1',...law.terms.map((t,i)=>law.terms.slice(0,i+1).map(termStr).join('·'))].join(' → ');
   opHint.innerHTML=`<span class="oph">${esc(law.label)}</span> · ${esc(law.desc)}<br>`+
-    `<span style="color:#99a">path: ${esc(path)} = ${esc(dimStr(...end))}${landing?` (${esc(landName)})`:''}</span>`+
+    `<span style="color:#99a">path: ${esc(path)} = ${esc(dimStr(...sysVec(end)))}${landing?` (${esc(landName)})`:''}</span>`+
     `<div class="opc" data-copy="${esc(law.label)}" title="Click to copy">${esc(law.label)}</div>`;
   opHint.style.display='block';
 }
@@ -1213,7 +1513,7 @@ function showCard(uv){
   const row=(t,cls='veq')=>`<div class="${cls}" data-copy="${esc(t)}" title="Click to copy">${esc(t)}</div>`;
   vcard.innerHTML=
     `<div class="vhead"><span><span style="color:${ink(sc.css)}">${esc(nm(a))}</span> <span style="color:#7d7d92">→</span> <span style="color:${ink(ec.css)}">${esc(nm(b))}</span></span><button class="vx" id="vcardX" title="Close">✕</button></div>`+
-    `<div class="vsub">Δ = (${sgn(eq.dL)}, ${sgn(eq.dM)}, ${sgn(eq.dT)}, ${sgn(eq.dA)}) = ${esc(eq.delta)}</div>`+
+    `<div class="vsub">Δ = (${eq.d.map((v,i)=>i<4||v?`${i<4?'':DIM_SYM[DIMS[i]]+' '}${sgn(v)}`:null).filter(x=>x!==null).join(', ')}) = ${esc(eq.delta)}</div>`+
     (eq.named.length?eq.named.map((n,i)=>row(n.eq,i?'veq alt':'veq')).join(''):'<div class="vsub">No named quantity spans this step.</div>')+
     row(eq.generic,'veq gen')+
     (eq.known.length?`<div class="vlbl">Known formulas</div>`+eq.known.map(k=>row(k,'veq known')).join(''):'')+
@@ -1225,11 +1525,12 @@ function hideCard(){selectedUV=null;focusPt=null;focusFo=null;vcard.style.displa
 let focusPt=null, focusFo=null;
 
 // ── Draw mode ─────────────────────────────────────────────────────────────────
+const ICON=n=>`<svg class="ico" aria-hidden="true"><use href="#i-${n}"/></svg>`;
 const drawBtn=document.getElementById('drawBtn'), drawHint=document.getElementById('drawHint');
 let panelDrawBtn=null;
 function updateDrawUI(){
   const txt=drawMode?'✕ Stop drawing':'✎ Draw vector';
-  drawBtn.innerHTML=drawMode?'<span class="ic">✕</span><span class="lb">Stop drawing</span>':'<span class="ic">✎</span><span class="lb">Draw vector</span>';
+  drawBtn.innerHTML=ICON(drawMode?'x':'draw')+(drawMode?'<span class="lb">Stop drawing</span>':'<span class="lb">Draw vector</span>');
   drawBtn.classList.toggle('on',drawMode);
   if(panelDrawBtn){panelDrawBtn.textContent=txt;panelDrawBtn.classList.toggle('on',drawMode);}
   c3d.style.cursor=drawMode?'crosshair':'';
@@ -1332,7 +1633,7 @@ let hovered=null, hoveredFormula=null, hoveredUV=null, hoveredCm=null, lastMouse
 // Returns {pt, fo, uv, op} for whatever is under the given client coordinates (at most one is set).
 // While drawing, only points are pickable so arrows never block endpoint selection.
 function hitAt(cx,cy){
-  mouse.x=(cx/W)*2-1; mouse.y=-((cy-VT)/H)*2+1;
+  const[vx,vy]=toView(cx,cy); mouse.x=(vx/W)*2-1; mouse.y=-(vy/H)*2+1;
   ray.setFromCamera(mouse,activeCamera);
   const targets=drawMode?pickMeshes:[...(showFormulas&&!overlayOn()?formulaPickMeshes:[]),...opPickMeshes,...uvPickMeshes,...beadPickMeshes,...pickMeshes];
   const hits=ray.intersectObjects(targets).sort((a,b)=>a.distance-b.distance);
@@ -1387,7 +1688,7 @@ function pick(e,force=false){
       tip.innerHTML=newOp.tipHtml;
     }
   }
-  if(newPt||newFo||newUV||newOp||newCm){tip.style.display='block';tip.style.left=Math.min(src.clientX+14,W-244)+'px';tip.style.top=Math.max(4,src.clientY-60)+'px';}
+  if(newPt||newFo||newUV||newOp||newCm){tip.style.display='block';tip.style.left=Math.min(src.clientX+14,window.innerWidth-244)+'px';tip.style.top=Math.max(4,src.clientY-60)+'px';}
   else tip.style.display='none';
 }
 c3d.addEventListener('mousemove',pick);
@@ -1426,11 +1727,11 @@ function acc(title,content,open=true){
   const sec=document.createElement('div'); sec.className='psec';
   const head=document.createElement('div'); head.className='ph';
   head.innerHTML=`${title}<span class="ph-arr ${open?'open':''}">▾</span>`;
-  const body=document.createElement('div'); body.className='pb'; body.style.maxHeight=open?'600px':'0px';
+  const body=document.createElement('div'); body.className='pb'; body.style.maxHeight=open?'1000px':'0px';
   body.appendChild(content);
-  head.addEventListener('click',()=>{const arr=head.querySelector('.ph-arr'),op=arr.classList.contains('open');arr.classList.toggle('open',!op);body.style.maxHeight=op?'0px':'600px';});
+  head.addEventListener('click',()=>{const arr=head.querySelector('.ph-arr'),op=arr.classList.contains('open');arr.classList.toggle('open',!op);body.style.maxHeight=op?'0px':'1000px';});
   sec.append(head,body);
-  SECTIONS[title]={sec,open(){head.querySelector('.ph-arr').classList.add('open');body.style.maxHeight='600px';}};
+  SECTIONS[title]={sec,open(){head.querySelector('.ph-arr').classList.add('open');body.style.maxHeight='1000px';}};
   return sec;
 }
 
@@ -1457,17 +1758,93 @@ function updFov(s){
   panel.appendChild(acc('PROJECTION',div,true));
 })();
 
+// ── Unit system: presets and constants set to 1 ─────────────────────────────
+// The dimensions beyond L·M·T that the current system still has (I, Θ, N, J minus any removed)
+const xdimsLabel=()=>XDIMS.filter(d=>!SYS_ELIM[d]).map(d=>DIM_SYM[d]).join(', ')||'none left';
+const sysUI={};
+function sysOfK(k,basis){return SYSTEMS.find(s=>(s.basis||'M')===basis&&s.k.length===k.length&&s.k.every(id=>k.includes(id)));}
+function updateSysUI(){
+  if(!sysUI.pre) return;
+  sysUI.pre.forEach(b=>b.classList.toggle('on',b.dataset.v===VIEW.sys));
+  sysUI.k.forEach(b=>b.classList.toggle('on',VIEW.k.includes(b.dataset.v)));
+  const sys=SYS_BY_ID.get(VIEW.sys);
+  const removed=SYS_STEPS.map(st=>`${CONSTS[st.id].sym} = 1 removes ${DIM_SYM[DIMS[st.e]]}`).join(' · ');
+  sysUI.note.textContent=(sys?sys.note:`Custom: ${VIEW.k.map(id=>CONSTS[id].sym).join(', ')} set to 1.`)+(removed?` (${removed})`:'')+
+    ' Kinds stay separate: points that meet share a sphere, with one bead per kind.';
+}
+// Points slide from where they were to where the new system puts them
+let sysTween=null;
+function setSystem(id,k,basis){
+  const before=new Map(PTS.map(pt=>[pt,pt.pos.clone()]));
+  VIEW.k=CONST_ORDER.filter(c=>k.includes(c)); VIEW.basis=basis||'M';
+  const pre=sysOfK(VIEW.k,VIEW.basis); VIEW.sys=id||(pre?pre.id:'custom');
+  // Gaussian electromagnetism lives on half-integer points
+  if(VIEW.k.includes('eps0')&&!VIEW.frac){VIEW.frac=true;toast('Fractional exponents shown');}
+  applyView();
+  if(matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  PTS.forEach(pt=>{pt.pos1=pt.pos.clone(); pt.pos0=before.get(pt)||pt.pos1.clone();});
+  const hid=[...formulaObjs,...userVecs,...opObjs].map(o=>[o.g,o.g.visible]);
+  hid.forEach(([g])=>g.visible=false);
+  if(stalkGroup) stalkGroup.visible=false;
+  PTS.forEach(pt=>{if(pt.holder)pt.holder.visible=false; pt.vis.visible=!pt.off&&metricsVis!=='hidden'; pt.projLine.visible=false;});
+  sysTween={t0:performance.now(),dur:900,hid};
+  stepSysTween(sysTween.t0);
+}
+function stepSysTween(now){
+  const tw=sysTween, u=Math.min(1,(now-tw.t0)/tw.dur), e=u<.5?4*u*u*u:1-Math.pow(-2*u+2,3)/2;
+  PTS.forEach(pt=>{
+    pt.pos.lerpVectors(pt.pos0,pt.pos1,e);
+    [pt.vis,pt.rim,pt.glow,pt.ring,pt.pick].forEach(o=>o.position.copy(pt.pos));
+    if(pt.holder) pt.holder.position.copy(pt.pos);
+  });
+  if(u<1) return;
+  sysTween=null;
+  PTS.forEach(pt=>{pt.pos.copy(pt.pos1);});
+  tw.hid.forEach(([g,v])=>g.visible=v);
+  applyMetricsVis();
+}
+(()=>{
+  const div=document.createElement('div');
+  const l1=document.createElement('div'); l1.className='pl'; l1.style.margin='2px 0 5px'; l1.textContent='System';
+  const segP=document.createElement('div'); segP.className='segs';
+  sysUI.pre=SYSTEMS.map(sy=>{
+    const b=document.createElement('button'); b.className='seg'; b.dataset.v=sy.id; b.textContent=sy.label;
+    b.style.minWidth='30%'; b.title=sy.note;
+    b.addEventListener('click',()=>setSystem(sy.id,sy.k,sy.basis));
+    b.addEventListener('mousedown',e=>e.stopPropagation());
+    segP.appendChild(b); return b;
+  });
+  const l2=document.createElement('div'); l2.className='pl'; l2.style.margin='9px 0 5px'; l2.textContent='Constants set to 1';
+  const segK=document.createElement('div'); segK.className='segs';
+  sysUI.k=CONST_ORDER.map(id=>{
+    const c=CONSTS[id];
+    const b=document.createElement('button'); b.className='seg'; b.dataset.v=id; b.textContent=c.sym;
+    b.title=`Set the ${c.name} to 1 (removes one base dimension)${id==='eps0'?'; B then carries a factor of c, as in Gaussian units':''}`;
+    b.addEventListener('click',()=>{const on=VIEW.k.includes(id);setSystem(null,on?VIEW.k.filter(x=>x!==id):[...VIEW.k,id],'M');});
+    b.addEventListener('mousedown',e=>e.stopPropagation());
+    segK.appendChild(b); return b;
+  });
+  sysUI.note=document.createElement('div');
+  sysUI.note.style.cssText='margin-top:7px;font-size:8.5px;color:#7d7d97;line-height:1.6;';
+  div.append(l1,segP,l2,segK,sysUI.note);
+  panel.appendChild(acc('UNIT SYSTEM',div,true));
+  updateSysUI();
+})();
+
 // Dimensions: which base unit vectors are drawn, and how a fourth one is shown
 const dimUI={};
 function updateDimUI(){
   if(!dimUI.vis) return;
   dimUI.vis.forEach(b=>b.classList.toggle('on',!!VIEW.vis[b.dataset.v]));
   dimUI.frac.forEach(b=>b.classList.toggle('on',String(!!VIEW.frac)===b.dataset.f));
-  const four=DIMS.every(d=>VIEW.vis[d]);
+  dimUI.xd.forEach(b=>b.classList.toggle('on',String(!!VIEW.xdims)===b.dataset.f));
+  dimUI.xdL.textContent=`Other dimensions (${xdimsLabel()})`;
+  updateSysUI();
+  const four=VDIMS.every(d=>VIEW.vis[d]);
   dimUI.mode.forEach(b=>{b.classList.toggle('on',b.dataset.v===VIEW.mode);b.disabled=!four;b.style.opacity=four?1:.45;});
   dimUI.sliceRow.style.display=four&&VIEW.mode==='slice'?'flex':'none';
   dimUI.slice.value=VIEW.slice; dimUI.sliceV.textContent=`A = ${VIEW.slice}`;
-  const shown=DIMS.filter(d=>VIEW.vis[d]);
+  const shown=VDIMS.filter(d=>VIEW.vis[d]);
   dimUI.note.textContent=four
     ?{stalk:'All four shown. Each L·M·T point grows a short vertical stalk; beads along it are its angle powers A⁻²…A².',
       slice:'All four shown. Only one angle layer is solid; the others are ghosts.'}[VIEW.mode]
@@ -1477,11 +1854,11 @@ function updateDimUI(){
   const div=document.createElement('div');
   const l1=document.createElement('div'); l1.className='pl'; l1.style.margin='2px 0 5px'; l1.textContent='Unit vectors shown';
   const segV=document.createElement('div'); segV.className='segs';
-  dimUI.vis=DIMS.map(d=>{
+  dimUI.vis=VDIMS.map(d=>{
     const b=document.createElement('button'); b.className='seg'; b.dataset.v=d; b.textContent=d; b.title=`Show or hide the ${DIM_NAME[d]} exponent`;
     b.addEventListener('click',()=>{
       const next={...VIEW.vis,[d]:!VIEW.vis[d]};
-      if(!DIMS.some(k=>next[k])){toast('Keep at least one dimension shown');return;}
+      if(!VDIMS.some(k=>next[k])){toast('Keep at least one dimension shown');return;}
       VIEW.vis=next; applyView();
     });
     b.addEventListener('mousedown',e=>e.stopPropagation());
@@ -1512,12 +1889,22 @@ function updateDimUI(){
     b.addEventListener('mousedown',e=>e.stopPropagation());
     segF.appendChild(b); return b;
   });
+  // I, Θ, N, J: off by default (LMT view); on, quantities that need them appear on slanted stalks
+  dimUI.xdL=document.createElement('div'); dimUI.xdL.className='pl'; dimUI.xdL.style.margin='9px 0 5px';
+  const segX=document.createElement('div'); segX.className='segs';
+  dimUI.xd=[['Hidden',false],['Shown',true]].map(([t,v])=>{
+    const b=document.createElement('button'); b.className='seg'; b.textContent=t; b.dataset.f=String(v);
+    b.title='Show quantities that need current, temperature, amount of substance or luminous intensity';
+    b.addEventListener('click',()=>{VIEW.xdims=v;applyView();});
+    b.addEventListener('mousedown',e=>e.stopPropagation());
+    segX.appendChild(b); return b;
+  });
   dimUI.note=document.createElement('div');
   dimUI.note.style.cssText='margin-top:7px;font-size:8.5px;color:#7d7d97;line-height:1.6;';
   const reset=document.createElement('button'); reset.className='pbtn'; reset.textContent='SI view (hide angle)';
   reset.style.marginTop='7px'; reset.style.width='100%';
   reset.addEventListener('click',()=>{VIEW.vis={L:true,M:true,T:true,A:false};applyView();});
-  div.append(l1,segV,l2,segM,S.row,l3,segF,dimUI.note,reset);
+  div.append(l1,segV,l2,segM,S.row,l3,segF,dimUI.xdL,segX,dimUI.note,reset);
   panel.appendChild(acc('DIMENSIONS',div,true));
   updateDimUI();
 })();
@@ -1700,14 +2087,23 @@ function renderVecList(){
 // Tutorials (and anything else) can push more entries later via SEARCH_INDEX.push(...).
 let camTween=null;
 function centreOn(x,y,z){camTween={t0:performance.now(),from:controls.target.clone(),to:new THREE.Vector3(x,y,z)};}
+// Makes a hidden point visible: switches on fractional exponents and/or I·Θ·N·J as needed
+function revealPt(pt){
+  if(!pt.off) return;
+  const msg=[];
+  if(pt.frac&&!VIEW.frac){VIEW.frac=true;msg.push('Fractional exponents');}
+  if(pt.xd&&!VIEW.xdims){VIEW.xdims=true;msg.push(`${xdimsLabel()}`);}
+  applyView(); if(msg.length) toast(`${msg.join(' and ')} shown`);
+}
 function focusPoint(pt,name){
-  if(pt.off){VIEW.frac=true;applyView();toast('Fractional exponents shown');}
-  pt=pt.leadPt||pt; hideCard(); focusPt=pt; centreOn(pt.pos.x,pt.pos.y,pt.pos.z);
+  if(!pt) return;
+  revealPt(pt);
+  name=name||nm(pt); pt=pt.leadPt||pt; hideCard(); focusPt=pt; centreOn(pt.pos.x,pt.pos.y,pt.pos.z);
   const c=pt.col, syms=n=>(SYMBOLS[n]||[]).join(', ');
   const keys=new Set((pt.grp||[pt]).map(p=>p.key));
-  const rel=FORMULA_DEFS.filter(d=>keys.has(keyOf(...v4(d.from)))||keys.has(keyOf(...v4(d.to))));
+  const rel=FORMULA_DEFS.filter(d=>keys.has(fkey(d.from))||keys.has(fkey(d.to)));
   vcard.innerHTML=`<div class="vhead"><span style="color:${ink(c.css)}">${esc(name||nm(pt))}</span><button class="vx" id="vcardX" title="Close">✕</button></div>`+
-    `<div class="vsub">${esc(dimStr(...ptv(pt)))} · coordinate (${ptv(pt).map(fracStr).join(', ')})</div>`+
+    `<div class="vsub">${esc(dimStr(...ptv(pt)))} · coordinate (${esc(coordStr(ptv(pt)))})${SYS_STEPS.length||VIEW.basis==='F'?` · SI ${esc(dimStrSI(pt.s))}`:''}</div>`+
     `<div class="vlbl">Quantities at this point</div>`+
     grpEntries(pt).map(n=>`<div class="veq alt" data-copy="${esc(n)}" title="Click to copy">${esc(n)}${syms(n)?` <span style="color:#7e7e8e">· ${esc(syms(n))}</span>`:''}</div>`).join('')+
     (rel.length?`<div class="vlbl">Formulas touching it</div>`+rel.map(d=>`<div class="veq known" data-copy="${esc(d.label)}">${esc(d.label)}  (${esc(d.desc)})</div>`).join(''):'');
@@ -1731,21 +2127,25 @@ function showControl(section){
 }
 const SEARCH_INDEX=[];
 // Quantities: one entry per name
-RAW.forEach(([name])=>{
+ENTRIES.forEach(({name})=>{
   const pt=PT_OF_NAME.get(name);
-  SEARCH_INDEX.push({kind:'quantity',title:name,sub:`${dimStr(...ptv(pt))}${(SYMBOLS[name]||[]).length?' · '+SYMBOLS[name].join(', '):''}`,
-    keys:[name],sym:SYMBOLS[name]||[],go:()=>focusPoint(pt,name)});
+  SEARCH_INDEX.push({kind:'quantity',title:name,sub:`${dimStrSI(pt.s)}${(SYMBOLS[name]||[]).length?' · '+SYMBOLS[name].join(', '):''}`,
+    keys:[name,OLD_GAUSS_NAME[name]||''],sym:SYMBOLS[name]||[],go:()=>focusPoint(pt,name)});
 });
-// Formulas / operations
-formulaObjs.forEach(fo=>{
-  const d=fo.def;
-  SEARCH_INDEX.push({kind:'formula',title:d.label,sub:d.desc,keys:[d.label,d.desc,d.desc.includes('×')?'multiply times product':'',d.desc.includes('÷')?'divide divided quotient per':''],sym:[],go:()=>focusFormula(fo)});
+// Formulas / operations (a formula hidden with its quantities is revealed first)
+FORMULA_DEFS.forEach(d=>{
+  const go=()=>{
+    let fo=formulaObjs.find(f=>f.def===d);
+    if(!fo){[d.from,d.to].forEach(v=>{const p=ptSrc(...v);if(p)revealPt(p);});fo=formulaObjs.find(f=>f.def===d);}
+    if(fo) focusFormula(fo); else toast(`${d.label} has zero length in this unit system`);
+  };
+  SEARCH_INDEX.push({kind:'formula',title:d.label,sub:d.desc,keys:[d.label,d.desc,d.desc.includes('×')?'multiply times product':'',d.desc.includes('÷')?'divide divided quotient per':''],sym:[],go});
 });
 // Operations and controls (features + their tooltips)
 [
   ['operation','Multiply quantities (×)','Adds exponents: move along a vector',['multiply','times','product','×','*','add exponents'],()=>{setDrawMode(true);flashEl(drawBtn);}],
   ['operation','Divide quantities (÷)','Subtracts exponents: the reverse vector',['divide','quotient','per','÷','/','subtract exponents'],()=>{setDrawMode(true);flashEl(drawBtn);}],
-  ['operation','Power of a quantity (x²)','Scales the exponent vector',['power','square','squared','cube','exponent','^'],()=>focusPoint(PT_BY_KEY.get(keyOf(2,0,0)),'Area')],
+  ['operation','Power of a quantity (x²)','Scales the exponent vector',['power','square','squared','cube','exponent','^'],()=>focusPoint(ptSrc(2,0,0),'Area')],
   ['control','Draw vector','Connect two points to get the equation linking them (V)',['draw','vector','arrow','connect','equation','line'],()=>{setDrawMode(true);flashEl(drawBtn);}],
   ['control','Clear all vectors','Remove every drawn vector',['clear','delete','remove','vectors'],()=>showControl('VECTORS')],
   ['control','Formula arrows','Show/hide arrows for known formulas',['formula','formulas','arrows','show','hide','known'],()=>showControl('FORMULAS')],
@@ -1754,13 +2154,21 @@ formulaObjs.forEach(fo=>{
   ['control','Visibility','Dim or hide spheres and labels',['visibility','hide','dim','spheres','opacity','low','off'],()=>showControl('VISIBILITY')],
   ['control','Pause / rotate','Start or stop auto-rotation (Space)',['pause','rotate','rotation','spin','auto','space'],()=>showControl('VIEW')],
   ['control','Reset view','Return the camera to its start (R)',['reset','home','camera','view','recenter'],()=>{showControl('VIEW');window.dispatchEvent(new KeyboardEvent('keydown',{key:'r'}));}],
-  ['control','Hover tooltip','Hover a sphere to see every quantity at that point; click to copy',['tooltip','hover','copy','clipboard','info'],()=>focusPoint(PT_BY_KEY.get(keyOf(1,1,-2)),'Force')],
+  ['control','Hover tooltip','Hover a sphere to see every quantity at that point; click to copy',['tooltip','hover','copy','clipboard','info'],()=>focusPoint(ptSrc(1,1,-2),'Force')],
   ['control','Dimensions: unit vectors shown','Show or hide L, M, T or angle A',['dimension','dimensions','unit vector','axis','axes','hide','angle','radian','4d','four'],()=>showControl('DIMENSIONS')],
   ['control','4-D view: stalks, slices','How the fourth exponent (angle) is drawn',['4d','4-d','fourth','stalk','stalks','slice','slices','projection'],()=>showControl('DIMENSIONS')],
   ['control','Fractional exponents','Show quantities with half-integer exponents (√Hz noise densities, Gaussian units)',['fractional','fraction','half','sqrt','√','noise','gaussian','cgs','hz'],()=>{VIEW.frac=true;applyView();showControl('DIMENSIONS');}],
+  ['control','Other dimensions (I, Θ, N, J)','Show quantities that need current, temperature, amount of substance or luminous intensity',['current','ampere','temperature','kelvin','thermal','amount','mole','mol','luminous','candela','electric','charge','extra','other dimensions','stalk'],()=>{VIEW.xdims=true;applyView();showControl('DIMENSIONS');}],
+  ['control','Unit system','SI, Gaussian, FLT, natural, geometrized or Planck units',['unit system','units','system','si','cgs','gaussian','natural','planck','geometrized','flt','force','constants','set to 1'],()=>showControl('UNIT SYSTEM')],
+  ['control','SI units','Seven base dimensions plus angle; nothing set to 1',['si','metric','international'],()=>{const sy=SYS_BY_ID.get('si');setSystem(sy.id,sy.k,sy.basis);showControl('UNIT SYSTEM');}],
+  ['control','Gaussian units','CGS-Gaussian: 4πε₀ = 1, electromagnetism on half-integer points',['gaussian','cgs','esu','emu','heaviside','lorentz','ε₀','epsilon'],()=>{const sy=SYS_BY_ID.get('gauss');setSystem(sy.id,sy.k,sy.basis);showControl('UNIT SYSTEM');}],
+  ['control','FLT (gravitational) units','Force, length and time as base dimensions',['flt','force','gravitational','slug','engineering','rebase'],()=>{const sy=SYS_BY_ID.get('flt');setSystem(sy.id,sy.k,sy.basis);showControl('UNIT SYSTEM');}],
+  ['control','Natural units','c = ħ = 1: length and time become 1/energy',['natural','particle','ev','hbar','ħ','c = 1'],()=>{const sy=SYS_BY_ID.get('natural');setSystem(sy.id,sy.k,sy.basis);showControl('UNIT SYSTEM');}],
+  ['control','Geometrized units','G = c = 1: mass and time become lengths',['geometrized','geometric','relativity','g = c = 1'],()=>{const sy=SYS_BY_ID.get('geom');setSystem(sy.id,sy.k,sy.basis);showControl('UNIT SYSTEM');}],
+  ['control','Planck units','G = ħ = c = k_B = 1: mechanics becomes dimensionless',['planck','dimensionless','k_b','boltzmann'],()=>{const sy=SYS_BY_ID.get('planck');setSystem(sy.id,sy.k,sy.basis);showControl('UNIT SYSTEM');}],
   ['control','Show angle as a dimension','Give rad its own exponent: torque separates from energy',['angle','radian','rad','4d','torque','show angle'],()=>{VIEW.vis={...VIEW.vis,A:true};applyView();showControl('DIMENSIONS');}],
   ['control','SI view (angle hidden)','Treat rad as 1: angle quantities fold onto L·M·T',['si','radian','dimensionless','hide angle','rad'],()=>{VIEW.vis={L:true,M:true,T:true,A:false};applyView();showControl('DIMENSIONS');}],
-  ['control','Dimensionless origin','(0,0,0,0): strain, Mach & Reynolds numbers',['origin','dimensionless','zero','unitless','ratio'],()=>focusPoint(PT_BY_KEY.get(keyOf(0,0,0)),'Strain')],
+  ['control','Dimensionless origin','(0,0,0,0): strain, Mach & Reynolds numbers',['origin','dimensionless','zero','unitless','ratio'],()=>focusPoint(ptSrc(0,0,0),'Strain')],
 ].forEach(([kind,title,sub,keys,go])=>SEARCH_INDEX.push({kind,title,sub,keys,sym:[],go}));
 OPERATORS.forEach(op=>SEARCH_INDEX.push({kind:'operator',title:op.label,sub:op.desc,
   keys:[op.label,op.desc,op.id,op.shift?(op.label.includes('∫')?'integral integrate':'derivative differentiate rate gradient'):'power root exponent'],sym:[op.label],
@@ -1963,9 +2371,9 @@ const TUTS=[
     {h:'Force sits at (1, 1, −2) because force = L¹·M¹·T⁻² (kg·m/s²). Every name listed at a point is [[same|dimensionally identical]] — Force, Weight, Drag and Thrust share one sphere, and are all one kind.',
      btn:['Show Force',()=>focusPoint(PT_OF_NAME.get('Force'),'Force')]},
     {h:'When different kinds share a sphere, small beads ring it, one per kind. Strain, Mach number and Reynolds number all sit at the origin but are not [[commensurable|commensurable]], so each gets its own bead.',
-     act:'Hover (or tap) a bead.',wait:'bead',btn:['Show the origin',()=>focusPoint(PT_BY_KEY.get(keyOf(0,0,0)),'Strain')]},
+     act:'Hover (or tap) a bead.',wait:'bead',btn:['Show the origin',()=>focusPoint(ptSrc(0,0,0),'Strain')]},
     {h:'The origin (0, 0, 0) holds the [[dimensionless|dimensionless]] numbers. The colours are positions too: [[colour|colour = position]].',
-     btn:['Show the origin',()=>focusPoint(PT_BY_KEY.get(keyOf(0,0,0)),'Strain')]},
+     btn:['Show the origin',()=>focusPoint(ptSrc(0,0,0),'Strain')]},
   ]},
   {id:'vectors',title:'Drawing a vector',blurb:'Connect two points to get an equation',steps:[
     {h:'Two [[commensurable|commensurable]] points can be joined by a [[vector|vector]]. Turn on drawing first.',act:'Press ✎ Draw vector (or V).',
@@ -1973,7 +2381,7 @@ const TUTS=[
     {h:'Now click <b>Force</b>, then <b>Energy</b>.',act:'Draw from Force to Energy (any two points also work).',wait:'vector',
      btn:['Centre on Force',()=>{centreOn(1,1,-2);}]},
     {h:()=>{const v=lastVec(); if(!v) return 'Draw a vector to continue.';
-       const ok=v.from.key===keyOf(1,1,-2)&&v.to.key===keyOf(2,1,-2);
+       const ok=v.from.skey===keyOf(1,1,-2)&&v.to.skey===keyOf(2,1,-2);
        return (ok?'Its step is Δ = (1, 0, 0) — that is Length — so <b>Energy = Force × Length</b> (work = force × distance).'
          :`Its step is Δ = ${esc(v.eq.delta)}, so <b>${esc(v.eq.primary)}</b>.`)+' The rule: [[delta|subtract coordinates]], because [[mult|multiplying adds exponents]]. The card at the bottom lists the equation — click it to copy.';}},
   ]},
@@ -1986,7 +2394,7 @@ const TUTS=[
   ]},
   {id:'search',title:'Search',blurb:'Names, symbols, formulas, controls',steps:[
     {h:'The search box finds quantities, their [[symbol|symbols]], formulas, operations, controls and these glossary terms.',
-     act:'Search for something — try “F”, “viscosity” or “÷” — and pick a result.',wait:'search',enter:()=>{flashEl(document.getElementById('search'));}},
+     act:'Search for something — try “F”, “viscosity” or “÷” — and pick a result.',wait:'search',enter:()=>{flashEl(searchIsButton()?searchBtn:document.getElementById('search'));}},
     {h:'Symbols are case-sensitive: F finds force, f finds frequency. Press / to jump to search at any time.'},
   ]},
   {id:'projection',title:'Projection',blurb:'Orthographic vs perspective',steps:[
@@ -2017,8 +2425,9 @@ function applyTheme(t){
   document.documentElement.dataset.theme=t; setTH(); LIFT_CACHE.clear();
   scene.background.setHex(TH.bg); buildAxes();
   PTS.forEach(pt=>{if(pt.glow){pt.glow.material.blending=isLight()?THREE.NormalBlending:THREE.AdditiveBlending;pt.glow.material.needsUpdate=true;}});
-  themeBtn.textContent=isLight()?'☾':'☀';
-  themeBtn.title=isLight()?'Switch to dark mode':'Switch to light mode';
+  themeBtn.querySelector('.knob').innerHTML=ICON(isLight()?'sun':'moon');
+  themeBtn.setAttribute('aria-checked',String(!isLight()));
+  themeBtn.title=isLight()?'Dark mode: off':'Dark mode: on';
 }
 themeBtn.addEventListener('click',()=>{const t=isLight()?'dark':'light';try{localStorage.setItem('theme',t);}catch{}applyTheme(t);});
 matchMedia('(prefers-color-scheme: light)').addEventListener('change',e=>{
@@ -2102,8 +2511,8 @@ Object.entries(GLOSS).forEach(([k,g])=>SEARCH_INDEX.push({kind:'term',title:g.t,
 
 // ── Toggle ────────────────────────────────────────────────────────────────────
 let panelOpen=false;
-function openPanel(){panelOpen=true;document.body.classList.add('panel-open');requestAnimationFrame(()=>typeof layoutView==='function'&&layoutView());panel.classList.remove('closed');tab.classList.add('open');tab.querySelector('.ti').textContent='✕';tab.querySelector('.tl').textContent='Close';}
-function closePanel(){panelOpen=false;document.body.classList.remove('panel-open');requestAnimationFrame(()=>typeof layoutView==='function'&&layoutView());panel.classList.add('closed');tab.classList.remove('open');tab.querySelector('.ti').textContent='⚙\uFE0E';tab.querySelector('.tl').textContent='Controls';}
+function openPanel(){panelOpen=true;document.body.classList.add('panel-open');requestAnimationFrame(()=>typeof layoutView==='function'&&layoutView());panel.classList.remove('closed');tab.classList.add('on');tab.querySelector('.ti').innerHTML=ICON('x');tab.querySelector('.lb').textContent='Close';}
+function closePanel(){panelOpen=false;document.body.classList.remove('panel-open');requestAnimationFrame(()=>typeof layoutView==='function'&&layoutView());panel.classList.add('closed');tab.classList.remove('on');tab.querySelector('.ti').innerHTML=ICON('controls');tab.querySelector('.lb').textContent='Controls';}
 tab.addEventListener('click',()=>panelOpen?closePanel():openPanel());
 
 // ── Keyboard ──────────────────────────────────────────────────────────────────
@@ -2112,7 +2521,7 @@ window.addEventListener('keydown',e=>{
   if(e.target.closest&&e.target.closest('input,select,textarea')) return;
   if(e.target.closest&&e.target.closest('button')&&(e.key===' '||e.key==='Enter')) return;
   KEYS[e.key]=true;
-  if(e.key==='/'){sq.focus();sq.select();e.preventDefault();return;}
+  if(e.key==='/'){openSearch();sq.select();e.preventDefault();return;}
   if(e.key===' '){setAutoRot(!autoRotOn);e.preventDefault();}
   if(e.key==='r'||e.key==='R'){
     if(usingOrtho){controls.object=perspCam;controls.minDistance=2;controls.maxDistance=60;usingOrtho=false;activeCamera=perspCam;}
@@ -2137,21 +2546,122 @@ window.addEventListener('keyup',e=>{KEYS[e.key]=false;});
 // The 3D view never sits under the controls: it ends just above the dock, or above the
 // panel while that is open, so whatever a control changes stays in sight.
 // Likewise it starts below any hint or tutorial card shown at the top left.
-var VT=0;
+var VT=0, VL=0;
+// The view's top-left corner in client coordinates is (VL, VT): the canvases are offset by it.
+// Anything that turns a pointer position into a view position must go through this.
+const toView=(cx,cy)=>[cx-VL,cy-VT];
 function layoutView(){
   const dockEl=document.getElementById('dock'), tlEl=document.getElementById('tl');
-  const edge=panelOpen?panel.offsetTop:dockEl.offsetTop;
+  const side=document.body.classList.contains('dock-side'), right=document.body.classList.contains('dock-right');
+  const edge=side?window.innerHeight:panelOpen?panel.offsetTop:dockEl.offsetTop;
+  // Side dock: the view takes what is left beside the bar (and beside the panel while it is open)
+  // On a narrow screen the panel floats over the view instead of squeezing it (body.panel-over)
+  document.body.classList.toggle('panel-over',side&&window.innerWidth-dockEl.offsetWidth-panel.offsetWidth-48<420);
+  const inner=panelOpen&&side&&!document.body.classList.contains('panel-over')?panel:dockEl;
+  VL=side&&!right?Math.round(inner.offsetLeft+inner.offsetWidth+8):0;
+  const VR=side&&right?Math.round(window.innerWidth-inner.offsetLeft+8):0;
   const tlH=tlEl.offsetHeight;
   VT=tlH>0?Math.round(tlEl.offsetTop+tlH+8):0;
   if(edge-8-VT<160) VT=Math.max(0,Math.round(edge-8-160));
-  c3d.style.top=VT+'px'; clbl.style.top=VT+'px';
-  W=window.innerWidth; H=Math.max(140,Math.round(edge-8-VT));
+  c3d.style.top=VT+'px'; clbl.style.top=VT+'px'; c3d.style.left=VL+'px'; clbl.style.left=VL+'px';
+  W=Math.max(200,window.innerWidth-VL-VR); H=Math.max(140,Math.round(edge-8-VT));
   renderer.setSize(W,H); perspCam.aspect=W/H; perspCam.updateProjectionMatrix();
   const h=ORTHO_H, asp=W/H;
   orthoCam.left=-h*asp; orthoCam.right=h*asp; orthoCam.updateProjectionMatrix();
   syncLC();
 }
 window.addEventListener('resize',layoutView);
+
+// ── Dock position and labels ─────────────────────────────────────────────────
+// Labels show whenever they fit; otherwise every button drops to its icon (body.dock-compact).
+// In landscape the grip tab drags the bar to the left or right edge as a column (remembered per browser).
+const dockEl=document.getElementById('dock'), grip=document.getElementById('dockGrip'), dockZone=document.getElementById('dockZone');
+const DOCKS=['bottom','left','right'];
+let dockPref=store.get('pms.dock','bottom'); if(!DOCKS.includes(dockPref)) dockPref='bottom';
+const canSide=()=>window.innerWidth>window.innerHeight&&window.innerWidth>=560;
+// Bottom bar: icons only when the row overflows or would squeeze search below 150px.
+// Side column: labelled only on wide screens (>=1000px) where it fits; otherwise icons in as
+// few columns as fit the screen height (items split evenly). Scrolling only past 3 columns.
+const SIDE_LABELS_MIN_W=1000;
+function fitDock(){
+  const B=document.body; B.classList.remove('dock-compact','dock-scroll','dock-multi');
+  B.style.removeProperty('--cols'); B.style.removeProperty('--rows');
+  const side=B.classList.contains('dock-side'), over=()=>dockEl.scrollHeight>dockEl.clientHeight+1;
+  const tight=side
+    ?window.innerWidth<SIDE_LABELS_MIN_W||over()
+    :dockEl.scrollWidth>dockEl.clientWidth+1||sq.offsetWidth<150;
+  B.classList.toggle('dock-compact',tight);
+  if(side&&tight){
+    // n = icon buttons; the grip takes its own top row and the switch the last one
+    const n=[...dockEl.querySelectorAll('.dbtn')].filter(e=>getComputedStyle(e).display!=='none').length;
+    for(let c=1;c<=3;c++){
+      // one column: everything stacked; more: the switch gets its own full-width bottom row
+      B.classList.toggle('dock-multi',c>1);
+      B.style.setProperty('--cols',c); B.style.setProperty('--rows',Math.ceil(n/c)+2);
+      if(!over()) break;
+    }
+    if(over()) B.classList.add('dock-scroll');
+  }
+  if(!(side&&tight)) setSearchOpen(false);
+}
+// In the icon column search is a button; it opens the field beside the bar
+const searchBtn=document.getElementById('searchBtn');
+const searchIsButton=()=>document.body.classList.contains('dock-side')&&document.body.classList.contains('dock-compact');
+function setSearchOpen(o){
+  document.body.classList.toggle('search-open',o);
+  searchBtn.classList.toggle('on',o); searchBtn.setAttribute('aria-expanded',String(o));
+  if(o) sq.focus(); else sres.style.display='none';
+}
+function openSearch(){ if(searchIsButton()) setSearchOpen(true); else sq.focus(); }
+searchBtn.addEventListener('click',()=>setSearchOpen(!document.body.classList.contains('search-open')));
+document.addEventListener('pointerdown',e=>{
+  if(document.body.classList.contains('search-open')&&!e.target.closest('#search,#searchBtn')) setSearchOpen(false);});
+sq.addEventListener('keydown',e=>{if(e.key==='Escape'&&searchIsButton()){setSearchOpen(false);searchBtn.focus();}});
+function applyDock(){
+  const can=canSide(), m=can?dockPref:'bottom';
+  document.body.classList.toggle('can-side',can);
+  document.body.classList.toggle('dock-side',m!=='bottom');
+  document.body.classList.toggle('dock-left',m==='left');
+  document.body.classList.toggle('dock-right',m==='right');
+  fitDock(); layoutView();
+}
+function setDock(m){ if(!DOCKS.includes(m)) return; dockPref=m; store.set('pms.dock',m); applyDock(); }
+// Grip tab: drag the bar; on release it docks to the edge zone under the pointer
+// (outer 30% of the width = left/right, anything else = bottom). A dashed outline previews it.
+const zoneAt=x=>x<window.innerWidth*.3?'left':x>window.innerWidth*.7?'right':'bottom';
+let gripDrag=null;
+grip.addEventListener('pointerdown',e=>{
+  if(!canSide()||e.button>0) return;
+  grip.setPointerCapture(e.pointerId); gripDrag={x:e.clientX,y:e.clientY,moved:false,zone:null}; e.preventDefault();
+});
+grip.addEventListener('pointermove',e=>{
+  if(!gripDrag) return;
+  const dx=e.clientX-gripDrag.x, dy=e.clientY-gripDrag.y;
+  if(!gripDrag.moved){ if(Math.hypot(dx,dy)<6) return; gripDrag.moved=true; document.body.classList.add('dock-dragging'); }
+  dockEl.style.translate=`${dx}px ${dy}px`;
+  gripDrag.zone=zoneAt(e.clientX); dockZone.dataset.zone=gripDrag.zone;
+});
+function endGripDrag(){
+  if(!gripDrag) return;
+  const d=gripDrag; gripDrag=null;
+  dockEl.style.translate=''; document.body.classList.remove('dock-dragging');
+  if(d.moved&&d.zone) setDock(d.zone);
+}
+grip.addEventListener('pointerup',endGripDrag);
+grip.addEventListener('pointercancel',endGripDrag);
+// Keyboard: arrows dock to that edge; Enter/Space steps through bottom → left → right
+grip.addEventListener('keydown',e=>{
+  const k={ArrowLeft:'left',ArrowRight:'right',ArrowDown:'bottom'}[e.key];
+  if(k){ setDock(k); grip.focus(); e.preventDefault(); }
+});
+grip.addEventListener('click',e=>{
+  if(e.detail!==0) return; // pointer clicks are drags; only keyboard activation steps
+  const cur=document.body.classList.contains('dock-left')?'left':document.body.classList.contains('dock-right')?'right':'bottom';
+  setDock(DOCKS[(DOCKS.indexOf(cur)+1)%DOCKS.length]); grip.focus();
+});
+window.addEventListener('resize',applyDock);
+if(document.fonts&&document.fonts.ready) document.fonts.ready.then(applyDock);
+applyDock();
 if(window.ResizeObserver) new ResizeObserver(()=>layoutView()).observe(document.getElementById('tl'));
 layoutView();
 
@@ -2169,16 +2679,24 @@ layoutView();
 const REPO_URL='https://github.com/Dentarthurdent42/physical-metric-space';
 const SHARE_VERSION=1;
 const SHARE_V1={cam:[9,6,11],tgt:[0,0,0],fov:50,zoom:1,dims:'LMTA',mode:'oblique',lam:1,slice:1,frac:false,
-  spheres:'full',labels:'full',lsize:9.5,lfont:'courier',lfx:'halo',formulas:false,rot:false,n:2/3};
+  spheres:'full',labels:'full',lsize:9.5,lfont:'courier',lfx:'halo',formulas:false,rot:false,n:2/3,
+  sys:'si',k:[],xd:false};   // sys, k and xd came after v1 shipped; missing means SI, as v1 links were
 const numStr=v=>String(+(+v).toFixed(3));
 const numParse=s=>{const m=/^(-?\d+(?:\.\d+)?)(?:\/(\d+(?:\.\d+)?))?$/.exec(String(s).trim());
   if(!m)return null;const v=m[2]?+m[1]/+m[2]:+m[1];return Number.isFinite(v)?v:null;};
 const vecStr=a=>a.map(numStr).join(',');
 const vecParse=(s,n)=>{const a=String(s).split(',').map(numParse);return a.length===n&&a.every(v=>v!==null)?a:null;};
-// A 4-D lattice point, written with exact fractions: 1,0,-2,0 or -1/2,1/2,-1,0
-const ptStr=p=>ptv(p).map(fracStr).join(',');
+// A point by its SI exponents, written with exact fractions: L,M,T,A first (1,0,-2,0 or
+// -1/2,1/2,-1,0), then I,Θ,N,J only when one of them is not zero (0,0,1,0,1 is charge).
+// A Gaussian c-shift is not written: the SI vector names the quantity in every system.
+const ptStr=p=>{const v=p.s.map(fracStr); let n=ND; while(n>4&&v[n-1]==='0') n--; return v.slice(0,n).join(',');};
+let shareLegacyGauss=false;
 const ptParse=s=>{const a=String(s).split(',').map(numParse);
-  return a.length>=3&&a.length<=4&&a.every(v=>v!==null)?PT_BY_KEY.get(keyOf(...a))||null:null;};
+  if(!(a.length>=3&&a.length<=ND&&a.every(v=>v!==null))) return null;
+  const p=SRC_BY_KEY.get(keyOf(...a)); if(p) return p;
+  // Before unit systems, electromagnetic points were listed in Gaussian form by L,M,T,A only
+  const g=a.length<=4&&LEGACY_GAUSS.get(keyOf(...a)); if(g){shareLegacyGauss=true; return g;}
+  return null;};
 const MODES=['oblique','stalk','slice'], MODE_NOW={oblique:'stalk',stalk:'stalk',slice:'slice'}, VISV=['full','low','hidden'], LFX=['none','shadow','halo','outline','pill','glow'];
 
 function shareState(){
@@ -2191,6 +2709,9 @@ function shareState(){
   if(dims==='LMTA') st.mode=VIEW.mode;   // always explicit: the v1 default (oblique) no longer exists
   if(VIEW.slice!==SHARE_V1.slice) st.slice=VIEW.slice;
   if(!!VIEW.frac!==SHARE_V1.frac) st.frac=VIEW.frac?1:0;
+  if(VIEW.sys!==SHARE_V1.sys) st.sys=VIEW.sys;
+  if(VIEW.sys==='custom') st.k=VIEW.k.join(',')||'none';
+  if(VIEW.xdims!==SHARE_V1.xd) st.xd=VIEW.xdims?1:0;
   if(metricsVis!==SHARE_V1.spheres) st.spheres=metricsVis;
   if(labelsVis!==SHARE_V1.labels) st.labels=labelsVis;
   if(lblSize!==SHARE_V1.lsize) st.lsize=numStr(lblSize);
@@ -2225,6 +2746,17 @@ function applyShare(hash){
   VIEW.mode=MODE_NOW[get('mode',oneOf(MODES))];
   VIEW.slice=get('slice',numParse,v=>Number.isInteger(v)&&v>=-2&&v<=2);
   VIEW.frac=get('frac',bool);
+  // Unit system: a preset id, or custom with its constants. An older link naming a Gaussian
+  // point by L,M,T exponents opens in the Gaussian system, where that point still sits.
+  shareLegacyGauss=false;
+  [...(q.get('vec')||'').split(/[;~]/),q.get('focus')||''].forEach(x=>{if(x)ptParse(x);});
+  let sys=get('sys',s=>s==='custom'||SYS_BY_ID.has(s)?s:null);
+  if(!q.has('sys')&&shareLegacyGauss) sys='gauss';
+  if(sys==='custom'){
+    const k=get('k',s=>{const a=s==='none'?[]:s.split(',');return a.every(id=>id in CONSTS)?a:null;});
+    const pre=sysOfK(k,'M'); VIEW.sys=pre?pre.id:'custom'; VIEW.k=CONST_ORDER.filter(id=>k.includes(id)); VIEW.basis='M';
+  } else {const sy=SYS_BY_ID.get(sys); VIEW.sys=sy.id; VIEW.k=[...sy.k]; VIEW.basis=sy.basis||'M';}
+  VIEW.xdims=get('xd',bool);
   // Overlays are cleared, then rebuilt from the link
   hideCard(); setDrawMode(false); setOperator(null);
   [...userVecs].forEach(removeUserVector);
@@ -2259,7 +2791,7 @@ function applyShare(hash){
   // Vectors, then whichever overlay was on, then the point whose card was open
   if(q.has('vec')) q.get('vec').split(';').forEach(pair=>{
     const[a,b]=pair.split('~').map(ptParse);
-    if(a&&b&&a!==b&&!a.off&&!b.off) addUserVector(a,b,true); else skipped++;
+    if(!(a&&b&&a!==b&&!a.off&&!b.off&&addUserVector(a,b,true))) skipped++;
   });
   if(q.has('op')){
     const op=OPERATORS.find(o=>o.id===q.get('op'));
@@ -2275,7 +2807,7 @@ function applyShare(hash){
     else skipped++;
   }
   // Keys this version does not know (a newer link) are reported, never fatal
-  const KNOWN=new Set(['v','cam','tgt','fov','proj','zoom','dims','mode','lam','slice','frac','spheres','labels','lsize','lfont','lfx','formulas','rot','op','n','law','vec','focus']);
+  const KNOWN=new Set(['v','cam','tgt','fov','proj','zoom','dims','mode','lam','slice','frac','sys','k','xd','spheres','labels','lsize','lfont','lfx','formulas','rot','op','n','law','vec','focus']);
   q.forEach((_,k)=>{if(!KNOWN.has(k))skipped++;});
   return{skipped,newer:ver>SHARE_VERSION};
 }
@@ -2331,6 +2863,7 @@ function animate(){
   if(KEYS['+']||KEYS['=']) controls.dollyIn(1.04);
   if(KEYS['-']||KEYS['_']) controls.dollyOut(1.04);
   controls.update();
+  if(sysTween) stepSysTween(performance.now());
 
   // No manual ortho sync needed — controls.object handles it directly
   activeCamera = usingOrtho ? orthoCam : perspCam;
@@ -2452,7 +2985,7 @@ function animate(){
     lc.beginPath(); lc.arc(ax,ay,11,0,Math.PI*2); lc.stroke();
     let end=null;
     if(hovered&&hovered!==drawStart){const[bx,by]=toSc(hovered.pos.x,hovered.pos.y,hovered.pos.z);end=[bx,by];}
-    else if(lastMouse) end=[lastMouse.x,lastMouse.y-VT];
+    else if(lastMouse) end=toView(lastMouse.x,lastMouse.y);
     if(end){
       lc.setLineDash([6,5]); lc.strokeStyle=drawStart.col.css; lc.lineWidth=2;
       lc.beginPath(); lc.moveTo(ax,ay); lc.lineTo(end[0],end[1]); lc.stroke(); lc.setLineDash([]);

@@ -37,15 +37,35 @@ The visualization helps show that dimensional analysis is not just a bookkeeping
 - **General powers** — the xⁿ operator raises every quantity to any exponent you type (2/3, −5/3, 1.5)
 - **Power laws** — formulas like Kolmogorov's E(k) = C·ε²ᐟ³·k⁻⁵ᐟ³, η = (ν³/ε)¹ᐟ⁴, ω = √(g/L) and Kepler's third law drawn as a path from the origin: each factor Xᵖ steps p times along X's ray, passing through unnamed fractional points before landing on the result
 - **Angle as a dimension** — angle can be a fourth exponent **A** (1 rad = A, sr = rad² = A², one cycle = 2π rad), so torque (N·m/rad), angular momentum (J·s/rad), moment of inertia (kg·m²/rad²) and radiant intensity (W/sr) separate from the quantities they share a point with in SI. The default is the **SI view** (angle hidden, rad = 1). Turn on **A** under ⚙ Controls › Dimensions to separate them; with all four shown, angle is drawn as short **vertical stalks** off each L·M·T point, or one **slice** of A at a time. Hidden exponents are ignored, so points that differ only there merge into one sphere with beads. Angle operators ∂/∂θ, ∫dθ and ∫dΩ join the operator panel
-- **Fractional exponents on demand** — quantities with half-integer exponents (per-√Hz noise densities such as NEP and accelerometer noise, and CGS-Gaussian electromagnetic quantities such as charge L³ᐟ²·M¹ᐟ²·T⁻¹ and magnetometer noise in G/√Hz, where all three exponents are fractional) are hidden by default and shown with ⚙ Controls › Dimensions › Fractional exponents. Picking one from search switches them on
+- **Unit systems** — ⚙ Controls › Unit system picks **SI**, **Gaussian**, **FLT**, **Natural** (c = ħ = 1), **Geometrized** (G = c = 1) or **Planck** (G = ħ = c = k_B = 1), or any mix of the constants c, ħ, G, k_B and ε₀. Setting a constant to 1 removes one base dimension: its exponent vector shrinks to zero and every point slides along it, so points merge (animated). Kinds stay separate: points that meet share one sphere with a bead per kind. Axes for removed dimensions stay, faded, labelled with the constant that removed them. FLT keeps every point where it is and redraws the mass axis as a force axis. See [Unit systems](#unit-systems)
+- **All SI base dimensions** — besides L, M, T and angle, quantities can carry electric current **I**, temperature **Θ**, amount of substance **N** and luminous intensity **J** (charge, voltage, resistance, entropy, molar mass, lumen, …). The view shows L·M·T by default and hides quantities that need the others; ⚙ Controls › Dimensions › Other dimensions shows them on short slanted stalks, one direction per dimension
+- **Fractional exponents on demand** — quantities with half-integer exponents (per-√Hz noise densities such as NEP and accelerometer noise, and electromagnetic quantities in Gaussian units, such as charge L³ᐟ²·M¹ᐟ²·T⁻¹) are hidden by default and shown with ⚙ Controls › Dimensions › Fractional exponents. Picking one from search, or choosing Gaussian units, switches them on
 - **Commensurable quantities** — quantities with identical dimensions share a point, but only quantities of the same *kind* are commensurable (time = period = half-life; energy ≠ torque). Where different kinds share a point, each kind gets its own bead on a ring around it. Hover to fan out the kinds; click a bead to copy that kind's names
-- **Fractional exponents** — quantities like fracture toughness (M·L⁻¹ᐟ²·T⁻²), sorptivity (L·T⁻¹ᐟ²) and Gaussian charge (L³ᐟ²·M¹ᐟ²·T⁻¹) sit between lattice points; exponents display as fractions
+- **Fractional exponents** — quantities like fracture toughness (M·L⁻¹ᐟ²·T⁻²), sorptivity (L·T⁻¹ᐟ²) and charge in Gaussian units (L³ᐟ²·M¹ᐟ²·T⁻¹) sit between lattice points; exponents display as fractions
 - **Click to copy** any point's names, formula label, or vector equation to the clipboard
 - **Search** (press `/`) for quantity names (“force”), symbols (“F” — case-sensitive), formulas, operations (×, ÷), controls and glossary terms
 - **Tutorials** behind the glowing **?** button: short guided walkthroughs (what the points are, drawing vectors, formula arrows, search, projection, labels) with nested glossary tooltips and progress marks
-- **Formula arrows** for well-known laws (F = ma, E = mc², …), hidden by default and toggled from the controls panel
+- **Formula arrows** for well-known laws (F = ma, E = mc², V = IR, E = k_BT, …), hidden by default and toggled from the controls panel. In natural units E = mc² has zero length
 - **Share links** — the 🔗 button (or ⚙ Controls › Share & source) copies a link that reopens the exact view: camera, projection, dimensions, labels, visibility, drawn vectors, and any operator or power law. On phones it opens the system share sheet. See [Share link format](#share-link-format)
 - **Source link** — ⚙ Controls › Share & source links back to this repository
+
+## Unit systems
+
+A unit system decides which constants count as plain numbers. Each constant set to 1 is a linear projection of exponent space along that constant's exponent vector: solve the constant's dimension for one base dimension and substitute it everywhere.
+
+| Constant | Exponents | Removes |
+| --- | --- | --- |
+| c | L·T⁻¹ | T (else L) |
+| ħ | L²·M·T⁻¹·A⁻¹ | L (else M, T) |
+| G | L³·M⁻¹·T⁻² | M (else L, T) |
+| k_B | L²·M·T⁻²·Θ⁻¹ | Θ |
+| ε₀ | L⁻³·M⁻¹·T⁴·I² | I |
+
+Constants are eliminated in the order c, ħ, G, k_B, ε₀, so natural units keep M (energy) and geometrized units keep L. With angle hidden (rad = 1), ħ's 1/rad is dropped.
+
+Gaussian electromagnetism also writes the Lorentz force as F = q(E + v×B/c), which moves individual magnetic quantities by a power of c (+1 for B, flux and vector potential, −1 for H, magnetization and magnetic moment, +2 for permeability). That is stored per quantity, not applied to the whole space. Every electromagnetic quantity is stored once, in SI form; the Gaussian points are derived, and at start-up the app checks them against the CGS-Gaussian exponents it used to list by hand (a mismatch is logged to the console).
+
+Projections are linear, so drawn vectors, formula arrows, operators and power laws stay valid in every system. With c = ħ = 1, d/dt becomes the same shift as × energy.
 
 ## Why this exists
 
@@ -113,6 +133,9 @@ index.html#v=1&cam=9,6,11&tgt=0,0,0&fov=50&dims=LMT&op=ddt&vec=1,0,0,0~1,0,-1,0
 | `slice` | angle layer for slices (−2…2) | `1` |
 | `lam` | retired (λ of the removed oblique axis): accepted and ignored | |
 | `frac` | fractional exponents shown (`1`/`0`) | `0` |
+| `sys` | unit system: `si`, `gauss`, `flt`, `natural`, `geom`, `planck` or `custom` | `si` |
+| `k` | with `sys=custom`: constants set to 1, any of `c,hbar,G,kB,eps0` (or `none`) | none |
+| `xd` | I, Θ, N and J shown (`1`/`0`) | `0` |
 | `spheres`, `labels` | `full`, `low` or `hidden` | `full` |
 | `lsize`, `lfont`, `lfx` | label size (6–20), typeface id, legibility effect | `9.5`, `courier`, `halo` |
 | `formulas`, `rot` | formula arrows, auto-rotation (`1`/`0`) | `0` |
@@ -121,7 +144,7 @@ index.html#v=1&cam=9,6,11&tgt=0,0,0&fov=50&dims=LMT&op=ddt&vec=1,0,0,0~1,0,-1,0
 | `vec` | drawn vectors, `from~to` pairs separated by `;` | none |
 | `focus` | point whose card is open | none |
 
-Points are written as their exponents `L,M,T,A` with exact fractions (`-1/2,1/2,-1,0`), never by name or list position, so renaming or adding quantities cannot break a link.
+Points are written as their SI exponents `L,M,T,A` with exact fractions (`-1/2,1/2,-1,0`), followed by `I,Θ,N,J` only when one of those is not zero (`0,0,1,0,1` is charge), never by name or list position, so renaming or adding quantities cannot break a link. A point is always written in SI form, whatever unit system the link opens in.
 
 **Compatibility rules** (so links made today keep working):
 
@@ -129,6 +152,7 @@ Points are written as their exponents `L,M,T,A` with exact fractions (`-1/2,1/2,
 - A missing key means the frozen v1 default in the table above, not whatever the app defaults to later.
 - Operator and power-law ids are fixed once published.
 - A retired setting maps to its nearest replacement rather than failing: `mode=oblique` opens as stalks and `lam` is ignored.
+- Electromagnetic points used to be listed in Gaussian form only. An older link that names one by its Gaussian `L,M,T,A` exponents, with no `sys` key, opens in the Gaussian system, where that point still sits.
 - Anything unknown or out of range is skipped and the rest still applies; the viewer is told how many settings were skipped. A link from a newer version opens with whatever this version understands.
 - `v` is bumped only for a change that cannot follow these rules, and the decoder for every earlier version stays.
 
@@ -142,7 +166,6 @@ If a formula, quantity, or unit system has hidden structure, I want to be able t
 
 Possible next steps for the project:
 
-- support for additional base dimensions
 - filtering and search
 - richer metadata for each quantity
 - connections between related quantities
