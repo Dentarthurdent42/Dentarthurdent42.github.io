@@ -89,8 +89,6 @@ html,body{width:100%;height:100%;overflow:hidden;background:#06061a}
 .knob .ico{width:16px;height:16px}
 .dsw[aria-checked=true] .knob{left:calc(100% - 32px)}
 .dsw[aria-checked=true] .sw{background:var(--db-on-bg);border-color:var(--db-on-bd);box-shadow:var(--db-raise-on)}
-/* High-contrast modes drop shadows: bring the outlines back */
-@media (forced-colors:active){.dbtn,.sw,#sq{border-color:ButtonText}}
 @media (hover:hover){.dsw:hover .sw{background:var(--db-hover)}.dsw[aria-checked=true]:hover .sw{background:var(--db-on-bg)}}
 .dsw:focus-visible{outline:none}
 .dsw:focus-visible .sw{outline:2px solid var(--db-on-bd);outline-offset:2px}
@@ -152,14 +150,18 @@ body.dock-side.dock-compact:not(.dock-multi) .dsw[aria-checked=true] .knob{left:
 body.dock-side.dock-compact.dock-multi .dsw{grid-column:1/-1;grid-row:-2/-1;justify-self:stretch}
 /* last resort, past three columns */
 body.dock-scroll #dock{overflow-y:auto;overscroll-behavior:contain}
-body.dock-side.dock-compact #search{display:none;position:fixed;z-index:46;top:max(12px,env(safe-area-inset-top,0px));
-  width:min(300px,calc(100vw - var(--dw) - 48px));padding:6px;border-radius:14px;
-  background:rgba(10,12,36,.96);border:1px solid rgba(150,170,255,.2);box-shadow:0 12px 40px rgba(0,0,0,.55)}
-:root[data-theme=light] body.dock-side.dock-compact #search{background:#f8f9fd;border-color:rgba(50,70,160,.2);box-shadow:0 10px 32px rgba(30,40,90,.18)}
-body.dock-side.dock-compact.search-open #search{display:block}
-body.dock-left.dock-compact #search{left:calc(var(--dw) + max(12px,env(safe-area-inset-left,0px)) + 10px)}
-body.dock-right.dock-compact #search{right:calc(var(--dw) + max(12px,env(safe-area-inset-right,0px)) + 10px)}
+/* --sb-top/--sb-left/--sb-right are the magnifier button's position, set by setSearchOpen */
+body.dock-side.dock-compact #search{position:fixed;z-index:46;top:var(--sb-top,12px);width:var(--db-h);
+  visibility:hidden;opacity:0;transition:width .2s cubic-bezier(.4,0,.2,1),opacity .12s,visibility 0s linear .2s}
+body.dock-side.dock-compact #search .sqbox{box-shadow:0 10px 30px rgba(0,0,0,.45)}
+:root[data-theme=light] body.dock-side.dock-compact #search .sqbox{box-shadow:0 8px 24px rgba(30,40,90,.22)}
+body.dock-side.dock-compact.search-open #search{visibility:visible;opacity:1;transition:width .2s cubic-bezier(.4,0,.2,1),opacity .12s}
+body.dock-left.dock-compact #search{left:var(--sb-left,12px)}
+body.dock-right.dock-compact #search{right:var(--sb-right,12px)}
+body.dock-left.dock-compact.search-open #search{width:min(300px,calc(100vw - var(--sb-left,12px) - 12px))}
+body.dock-right.dock-compact.search-open #search{width:min(300px,calc(100vw - var(--sb-right,12px) - 12px))}
 body.dock-side.dock-compact #sres{position:absolute;top:calc(100% + 8px);left:0;right:auto;max-height:calc(100vh - 90px)}
+body.dock-right.dock-compact #sres{left:auto;right:0}
 body.dock-side #panel{top:max(12px,env(safe-area-inset-top,0px));bottom:max(12px,env(safe-area-inset-bottom,0px));height:auto;width:var(--pw)}
 body.dock-left #panel{left:calc(var(--dw) + max(12px,env(safe-area-inset-left,0px)) + 12px);right:auto}
 body.dock-right #panel{right:calc(var(--dw) + max(12px,env(safe-area-inset-right,0px)) + 12px);left:auto}
@@ -199,23 +201,24 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:18px;heigh
   border-radius:50%;background:#7788ee;border:2px solid rgba(255,255,255,.25);cursor:pointer}
 input[type=range]::-moz-range-thumb{width:18px;height:18px;border-radius:50%;
   background:#7788ee;border:2px solid rgba(255,255,255,.25)}
-select{width:100%;background:rgba(6,6,26,.99);border:1px solid rgba(255,255,255,.1);
+/* Panel controls share the dock's depth tokens: buttons raised, fields sunk, pressed = outline + glow */
+select{width:100%;background:rgba(6,6,26,.99);border:1px solid transparent;box-shadow:var(--db-sink);
   border-radius:5px;color:#aabbdd;font:11px 'Courier New',monospace;padding:5px 6px;
   cursor:pointer;outline:none}
 .segs{display:flex;gap:4px;flex-wrap:wrap}
 .seg{flex:1;min-width:44px;padding:8px 0;border-radius:5px;
-  border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.04);
+  border:1px solid transparent;background:var(--db-bg);box-shadow:var(--db-raise);
   cursor:pointer;font:10px 'Courier New',monospace;color:#7d7d90;text-align:center;
   touch-action:manipulation;-webkit-tap-highlight-color:transparent;
   transition:background .12s,color .12s}
-.seg:hover,.seg:active{background:rgba(255,255,255,.09);color:#aab}
-.seg.on{background:rgba(80,110,220,.25);border-color:rgba(100,140,255,.45);color:#aaccff}
-.pbtn{flex:1;padding:9px 0;border-radius:6px;border:1px solid rgba(255,255,255,.1);
-  background:rgba(255,255,255,.04);cursor:pointer;font:11px 'Courier New',monospace;
+.seg:hover,.seg:active{background:var(--db-hover);color:#aab}
+.seg.on{background:var(--db-on-bg);border-color:var(--db-on-bd);color:var(--db-on-ink);box-shadow:var(--db-raise-on)}
+.pbtn{flex:1;padding:9px 0;border-radius:6px;border:1px solid transparent;
+  background:var(--db-bg);box-shadow:var(--db-raise);cursor:pointer;font:11px 'Courier New',monospace;
   color:#aaaacc;text-align:center;touch-action:manipulation;
   -webkit-tap-highlight-color:transparent;transition:background .12s}
-.pbtn:hover,.pbtn:active{background:rgba(255,255,255,.1)}
-.pbtn.on{background:rgba(80,110,220,.25);border-color:rgba(100,140,255,.45);color:#aaccff}
+.pbtn:hover,.pbtn:active{background:var(--db-hover)}
+.pbtn.on{background:var(--db-on-bg);border-color:var(--db-on-bd);color:var(--db-on-ink);box-shadow:var(--db-raise-on)}
 #drawHint{position:relative;z-index:6;display:none;
   max-width:calc(100% - 32px);padding:6px 12px;border-radius:7px;background:rgba(40,50,120,.85);
   border:1px solid rgba(120,150,255,.35);font:11px 'Courier New',monospace;color:#dde6ff;
@@ -227,8 +230,9 @@ select{width:100%;background:rgba(6,6,26,.99);border:1px solid rgba(255,255,255,
 #opHint .opc{margin-top:4px;padding:3px 6px;border-radius:5px;cursor:copy;color:#ffe6bf;
   background:rgba(255,200,120,.08);border:1px solid rgba(255,200,120,.18)}
 #opHint .opc:hover{background:rgba(255,200,120,.2)}
-input.nin{width:70px;background:rgba(6,6,26,.99);border:1px solid rgba(255,255,255,.14);border-radius:5px;
+input.nin{width:70px;background:rgba(6,6,26,.99);border:1px solid transparent;box-shadow:var(--db-sink);border-radius:5px;
   color:#ffe6bf;font:11px 'Courier New',monospace;padding:5px 6px;outline:none}
+select:focus,input.nin:focus{border-color:var(--db-on-bd)}
 input.nin.bad{border-color:rgba(255,90,90,.7)}
 .lawrow{width:100%;text-align:left;font-family:'Courier New',monospace;color:inherit;padding:5px 6px;margin:3px 0;border-radius:5px;cursor:pointer;border:1px solid rgba(255,255,255,.06);
   background:rgba(255,255,255,.03);display:flex;flex-direction:column;gap:1px}
@@ -262,9 +266,13 @@ input.nin.bad{border-color:rgba(255,90,90,.7)}
 @media (pointer:coarse){#sq{font-size:16px}}
 #sq:focus{border-color:rgba(120,150,255,.5);background:rgba(8,10,34,.96)}
 #sq::placeholder{color:#7d7d92}
-.sqi{position:relative;float:left;width:0;height:0;left:10px;top:11px;color:#7d7d92;pointer-events:none}
+/* .sqbox holds the field, its icon and the clear button. On focus it widens (over its neighbours)
+   to at least --sq-need, the width that shows the whole placeholder; set by JS from the real font. */
+.sqbox{position:relative;width:100%;border-radius:10px;transition:width .18s cubic-bezier(.4,0,.2,1)}
+#search:focus-within .sqbox{z-index:3;width:max(100%,var(--sq-need,0px))}
+.sqi{position:absolute;z-index:1;left:10px;top:11px;color:#7d7d92;pointer-events:none}
 .sqi .ico,#sqx .ico{width:14px;height:14px}
-#sqx{position:relative;float:right;margin-top:-33px;margin-right:3px;display:none;background:none;border:none;color:#7d7d90;
+#sqx{position:absolute;z-index:1;right:3px;top:3px;display:none;background:none;border:none;color:#7d7d90;
   cursor:pointer;padding:8px}
 #sres{display:none;position:absolute;left:0;bottom:calc(100% + 10px);max-height:min(55vh,420px);overflow-y:auto;border-radius:12px;
   background:rgba(4,4,18,.98);border:1px solid rgba(255,255,255,.14);box-shadow:0 6px 28px rgba(0,0,0,.8);
@@ -350,9 +358,9 @@ body.panel-open #tl{max-height:calc(100% - min(46vh,440px) - 110px);overflow-y:a
 :root[data-theme=light] #dock,:root[data-theme=light] #panel{-webkit-backdrop-filter:none;backdrop-filter:none}
 :root[data-theme=light] #dock{background:#f8f9fd;border-color:rgba(50,70,160,.2);box-shadow:0 10px 32px rgba(30,40,90,.18)}
 :root[data-theme=light] #panel{background:#f8f9fd;border-color:rgba(50,70,160,.18);color:#445;box-shadow:0 12px 40px rgba(30,40,90,.2)}
-:root[data-theme=light] .seg,:root[data-theme=light] .pbtn{background:#eef1f8;border-color:rgba(30,40,90,.16);color:#3a4a7a}
-:root[data-theme=light] .seg:hover,:root[data-theme=light] .pbtn:hover{background:rgba(30,40,90,.1);color:#223}
-:root[data-theme=light] .seg.on,:root[data-theme=light] .pbtn.on{background:rgba(60,90,220,.14);border-color:rgba(60,90,220,.45);color:#1f4fbf}
+:root[data-theme=light] .seg,:root[data-theme=light] .pbtn{color:#3a4a7a}
+:root[data-theme=light] .seg:hover,:root[data-theme=light] .pbtn:hover{color:#223}
+:root[data-theme=light] .seg.on,:root[data-theme=light] .pbtn.on{color:var(--db-on-ink)}
 :root[data-theme=light] .tmh,:root[data-theme=light] .ch{color:#3a4fd0}
 :root[data-theme=light] #helpBtn.glow{border-color:rgba(60,90,220,.8);animation-name:helpGlowL}
 @keyframes helpGlowL{0%,100%{box-shadow:0 0 4px 1px rgba(60,90,220,.35)}50%{box-shadow:0 0 16px 5px rgba(60,90,220,.45);color:#1f4fbf}}
@@ -364,7 +372,7 @@ body.panel-open #tl{max-height:calc(100% - min(46vh,440px) - 110px);overflow-y:a
 :root[data-theme=light] input[type=range]{background:rgba(60,80,180,.22)}
 :root[data-theme=light] input[type=range]::-webkit-slider-thumb{background:#4a5fe0;border-color:#fff}
 :root[data-theme=light] input[type=range]::-moz-range-thumb{background:#4a5fe0;border-color:#fff}
-:root[data-theme=light] select,:root[data-theme=light] input.nin{background:#fff;border-color:rgba(30,40,90,.2);color:#223}
+:root[data-theme=light] select,:root[data-theme=light] input.nin{background:#fff;color:#223}
 :root[data-theme=light] input.nin{color:#8a5200}
 :root[data-theme=light] #sq{background:#fff;color:#223}
 :root[data-theme=light] #sq:focus{background:#fff;border-color:rgba(60,90,220,.5)}
@@ -419,6 +427,8 @@ body.panel-open #tl{max-height:calc(100% - min(46vh,440px) - 110px);overflow-y:a
 :root[data-theme=light] svg [fill="#c9a2ff"],:root[data-theme=light] svg [fill="#d9a2ff"]{fill:#7a3fd0}
 :root[data-theme=light] svg [fill="#f9a"],:root[data-theme=light] svg [fill="#f77"]{fill:#c62848}
 :root[data-theme=light] svg [fill="#3fd6c0"]{fill:#0f8f7e}
+/* High-contrast modes drop shadows: bring the outlines back */
+@media (forced-colors:active){.dbtn,.sw,#sq,.seg,.pbtn,select,input.nin{border-color:ButtonText}}
 </style>
 </head>
 <body>
@@ -455,9 +465,11 @@ body.panel-open #tl{max-height:calc(100% - min(46vh,440px) - 110px);overflow-y:a
       <button id="drawBtn" class="dbtn" title="Draw a vector between two points (V)"><svg class="ico" aria-hidden="true"><use href="#i-draw"/></svg><span class="lb">Draw vector</span></button>
       <button id="searchBtn" class="dbtn" title="Search (/)" aria-label="Search" aria-expanded="false"><svg class="ico" aria-hidden="true"><use href="#i-search"/></svg><span class="lb">Search</span></button>
       <div id="search">
+        <div class="sqbox">
         <span class="sqi"><svg class="ico" aria-hidden="true"><use href="#i-search"/></svg></span>
         <input id="sq" type="search" placeholder="force, F, ÷, help…" autocomplete="off" spellcheck="false" aria-label="Search quantities, symbols, formulas and controls">
         <button id="sqx" title="Clear search" aria-label="Clear search"><svg class="ico" aria-hidden="true"><use href="#i-x"/></svg></button>
+        </div>
         <div id="sres" role="listbox"></div>
       </div>
     </div>
@@ -2619,9 +2631,19 @@ function fitDock(){
 const searchBtn=document.getElementById('searchBtn');
 const searchIsButton=()=>document.body.classList.contains('dock-side')&&document.body.classList.contains('dock-compact');
 function setSearchOpen(o){
+  if(o){ // the field grows out of the magnifier button, from where it sits
+    const r=searchBtn.getBoundingClientRect(), B=document.body.style;
+    B.setProperty('--sb-top',r.top+'px'); B.setProperty('--sb-left',r.left+'px'); B.setProperty('--sb-right',(window.innerWidth-r.right)+'px');
+  }
   document.body.classList.toggle('search-open',o);
   searchBtn.classList.toggle('on',o); searchBtn.setAttribute('aria-expanded',String(o));
   if(o) sq.focus(); else sres.style.display='none';
+}
+// Width that shows the whole placeholder in the field's current font (it changes on touch screens)
+function measureSearchNeed(){
+  const cs=getComputedStyle(sq), c=document.createElement('canvas').getContext('2d'); c.font=cs.font;
+  const need=Math.ceil(c.measureText(sq.placeholder).width+parseFloat(cs.paddingLeft)+parseFloat(cs.paddingRight)+4);
+  document.documentElement.style.setProperty('--sq-need',need+'px');
 }
 function openSearch(){ if(searchIsButton()) setSearchOpen(true); else sq.focus(); }
 searchBtn.addEventListener('click',()=>setSearchOpen(!document.body.classList.contains('search-open')));
@@ -2634,7 +2656,7 @@ function applyDock(){
   document.body.classList.toggle('dock-side',m!=='bottom');
   document.body.classList.toggle('dock-left',m==='left');
   document.body.classList.toggle('dock-right',m==='right');
-  fitDock(); layoutView();
+  measureSearchNeed(); fitDock(); layoutView();
 }
 function setDock(m){ if(!DOCKS.includes(m)) return; dockPref=m; store.set('pms.dock',m); applyDock(); }
 // Grip tab: drag the bar; on release it docks to the edge zone under the pointer
