@@ -36,21 +36,22 @@ html,body{width:100%;height:100%;overflow:hidden;background:#06061a}
   border:1px solid rgba(150,170,255,.2);border-radius:16px;box-shadow:0 12px 40px rgba(0,0,0,.55)}
 /* ── Dock ──────────────────────────────────────────────────────────────────────
    Every dock button is a .dbtn and reads the --db-* tokens, so a theme or a new button
-   never needs its own selector list. The light/dark switch is a .dsw.
+   never needs its own selector list. The light/dark switch (.dsw) uses the same tokens, and
+   the grip tab (.dgrip) drags the bar to an edge.
    State on <body>: .dock-compact = labels don't fit (icons only, all the same square);
    .panel-over = side dock on a narrow screen, so the Controls panel floats over the view.
    <body>.dock-side + .dock-left/.dock-right = the bar is a column on that edge;
-   <body>.can-side = landscape, so the Dock button is offered. */
+   <body>.can-side = landscape, so the grip tab is offered; .dock-dragging while it is dragged. */
 :root{
   --db-h:36px;--db-r:10px;
   --db-bg:rgba(255,255,255,.04);--db-bd:rgba(255,255,255,.12);--db-ink:#aabbee;--db-hover:rgba(255,255,255,.1);
   --db-on-bg:rgba(80,110,220,.3);--db-on-bd:rgba(100,140,255,.5);--db-on-ink:#cce0ff;
-  --sw-bg:rgba(255,255,255,.1);--sw-bd:rgba(255,255,255,.16);--sw-knob:#aabbee;--sw-knob-ink:#0a0c24;--sw-shadow:none;
+  --sw-knob:#aabbee;--sw-knob-ink:#0a0c24;--sw-shadow:none;
   --dw:212px;--pw:min(340px,36vw)}
 :root[data-theme=light]{
   --db-bg:#eef1f8;--db-bd:rgba(30,40,90,.16);--db-ink:#3a4a7a;--db-hover:rgba(30,40,90,.1);
   --db-on-bg:rgba(60,90,220,.14);--db-on-bd:rgba(60,90,220,.45);--db-on-ink:#1f4fbf;
-  --sw-bg:rgba(30,40,90,.1);--sw-bd:rgba(30,40,90,.18);--sw-knob:#fff;--sw-knob-ink:#3a4a7a;--sw-shadow:0 1px 3px rgba(30,40,90,.3)}
+  --sw-knob:#fff;--sw-knob-ink:#3a4a7a;--sw-shadow:0 1px 3px rgba(30,40,90,.3)}
 #tools{display:contents}
 .ico{width:18px;height:18px;display:block;flex-shrink:0;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;pointer-events:none}
 .dbtn{flex-shrink:0;display:flex;align-items:center;justify-content:center;gap:6px;
@@ -68,23 +69,39 @@ html,body{width:100%;height:100%;overflow:hidden;background:#06061a}
 /* (class-level specificity on purpose, so compact/side rules can override it) */
 .dbtn:where(#drawBtn){min-width:calc(50px + 12ch)}
 .dbtn:where(#tab){min-width:calc(50px + 8ch)}
-/* Light/dark switch: the knob carries the current mode's icon */
-.dsw{flex-shrink:0;display:flex;align-items:center;height:var(--db-h);padding:0 6px;border:none;background:none;
+/* Light/dark switch: a button-shaped track (same height, corners, border and fill as .dbtn)
+   whose knob carries the current mode's icon. It always sits at the end of the bar. */
+.dsw{order:99;flex-shrink:0;display:flex;align-items:center;justify-content:center;height:var(--db-h);padding:0;border:none;background:none;
   border-radius:var(--db-r);cursor:pointer;touch-action:manipulation;-webkit-tap-highlight-color:transparent}
-.sw{position:relative;display:block;width:46px;height:26px;border-radius:13px;pointer-events:none;
-  background:var(--sw-bg);border:1px solid var(--sw-bd);transition:background .2s,border-color .2s}
-.knob{position:absolute;top:2px;left:2px;width:20px;height:20px;border-radius:50%;display:flex;align-items:center;justify-content:center;
-  background:var(--sw-knob);color:var(--sw-knob-ink);box-shadow:var(--sw-shadow);transition:transform .2s cubic-bezier(.4,0,.2,1)}
-.knob .ico{width:13px;height:13px;stroke-width:2.2}
-.dsw[aria-checked=true] .knob{transform:translateX(20px)}
+.sw{position:relative;display:block;width:66px;height:var(--db-h);border-radius:var(--db-r);pointer-events:none;
+  background:var(--db-bg);border:1px solid var(--db-bd);transition:background .2s,border-color .2s}
+.knob{position:absolute;top:2px;left:2px;width:30px;height:30px;border-radius:calc(var(--db-r) - 2px);display:flex;align-items:center;justify-content:center;
+  background:var(--sw-knob);color:var(--sw-knob-ink);box-shadow:var(--sw-shadow);transition:left .2s cubic-bezier(.4,0,.2,1),top .2s cubic-bezier(.4,0,.2,1)}
+.knob .ico{width:16px;height:16px}
+.dsw[aria-checked=true] .knob{left:calc(100% - 32px)}
 .dsw[aria-checked=true] .sw{background:var(--db-on-bg);border-color:var(--db-on-bd)}
-@media (hover:hover){.dsw:hover .sw{border-color:var(--db-on-bd)}}
+@media (hover:hover){.dsw:hover .sw{background:var(--db-hover)}.dsw[aria-checked=true]:hover .sw{background:var(--db-on-bg)}}
 .dsw:focus-visible{outline:none}
 .dsw:focus-visible .sw{outline:2px solid var(--db-on-bd);outline-offset:2px}
+/* Grip tab: drag the bar to the left, right or bottom edge (landscape only). Always first. */
+.dgrip{order:-3;display:none;flex-shrink:0;align-items:center;justify-content:center;width:18px;height:var(--db-h);padding:0;
+  border:none;background:none;border-radius:6px;color:var(--db-ink);opacity:.55;cursor:grab;touch-action:none;
+  -webkit-tap-highlight-color:transparent}
+.dgrip .ico{width:16px;height:16px}
+body.can-side .dgrip{display:flex}
+@media (hover:hover){.dgrip:hover{opacity:1}}
+.dgrip:focus-visible{opacity:1;outline:2px solid var(--db-on-bd);outline-offset:1px}
+body.dock-dragging,body.dock-dragging .dgrip{cursor:grabbing}
+body.dock-dragging #dock{opacity:.92;transition:none;z-index:60}
+/* Where the bar will land while it is dragged */
+#dockZone{display:none;position:absolute;z-index:44;pointer-events:none;border-radius:16px;
+  border:2px dashed var(--db-on-bd);background:var(--db-on-bg);opacity:.7}
+body.dock-dragging #dockZone{display:block}
+#dockZone[data-zone=bottom]{left:12px;right:12px;bottom:max(12px,env(safe-area-inset-bottom,0px));height:50px}
+#dockZone[data-zone=left]{left:max(12px,env(safe-area-inset-left,0px));top:12px;bottom:12px;width:60px}
+#dockZone[data-zone=right]{right:max(12px,env(safe-area-inset-right,0px));top:12px;bottom:12px;width:60px}
 body.dock-compact .lb{display:none}
 body.dock-compact .dbtn{width:var(--db-h);min-width:0;padding:0}
-#dockBtn{display:none}
-body.can-side #dockBtn{display:flex}
 /* Side dock: everything that used to sit above the bar moves out of its way via --L / --R */
 body.dock-left{--L:calc(var(--dw) + max(12px,env(safe-area-inset-left,0px)) + 12px)}
 body.dock-right{--R:calc(var(--dw) + max(12px,env(safe-area-inset-right,0px)) + 12px)}
@@ -94,15 +111,17 @@ body.dock-side #dock{top:max(12px,env(safe-area-inset-top,0px));bottom:auto;tran
   max-height:calc(100% - 24px);flex-direction:column;align-items:stretch}
 body.dock-left #dock{left:max(12px,env(safe-area-inset-left,0px));right:auto}
 body.dock-right #dock{right:max(12px,env(safe-area-inset-right,0px));left:auto}
-body.dock-side #dock{display:grid;grid-template-columns:1fr auto;align-content:start}
+body.dock-side #dock{display:grid;grid-template-columns:1fr;align-content:start}
 body.dock-side #search{order:-1;grid-column:1/-1;width:100%}
 body.dock-side .dbtn{grid-column:1/-1;width:auto;min-width:0;justify-content:flex-start}
 /* (.class:where(#id) keeps these at class specificity so the icon-grid rules can reset them) */
 body.dock-side .dbtn:where(#tab){order:1}
-body.dock-side .dbtn:where(#dockBtn){order:2;grid-column:1}
-body.dock-side .dsw:where(#themeBtn){order:3;grid-column:2}
-/* Icon column (narrow or short screens): one column of icon squares; search is a button that
-   opens the field beside the bar, and the switch turns upright to fit the column */
+body.dock-side .dsw{grid-column:1/-1;justify-self:stretch}
+body.dock-side .sw{width:100%}
+body.dock-side .dgrip{grid-column:1/-1;width:100%;height:18px}
+body.dock-side .dgrip .ico{transform:rotate(90deg)}
+/* Icon column (narrow or short screens): grip on top, then one column of icon squares; search is
+   a button that opens the field beside the bar, and the switch stands upright to fit the column */
 #searchBtn{display:none}
 /* --cols/--rows are set by fitDock: as many columns as it takes to fit the screen height,
    items split evenly between them (filled top to bottom, then the next column) */
@@ -111,18 +130,15 @@ body.dock-side.dock-compact #dock{display:grid;grid-auto-flow:column;grid-templa
   grid-template-columns:repeat(var(--cols,1),var(--db-h));justify-content:center;align-items:center;justify-items:center}
 body.dock-side.dock-compact #searchBtn{display:flex;order:-1}
 body.dock-side.dock-compact .dbtn,body.dock-side.dock-compact .dsw{grid-column:auto}
+body.dock-side.dock-compact .dgrip{grid-row:1/2;grid-column:1/-1}
 body.dock-side.dock-compact .dbtn{width:var(--db-h);justify-content:center}
-body.dock-side.dock-compact #themeBtn{padding:0;height:auto}
-body.dock-side.dock-compact .sw{width:26px;height:46px}
-body.dock-side.dock-compact .knob{top:22px}
-body.dock-side.dock-compact .dsw[aria-checked=true] .knob{transform:translateY(-20px)}
+body.dock-side.dock-compact:not(.dock-multi) .dsw{height:auto;justify-self:center}
+body.dock-side.dock-compact:not(.dock-multi) .sw{width:var(--db-h);height:66px}
+body.dock-side.dock-compact:not(.dock-multi) .knob{top:calc(100% - 32px)}
+body.dock-side.dock-compact:not(.dock-multi) .dsw[aria-checked=true] .knob{left:2px;top:2px}
 /* Two or more columns: the switch lies flat across the bottom row, spanning every column */
 /* ...and fills that row: a button-sized track whose knob slides the full width */
-body.dock-side.dock-compact.dock-multi .dsw{grid-column:1/-1;grid-row:-2/-1;justify-self:stretch;padding:0;height:var(--db-h)}
-body.dock-side.dock-compact.dock-multi .sw{width:100%;height:var(--db-h);border-radius:var(--db-r)}
-body.dock-side.dock-compact.dock-multi .knob{top:2px;left:2px;width:30px;height:30px;border-radius:calc(var(--db-r) - 2px);transition:left .2s cubic-bezier(.4,0,.2,1)}
-body.dock-side.dock-compact.dock-multi .knob .ico{width:16px;height:16px}
-body.dock-side.dock-compact.dock-multi .dsw[aria-checked=true] .knob{transform:none;left:calc(100% - 32px)}
+body.dock-side.dock-compact.dock-multi .dsw{grid-column:1/-1;grid-row:-2/-1;justify-self:stretch}
 /* last resort, past three columns */
 body.dock-scroll #dock{overflow-y:auto;overscroll-behavior:contain}
 body.dock-side.dock-compact #search{display:none;position:fixed;z-index:46;top:max(12px,env(safe-area-inset-top,0px));
@@ -416,12 +432,12 @@ body.panel-open #tl{max-height:calc(100% - min(46vh,440px) - 110px);overflow-y:a
   <symbol id="i-link" viewBox="0 0 24 24"><path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1"/><path d="M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1"/></symbol>
   <symbol id="i-moon" viewBox="0 0 24 24"><path d="M19.5 14.5A7.8 7.8 0 0 1 9.5 4.5a7.8 7.8 0 1 0 10 10z"/></symbol>
   <symbol id="i-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2.5v2M12 19.5v2M2.5 12h2M19.5 12h2M5.3 5.3l1.4 1.4M17.3 17.3l1.4 1.4M5.3 18.7l1.4-1.4M17.3 6.7l1.4-1.4"/></symbol>
-  <symbol id="i-dock-bottom" viewBox="0 0 24 24"><rect x="3.5" y="4.5" width="17" height="15" rx="2.5"/><path d="M3.5 15h17"/></symbol>
-  <symbol id="i-dock-left" viewBox="0 0 24 24"><rect x="3.5" y="4.5" width="17" height="15" rx="2.5"/><path d="M9 4.5v15"/></symbol>
-  <symbol id="i-dock-right" viewBox="0 0 24 24"><rect x="3.5" y="4.5" width="17" height="15" rx="2.5"/><path d="M15 4.5v15"/></symbol>
+  <symbol id="i-grip" viewBox="0 0 24 24"><g fill="currentColor" stroke="none"><circle cx="9" cy="6" r="1.5"/><circle cx="15" cy="6" r="1.5"/><circle cx="9" cy="12" r="1.5"/><circle cx="15" cy="12" r="1.5"/><circle cx="9" cy="18" r="1.5"/><circle cx="15" cy="18" r="1.5"/></g></symbol>
   <symbol id="i-controls" viewBox="0 0 24 24"><path d="M4 7h9M17 7h3M4 17h3M11 17h9"/><circle cx="15" cy="7" r="2"/><circle cx="9" cy="17" r="2"/></symbol>
 </svg>
+<div id="dockZone" aria-hidden="true"></div>
 <div id="dock">
+  <button id="dockGrip" class="dgrip" title="Drag to an edge to move the toolbar" aria-label="Move the toolbar: drag it to the left, right or bottom edge, or use the arrow keys"><svg class="ico" aria-hidden="true"><use href="#i-grip"/></svg></button>
   <div id="tools">
       <button id="helpBtn" class="dbtn glow" title="Tutorials" aria-label="Tutorials"><svg class="ico" aria-hidden="true"><use href="#i-help"/></svg><span class="lb">Help</span></button>
       <div id="tmenu" role="menu"></div>
@@ -436,7 +452,6 @@ body.panel-open #tl{max-height:calc(100% - min(46vh,440px) - 110px);overflow-y:a
     </div>
     <button id="shareBtn" class="dbtn" title="Copy a link to this exact view" aria-label="Share a link to this view"><svg class="ico" aria-hidden="true"><use href="#i-link"/></svg><span class="lb">Share</span></button>
     <button id="themeBtn" class="dsw" role="switch" aria-checked="false" title="Dark mode" aria-label="Dark mode"><span class="sw"><span class="knob"></span></span></button>
-    <button id="dockBtn" class="dbtn" title="Move the toolbar" aria-label="Move the toolbar"><svg class="ico" aria-hidden="true"><use href="#i-dock-left"/></svg><span class="lb">Dock</span></button>
     <button id="tab" class="dbtn" title="Controls" aria-label="Controls"><span class="ti"><svg class="ico" aria-hidden="true"><use href="#i-controls"/></svg></span><span class="lb">Controls</span></button>
   </div>
 </div>
@@ -2559,8 +2574,8 @@ window.addEventListener('resize',layoutView);
 
 // ── Dock position and labels ─────────────────────────────────────────────────
 // Labels show whenever they fit; otherwise every button drops to its icon (body.dock-compact).
-// In landscape the bar can also sit as a column on the left or right (remembered per browser).
-const dockEl=document.getElementById('dock'), dockBtn=document.getElementById('dockBtn');
+// In landscape the grip tab drags the bar to the left or right edge as a column (remembered per browser).
+const dockEl=document.getElementById('dock'), grip=document.getElementById('dockGrip'), dockZone=document.getElementById('dockZone');
 const DOCKS=['bottom','left','right'];
 let dockPref=store.get('pms.dock','bottom'); if(!DOCKS.includes(dockPref)) dockPref='bottom';
 const canSide=()=>window.innerWidth>window.innerHeight&&window.innerWidth>=560;
@@ -2577,11 +2592,12 @@ function fitDock(){
     :dockEl.scrollWidth>dockEl.clientWidth+1||sq.offsetWidth<150;
   B.classList.toggle('dock-compact',tight);
   if(side&&tight){
-    const n=[...dockEl.querySelectorAll('.dbtn,.dsw')].filter(e=>getComputedStyle(e).display!=='none').length;
+    // n = icon buttons; the grip takes its own top row and the switch the last one
+    const n=[...dockEl.querySelectorAll('.dbtn')].filter(e=>getComputedStyle(e).display!=='none').length;
     for(let c=1;c<=3;c++){
       // one column: everything stacked; more: the switch gets its own full-width bottom row
       B.classList.toggle('dock-multi',c>1);
-      B.style.setProperty('--cols',c); B.style.setProperty('--rows',c>1?Math.ceil((n-1)/c)+1:n);
+      B.style.setProperty('--cols',c); B.style.setProperty('--rows',Math.ceil(n/c)+2);
       if(!over()) break;
     }
     if(over()) B.classList.add('dock-scroll');
@@ -2607,16 +2623,41 @@ function applyDock(){
   document.body.classList.toggle('dock-side',m!=='bottom');
   document.body.classList.toggle('dock-left',m==='left');
   document.body.classList.toggle('dock-right',m==='right');
-  const next=DOCKS[(DOCKS.indexOf(m)+1)%DOCKS.length];
-  dockBtn.querySelector('use').setAttribute('href','#i-dock-'+next);
-  dockBtn.querySelector('.lb').textContent='Dock '+next;
-  dockBtn.title='Dock the toolbar '+(next==='bottom'?'at the bottom':'on the '+next);
-  dockBtn.setAttribute('aria-label',dockBtn.title);
   fitDock(); layoutView();
 }
-dockBtn.addEventListener('click',()=>{
+function setDock(m){ if(!DOCKS.includes(m)) return; dockPref=m; store.set('pms.dock',m); applyDock(); }
+// Grip tab: drag the bar; on release it docks to the edge zone under the pointer
+// (outer 30% of the width = left/right, anything else = bottom). A dashed outline previews it.
+const zoneAt=x=>x<window.innerWidth*.3?'left':x>window.innerWidth*.7?'right':'bottom';
+let gripDrag=null;
+grip.addEventListener('pointerdown',e=>{
+  if(!canSide()||e.button>0) return;
+  grip.setPointerCapture(e.pointerId); gripDrag={x:e.clientX,y:e.clientY,moved:false,zone:null}; e.preventDefault();
+});
+grip.addEventListener('pointermove',e=>{
+  if(!gripDrag) return;
+  const dx=e.clientX-gripDrag.x, dy=e.clientY-gripDrag.y;
+  if(!gripDrag.moved){ if(Math.hypot(dx,dy)<6) return; gripDrag.moved=true; document.body.classList.add('dock-dragging'); }
+  dockEl.style.translate=`${dx}px ${dy}px`;
+  gripDrag.zone=zoneAt(e.clientX); dockZone.dataset.zone=gripDrag.zone;
+});
+function endGripDrag(){
+  if(!gripDrag) return;
+  const d=gripDrag; gripDrag=null;
+  dockEl.style.translate=''; document.body.classList.remove('dock-dragging');
+  if(d.moved&&d.zone) setDock(d.zone);
+}
+grip.addEventListener('pointerup',endGripDrag);
+grip.addEventListener('pointercancel',endGripDrag);
+// Keyboard: arrows dock to that edge; Enter/Space steps through bottom → left → right
+grip.addEventListener('keydown',e=>{
+  const k={ArrowLeft:'left',ArrowRight:'right',ArrowDown:'bottom'}[e.key];
+  if(k){ setDock(k); grip.focus(); e.preventDefault(); }
+});
+grip.addEventListener('click',e=>{
+  if(e.detail!==0) return; // pointer clicks are drags; only keyboard activation steps
   const cur=document.body.classList.contains('dock-left')?'left':document.body.classList.contains('dock-right')?'right':'bottom';
-  dockPref=DOCKS[(DOCKS.indexOf(cur)+1)%DOCKS.length]; store.set('pms.dock',dockPref); applyDock();
+  setDock(DOCKS[(DOCKS.indexOf(cur)+1)%DOCKS.length]); grip.focus();
 });
 window.addEventListener('resize',applyDock);
 if(document.fonts&&document.fonts.ready) document.fonts.ready.then(applyDock);
