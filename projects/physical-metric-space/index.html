@@ -270,6 +270,15 @@ input.nin.bad{border-color:rgba(255,90,90,.7)}
    to at least --sq-need, the width that shows the whole placeholder; set by JS from the real font. */
 .sqbox{position:relative;width:100%;border-radius:10px;transition:width .18s cubic-bezier(.4,0,.2,1)}
 #search:focus-within .sqbox{z-index:3;width:max(100%,var(--sq-need,0px))}
+/* While searching: the field is highlighted, and everything else (view, panel, the bar's other
+   controls) dims behind a scrim. Tapping the scrim leaves the field, which lifts it. */
+#search:focus-within #sq{box-shadow:var(--db-sink),var(--sq-hi)}
+#scrim{position:absolute;inset:0;z-index:44;background:var(--scrim);opacity:0;visibility:hidden;
+  transition:opacity .18s,visibility 0s linear .18s}
+body.searching #scrim{opacity:1;visibility:visible;transition:opacity .18s}
+body.searching #dock .dbtn,body.searching #dock .dsw,body.searching #dock .dgrip{opacity:.35;transition:opacity .18s}
+:root{--scrim:rgba(0,0,10,.55);--sq-hi:0 0 0 3px rgba(120,150,255,.28),0 0 22px rgba(120,150,255,.4)}
+:root[data-theme=light]{--scrim:rgba(30,40,70,.32);--sq-hi:0 0 0 3px rgba(60,90,220,.2),0 4px 18px rgba(60,90,220,.25)}
 .sqi{position:absolute;z-index:1;left:10px;top:11px;color:#7d7d92;pointer-events:none}
 .sqi .ico,#sqx .ico{width:14px;height:14px}
 #sqx{position:absolute;z-index:1;right:3px;top:3px;display:none;background:none;border:none;color:#7d7d90;
@@ -456,6 +465,7 @@ body.panel-open #tl{max-height:calc(100% - min(46vh,440px) - 110px);overflow-y:a
   <symbol id="i-grip" viewBox="0 0 24 24"><g fill="currentColor" stroke="none"><circle cx="9" cy="6" r="1.5"/><circle cx="15" cy="6" r="1.5"/><circle cx="9" cy="12" r="1.5"/><circle cx="15" cy="12" r="1.5"/><circle cx="9" cy="18" r="1.5"/><circle cx="15" cy="18" r="1.5"/></g></symbol>
   <symbol id="i-controls" viewBox="0 0 24 24"><path d="M4 7h9M17 7h3M4 17h3M11 17h9"/><circle cx="15" cy="7" r="2"/><circle cx="9" cy="17" r="2"/></symbol>
 </svg>
+<div id="scrim" aria-hidden="true"></div>
 <div id="dockZone" aria-hidden="true"></div>
 <div id="dock">
   <button id="dockGrip" class="dgrip" title="Drag to an edge to move the toolbar" aria-label="Move the toolbar: drag it to the left, right or bottom edge, or use the arrow keys"><svg class="ico" aria-hidden="true"><use href="#i-grip"/></svg></button>
@@ -2645,6 +2655,10 @@ function measureSearchNeed(){
   const need=Math.ceil(c.measureText(sq.placeholder).width+parseFloat(cs.paddingLeft)+parseFloat(cs.paddingRight)+4);
   document.documentElement.style.setProperty('--sq-need',need+'px');
 }
+// body.searching drives the highlight + scrim; it follows focus inside the search box
+document.getElementById('search').addEventListener('focusin',()=>document.body.classList.add('searching'));
+document.getElementById('search').addEventListener('focusout',e=>{
+  if(!e.relatedTarget||!e.relatedTarget.closest('#search')) document.body.classList.remove('searching');});
 function openSearch(){ if(searchIsButton()) setSearchOpen(true); else sq.focus(); }
 searchBtn.addEventListener('click',()=>setSearchOpen(!document.body.classList.contains('search-open')));
 document.addEventListener('pointerdown',e=>{
